@@ -9,12 +9,11 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/jniLibs/${ANDROID_ABI})
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.
 # Gradle automatically packages shared libraries with your APK.
-include_directories(headers)
 # 设置ffmpeg库所在路径的目录
 set(distribution_DIR ${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI})
-
+include_directories(headers)
 add_library( # Sets the name of the library.
-        bian-lib
+        Bian
         # Sets the library as a shared library.
         SHARED
         # Provides a relative path to your source file(s).
@@ -22,8 +21,17 @@ add_library( # Sets the name of the library.
         src/NdkTest.c
         )
 
+
 # 定义源码所在目录
-#aux_source_directory(src/example DEMO)
+aux_source_directory(src/video VideoPlay)
+
+add_library( # Sets the name of the library.
+        VideoPlay
+        # Sets the library as a shared library.
+        SHARED
+        # Provides a relative path to your source file(s).
+        ${VideoPlay}
+        )
 
 add_library(libavcodec
         SHARED
@@ -103,7 +111,12 @@ find_library( # Sets the name of the path variable.
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries( # Specifies the target library.
-        bian-lib
+        Bian
+        VideoPlay)
+
+
+target_link_libraries( # Specifies the target library.
+        VideoPlay
         libavcodec
         libavdevice
         libavfilter
