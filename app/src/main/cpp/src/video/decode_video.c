@@ -32,6 +32,7 @@
 #include <string.h>
 
 #include <libavcodec/avcodec.h>
+#include <DecodeVideo.h>
 
 #define INBUF_SIZE 4096
 
@@ -46,6 +47,10 @@ static void pgm_save(unsigned char *buf, int wrap, int xsize, int ysize,
     for (i = 0; i < ysize; i++)
         fwrite(buf + i * wrap, 1, xsize, f);
     fclose(f);
+}
+
+void decodeVideoInfo(char* filePath){
+    FILE *videoFile=fopen(filePath,"r+");
 }
 
 static void decode(AVCodecContext *dec_ctx, AVFrame *frame, AVPacket *pkt,
@@ -80,9 +85,8 @@ static void decode(AVCodecContext *dec_ctx, AVFrame *frame, AVPacket *pkt,
     }
 }
 
-int testDecodeVideo(int argc, char **argv)
+int testDecodeVideo(char *filename, char *outfilename)
 {
-    const char *filename, *outfilename;
     const AVCodec *codec;
     AVCodecParserContext *parser;
     AVCodecContext *c= NULL;
@@ -93,14 +97,6 @@ int testDecodeVideo(int argc, char **argv)
     size_t   data_size;
     int ret;
     AVPacket *pkt;
-
-    if (argc <= 2) {
-        fprintf(stderr, "Usage: %s <input file> <output file>\n", argv[0]);
-        exit(0);
-    }
-    filename    = argv[1];
-    outfilename = argv[2];
-
     avcodec_register_all();
 
     pkt = av_packet_alloc();

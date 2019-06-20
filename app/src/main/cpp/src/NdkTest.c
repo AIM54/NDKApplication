@@ -6,6 +6,7 @@
 #include "lastlog.h"
 #include <stdio.h>
 #include "libavcodec/avcodec.h"
+#include "DecodeVideo.h"
 typedef struct Agent{
     char *name;
     int age;

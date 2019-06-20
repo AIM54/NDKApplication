@@ -19,6 +19,7 @@ add_library( # Sets the name of the library.
         # Provides a relative path to your source file(s).
         bian-lib.cpp
         src/NdkTest.c
+        src/test/Test.c
         )
 
 
@@ -33,57 +34,56 @@ add_library( # Sets the name of the library.
         ${VideoPlay}
         )
 
-add_library(libavcodec
+add_library(avcodec
         SHARED
         IMPORTED)
-set_target_properties(libavcodec
+set_target_properties(avcodec
         PROPERTIES IMPORTED_LOCATION
         ${distribution_DIR}/libavcodec.so)
 
 
-add_library(libavdevice
+add_library(avdevice
         SHARED
         IMPORTED)
-set_target_properties(libavdevice
+set_target_properties(avdevice
         PROPERTIES IMPORTED_LOCATION
         ${distribution_DIR}/libavdevice.so)
 
-
-add_library(libavfilter
+add_library(avfilter
         SHARED
         IMPORTED)
-set_target_properties(libavfilter
+set_target_properties(avfilter
         PROPERTIES IMPORTED_LOCATION
         ${distribution_DIR}/libavfilter.so)
 
-add_library(libavformat
+add_library(avformat
         SHARED
         IMPORTED)
-set_target_properties(libavformat
+set_target_properties(avformat
         PROPERTIES IMPORTED_LOCATION
         ${distribution_DIR}/libavformat.so)
 
 
-add_library(libavutil
+add_library(avutil
         SHARED
         IMPORTED)
-set_target_properties(libavutil
+set_target_properties(avutil
         PROPERTIES IMPORTED_LOCATION
         ${distribution_DIR}/libavutil.so)
 
 
-add_library(libswresample
+add_library(swresample
         SHARED
         IMPORTED)
-set_target_properties(libswresample
+set_target_properties(swresample
         PROPERTIES IMPORTED_LOCATION
         ${distribution_DIR}/libswresample.so)
 
 
-add_library(libswscale
+add_library(swscale
         SHARED
         IMPORTED)
-set_target_properties(libswscale
+set_target_properties(swscale
         PROPERTIES IMPORTED_LOCATION
         ${distribution_DIR}/libswscale.so)
 
@@ -117,13 +117,13 @@ target_link_libraries( # Specifies the target library.
 
 target_link_libraries( # Specifies the target library.
         VideoPlay
-        libavcodec
-        libavdevice
-        libavfilter
-        libavformat
-        libavutil
-        libswresample
-        libswscale
+        avcodec
+        avdevice
+        avfilter
+        avformat
+        avutil
+        swresample
+        swscale
         # Links the target library to the log library
         # included in the NDK.
         ${log-lib}

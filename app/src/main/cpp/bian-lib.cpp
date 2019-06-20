@@ -14,7 +14,7 @@ Java_com_bian_myapplication_MainActivity_stringFromJNI(
 
 extern "C"
 JNIEXPORT jobject JNICALL
-Java_com_bian_myapplication_utils_JavaUtil_getBitMapFromVideo(JNIEnv *env, jobject instance,
+Java_com_bian_myapplication_utils_VideoUtil_getBitMapFromVideo(JNIEnv *env, jobject instance,
         jstring videoPath_) {
     const char *videoPath = env->GetStringUTFChars(videoPath_, 0);
 
