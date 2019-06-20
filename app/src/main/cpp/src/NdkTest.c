@@ -5,6 +5,7 @@
 #include "math.h"
 #include "lastlog.h"
 #include <stdio.h>
+#include "libavcodec/avcodec.h"
 typedef struct Agent{
     char *name;
     int age;
@@ -12,6 +13,7 @@ typedef struct Agent{
 }Agent;
 
 int getAddResult(int a, int b){
+    avcodec_register_all();
     return a+b;
 }
 

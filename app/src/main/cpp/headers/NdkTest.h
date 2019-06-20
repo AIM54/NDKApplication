@@ -8,6 +8,5 @@
 #define MYAPPLICATION_NDKTEST_H
 
 #endif //MYAPPLICATION_NDKTEST_H
-extern "C" {
+extern "C"
 int getAddResult(int a, int b);
-};
