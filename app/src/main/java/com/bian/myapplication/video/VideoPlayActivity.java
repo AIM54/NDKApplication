@@ -1,10 +1,10 @@
 package com.bian.myapplication.video;
 
 import android.os.Bundle;
-import android.view.Surface;
 import android.view.SurfaceView;
 
 import com.bian.myapplication.R;
+import com.bian.myapplication.utils.VideoUtil;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -23,6 +23,8 @@ public class VideoPlayActivity extends AppCompatActivity {
 
     private void beginPlay() {
         stringVideoPath = getIntent().getStringExtra(ARG_VIDEO_PATH);
-
+        VideoUtil.decodeVideo(stringVideoPath);
     }
+
+
 }

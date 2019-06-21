@@ -19,8 +19,7 @@ add_library( # Sets the name of the library.
         # Provides a relative path to your source file(s).
         bian-lib.cpp
         src/NdkTest.c
-        src/test/Test.c
-        )
+        src/test/Test.c)
 
 
 # 定义源码所在目录

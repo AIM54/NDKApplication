@@ -21,6 +21,8 @@ public class VideoUtil {
 
     public static native void testSoLibrary();
 
+    public static native void decodeVideo(String filePath);
+
     public static void log(String infor) {
         CommonLog.i(infor);
     }

@@ -49,9 +49,6 @@ static void pgm_save(unsigned char *buf, int wrap, int xsize, int ysize,
     fclose(f);
 }
 
-void decodeVideoInfo(char* filePath){
-    FILE *videoFile=fopen(filePath,"r+");
-}
 
 static void decode(AVCodecContext *dec_ctx, AVFrame *frame, AVPacket *pkt,
                    const char *filename)

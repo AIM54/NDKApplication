@@ -13,10 +13,6 @@ android {
             cmake {
                 cppFlags ""
             }
-            ndk {
-                // 设置支持的SO库架构
-                abiFilters "arm64-v8a"
-            }
         }
     }
     buildTypes {

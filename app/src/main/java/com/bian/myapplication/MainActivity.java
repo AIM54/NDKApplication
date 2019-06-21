@@ -1,6 +1,7 @@
 package com.bian.myapplication;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.widget.Toast;
 import com.bian.myapplication.bean.VideoBean;
 import com.bian.myapplication.utils.CommonLog;
 import com.bian.myapplication.utils.VideoUtil;
+import com.bian.myapplication.video.VideoPlayActivity;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -108,6 +110,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Cursor cursor = (Cursor) mCursorAdapter.getItem(position);
         String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
-        CommonLog.i("filePath:" + filePath);
+        Intent videoPlayIt = new Intent(this, VideoPlayActivity.class);
+        videoPlayIt.putExtra(VideoPlayActivity.ARG_VIDEO_PATH, filePath);
+        startActivity(videoPlayIt);
     }
 }
