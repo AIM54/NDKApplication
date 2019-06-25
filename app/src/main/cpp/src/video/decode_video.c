@@ -95,7 +95,6 @@ int testDecodeVideo(char *filename, char *outfilename)
     int ret;
     AVPacket *pkt;
     avcodec_register_all();
-
     pkt = av_packet_alloc();
     if (!pkt)
         exit(1);

@@ -2,6 +2,8 @@ package com.bian.myapplication.utils;
 
 import android.graphics.Bitmap;
 import android.util.Log;
+import android.view.Surface;
+import android.view.SurfaceHolder;
 
 public class VideoUtil {
     static {
@@ -21,7 +23,7 @@ public class VideoUtil {
 
     public static native void testSoLibrary();
 
-    public static native void decodeVideo(String filePath);
+    public static native void decodeVideo(String filePath, Surface holder);
 
     public static void log(String infor) {
         CommonLog.i(infor);
