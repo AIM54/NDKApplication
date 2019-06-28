@@ -1,5 +1,6 @@
 package com.bian.myapplication.video;
 
+import android.media.MediaCodec;
 import android.os.Bundle;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -15,6 +16,7 @@ public class VideoPlayActivity extends AppCompatActivity implements SurfaceHolde
     private String stringVideoPath;
     private SurfaceView mSurfaceView;
     private SurfaceHolder mSurfaceHolder;
+    private MediaCodec mediaCodec;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
