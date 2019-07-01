@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.AdapterView;
@@ -15,9 +16,13 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
 import com.bian.myapplication.bean.VideoBean;
+import com.bian.myapplication.dialog.SelectOptionDialog;
 import com.bian.myapplication.utils.CommonLog;
 import com.bian.myapplication.utils.VideoUtil;
 import com.bian.myapplication.video.VideoPlayActivity;
+
+import java.io.File;
+import java.io.IOException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,12 +35,16 @@ import androidx.loader.content.Loader;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
     private ListView mListView;
-    private Button toastButton;
+    private Button toastButton, encodeVideoBt;
     private CursorAdapter mCursorAdapter;
     private String[] videoProjects = new String[]{
             MediaStore.Video.Media._ID,
             MediaStore.Video.Media.DISPLAY_NAME,
             MediaStore.Video.Media.DATA};
+
+    private SelectOptionDialog selectOptionDialog;
+    private String mFilePath;
+    private String saveVideodir;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 110);
         } else {
+            saveVideodir = Environment.getExternalStorageDirectory() + File.separator + "VideoPath";
             queryVideoInfo();
         }
     }
@@ -61,8 +71,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void initView() {
         mListView = findViewById(R.id.lv_video);
+        encodeVideoBt = findViewById(R.id.bt_encode_video);
         toastButton = findViewById(R.id.bt_toast);
         toastButton.setOnClickListener(this);
+        encodeVideoBt.setOnClickListener(this);
     }
 
     @Override
@@ -76,7 +88,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        VideoUtil.testSoLibrary();
+        switch (v.getId()) {
+            case R.id.bt_encode_video:
+                String videoName = null;
+                try {
+                    videoName = createTargetFile();
+                    CommonLog.i("");
+                    VideoUtil.encodeTest(videoName);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case R.id.bt_toast:
+                VideoUtil.testSoLibrary();
+                break;
+        }
+
+    }
+
+    private String createTargetFile() throws IOException {
+        String videoMenu = Environment.getExternalStorageDirectory() + File.separator + "Output";
+        File menu = new File(videoMenu);
+        menu.mkdirs();
+        File videoFile = new File(videoMenu + File.separator + "test.avi");
+        return videoFile.getAbsolutePath();
     }
 
     public void toastMessage(String message) {
@@ -109,9 +144,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Cursor cursor = (Cursor) mCursorAdapter.getItem(position);
-        String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
-        Intent videoPlayIt = new Intent(this, VideoPlayActivity.class);
-        videoPlayIt.putExtra(VideoPlayActivity.ARG_VIDEO_PATH, filePath);
-        startActivity(videoPlayIt);
+        mFilePath = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
+        selectOptionDialog = new SelectOptionDialog(this, new VideoOpertionListener());
+        selectOptionDialog.show();
+    }
+
+    public class VideoOpertionListener implements AdapterView.OnItemClickListener {
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            CommonLog.i("the clicked postion:" + position);
+            selectOptionDialog.dismiss();
+            switch (position) {
+                case 0:
+                    playVideo();
+                    break;
+                case 1:
+                    addTextToVideo(mFilePath, "AIM54");
+                    break;
+            }
+        }
+    }
+
+    private void playVideo() {
+        Intent playVideoIt = new Intent(this, VideoPlayActivity.class);
+        playVideoIt.putExtra(VideoPlayActivity.ARG_VIDEO_PATH, mFilePath);
+        startActivity(playVideoIt);
+    }
+
+    private void addTextToVideo(String filePath, String markText) {
+        String tempPath = saveVideodir + File.separator + "VideoInfo_" + System.currentTimeMillis() + ".avi";
+        VideoUtil.addTextToVideo(filePath, markText, tempPath);
     }
 }

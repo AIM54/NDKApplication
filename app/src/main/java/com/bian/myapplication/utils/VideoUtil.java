@@ -18,14 +18,19 @@ public class VideoUtil {
         System.loadLibrary("Bian");
     }
 
-    public native Bitmap getBitMapFromVideo(String videoPath);
+    public static native void encodeTest(String videoName);
+
 
 
     public static native void testSoLibrary();
 
     public static native void decodeVideo(String filePath, Surface holder);
 
+    public static native void addTextToVideo(String filePath, String markText, String tempPath);
+
     public static void log(String infor) {
         CommonLog.i(infor);
     }
+
+    public static native void compressVideo(String videoPath,String targetPath);
 }

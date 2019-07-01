@@ -1,6 +1,7 @@
 package com.bian.myapplication.video;
 
 import android.media.MediaCodec;
+import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;

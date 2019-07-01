@@ -11,24 +11,13 @@
 #include <libavutil/imgutils.h>
 #include <android/native_window.h>
 #include <android/native_window_jni.h>
-#include <GlobalConfig.h>
 #include <SLES/OpenSLES.h>
 #include <stdbool.h>
 #include <pthread.h>
-
-#define ALOGE(fmt, ...) __android_log_print(ANDROID_LOG_ERROR, TAG, fmt, ##__VA_ARGS__)
-
-#define ALOGI(fmt, ...) __android_log_print(ANDROID_LOG_INFO, TAG, fmt, ##__VA_ARGS__)
-
-#define ALOGD(fmt, ...) __android_log_print(ANDROID_LOG_DEBUG, TAG, fmt, ##__VA_ARGS__)
-
-#define ALOGW(fmt, ...) __android_log_print(ANDROID_LOG_WARN, TAG, fmt, ##__VA_ARGS__)
-
-void beginDecodeVideo(AVFormatContext *pContext, int index, JNIEnv *pInterface, jobject pVoid);
-
-int decodeVideoFrame(AVFormatContext *pContext, AVPacket *pPacket, AVFrame *pFrame,
-                     ANativeWindow_Buffer *buffer, ANativeWindow *pWindow,
-                     struct SwsContext *pSwsContext);
+#include <string.h>
+#include <time.h>
+#include <TestEncodeVideo.h>
+#include <GlobalConfig.h>
 
 JNIEXPORT void JNICALL
 Java_com_bian_myapplication_utils_VideoUtil_testSoLibrary(JNIEnv *env, jclass type) {
@@ -40,7 +29,7 @@ Java_com_bian_myapplication_utils_VideoUtil_testSoLibrary(JNIEnv *env, jclass ty
 }
 
 
-JNIEXPORT void JNICALL
+void JNICALL
 Java_com_bian_myapplication_utils_VideoUtil_decodeVideo(JNIEnv *env, jclass type, jstring filePath_,
                                                         jobject surface) {
     const char *file_name = (*env)->GetStringUTFChars(env, filePath_, 0);
@@ -48,9 +37,9 @@ Java_com_bian_myapplication_utils_VideoUtil_decodeVideo(JNIEnv *env, jclass type
     AVFormatContext *avFormatContext = avformat_alloc_context();
     int status;
     if ((status = avformat_open_input(&avFormatContext, file_name, NULL, NULL)) != 0) {
-        __android_log_print(ANDROID_LOG_INFO, LOG_MARK, "failedToOpenFile:%d", status);
         return;
     }
+
 
     if (avformat_find_stream_info(avFormatContext, NULL) < 0) {
         return;
@@ -62,6 +51,10 @@ Java_com_bian_myapplication_utils_VideoUtil_decodeVideo(JNIEnv *env, jclass type
             break;
         }
     }
+
+    double videoLength = avFormatContext->streams[videoIndex]->duration *
+                         av_q2d(avFormatContext->streams[videoIndex]->time_base);
+    ALOGI("the totalLength of Video is: %f", videoLength);
     AVCodec *avCodec = avcodec_find_decoder(
             avFormatContext->streams[videoIndex]->codecpar->codec_id);
 
@@ -74,7 +67,7 @@ Java_com_bian_myapplication_utils_VideoUtil_decodeVideo(JNIEnv *env, jclass type
     }
     int decodeStatus = avcodec_parameters_to_context(avCodecContext,
                                                      avFormatContext->streams[videoIndex]->codecpar);
-    __android_log_print(ANDROID_LOG_INFO, LOG_MARK, "decodeStatus: %d", decodeStatus);
+    ALOGI("decodeStatus: %d", decodeStatus);
     if (decodeStatus < 0) {
         goto end;
     }
@@ -85,7 +78,7 @@ Java_com_bian_myapplication_utils_VideoUtil_decodeVideo(JNIEnv *env, jclass type
     AVFrame *rgbFrame = av_frame_alloc();
     AVPacket *avPacket = av_packet_alloc();
     av_init_packet(avPacket);
-    __android_log_print(ANDROID_LOG_INFO, LOG_MARK, "可以开始解析视频了:");
+    ALOGI("可以开始解析视频了:");
     int videoWidth = avCodecContext->width;
     int videoHeight = avCodecContext->height;
     ANativeWindow *nativeWindow = ANativeWindow_fromSurface(env, surface);
@@ -111,7 +104,6 @@ Java_com_bian_myapplication_utils_VideoUtil_decodeVideo(JNIEnv *env, jclass type
                                                      avCodecContext->width, avCodecContext->height,
                                                      AV_PIX_FMT_RGBA,
                                                      SWS_BILINEAR, NULL, NULL, NULL);
-
     while (av_read_frame(avFormatContext, avPacket) >= 0) {
         if (avPacket->stream_index == videoIndex) {
             int deocodeResult;
@@ -122,6 +114,11 @@ Java_com_bian_myapplication_utils_VideoUtil_decodeVideo(JNIEnv *env, jclass type
                 deocodeResult = avcodec_receive_frame(avCodecContext, avFrame);
                 if (decodeStatus < 0) {
                     break;
+                }
+                double timeStamp =
+                        avFrame->pts * av_q2d(avFormatContext->streams[videoIndex]->time_base);
+                if (timeStamp > 0) {
+                    ALOGI("currentFrameTime: %f", timeStamp);
                 }
                 ANativeWindow_lock(nativeWindow, &windowBuffer, 0);
                 //对帧数据进行格式转换，视频的起始高度和结束高度
@@ -152,4 +149,10 @@ Java_com_bian_myapplication_utils_VideoUtil_decodeVideo(JNIEnv *env, jclass type
 }
 
 
-
+JNIEXPORT void JNICALL
+Java_com_bian_myapplication_utils_VideoUtil_encodeTest(JNIEnv *env, jclass type,
+                                                       jstring videoName_) {
+    const char *videoName = (*env)->GetStringUTFChars(env, videoName_, 0);
+    testEncodeVideo(videoName, "mpeg");
+    (*env)->ReleaseStringUTFChars(env, videoName_, videoName);
+}

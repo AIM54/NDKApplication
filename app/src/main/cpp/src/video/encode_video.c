@@ -35,19 +35,20 @@
 
 #include <libavutil/opt.h>
 #include <libavutil/imgutils.h>
+#include <TestEncodeVideo.h>
+#include <GlobalConfig.h>
+
 
 static void encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt,
-                   FILE *outfile)
-{
+                   FILE *outfile) {
     int ret;
 
     /* send the frame to the encoder */
     if (frame)
-        printf("Send frame %3"PRId64"\n", frame->pts);
+            ALOGI("Send frame %3"PRId64"\n", frame->pts);
 
     ret = avcodec_send_frame(enc_ctx, frame);
     if (ret < 0) {
-        fprintf(stderr, "Error sending a frame for encoding\n");
         exit(1);
     }
 
@@ -56,46 +57,37 @@ static void encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt,
         if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
             return;
         else if (ret < 0) {
-            fprintf(stderr, "Error during encoding\n");
+
             exit(1);
         }
 
-        printf("Write packet %3"PRId64" (size=%5d)\n", pkt->pts, pkt->size);
+        ALOGI("Write packet %3"PRId64" (size=%5d)\n", pkt->pts, pkt->size);
         fwrite(pkt->data, 1, pkt->size, outfile);
         av_packet_unref(pkt);
     }
 }
 
-int testEncodeVideo(int argc, char **argv)
-{
-    const char *filename, *codec_name;
+int testEncodeVideo(char *filename, char *codec_name) {
     const AVCodec *codec;
-    AVCodecContext *c= NULL;
+    AVCodecContext *c = NULL;
     int i, ret, x, y;
     FILE *f;
     AVFrame *frame;
     AVPacket *pkt;
-    uint8_t endcode[] = { 0, 0, 1, 0xb7 };
-
-    if (argc <= 2) {
-        fprintf(stderr, "Usage: %s <output file> <codec name>\n", argv[0]);
-        exit(0);
-    }
-    filename = argv[1];
-    codec_name = argv[2];
-
+    uint8_t endcode[] = {0, 0, 1, 0xb7};
+    ALOGI("the videoPath :%s", filename);
     avcodec_register_all();
 
     /* find the mpeg1video encoder */
-    codec = avcodec_find_encoder_by_name(codec_name);
+    codec = avcodec_find_encoder(AV_CODEC_ID_MPEG1VIDEO);
     if (!codec) {
-        fprintf(stderr, "Codec '%s' not found\n", codec_name);
+        ALOGI( "Codec '%s' not found\n", codec_name);
         exit(1);
     }
 
     c = avcodec_alloc_context3(codec);
     if (!c) {
-        fprintf(stderr, "Could not allocate video codec context\n");
+        ALOGI("Could not allocate video codec context\n");
         exit(1);
     }
 
@@ -128,19 +120,19 @@ int testEncodeVideo(int argc, char **argv)
     /* open it */
     ret = avcodec_open2(c, codec, NULL);
     if (ret < 0) {
-        fprintf(stderr, "Could not open codec: %s\n", av_err2str(ret));
+        ALOGI( "Could not open codec: %s\n", av_err2str(ret));
         exit(1);
     }
 
     f = fopen(filename, "wb");
     if (!f) {
-        fprintf(stderr, "Could not open %s\n", filename);
+        ALOGI("Could not open %s\n", filename);
         exit(1);
     }
 
     frame = av_frame_alloc();
     if (!frame) {
-        fprintf(stderr, "Could not allocate video frame\n");
+        ALOGI("Could not allocate video frame\n");
         exit(1);
     }
     frame->format = c->pix_fmt;
@@ -149,7 +141,7 @@ int testEncodeVideo(int argc, char **argv)
 
     ret = av_frame_get_buffer(frame, 32);
     if (ret < 0) {
-        fprintf(stderr, "Could not allocate the video frame data\n");
+        ALOGI("Could not allocate the video frame data\n");
         exit(1);
     }
 

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="video_opertion_item">
+        <item >播放视频</item>
+        <item>添加文字</item>
+        <item>压缩视频</item>
+    </string-array>
+</resources>
