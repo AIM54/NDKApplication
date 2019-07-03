@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="10"
+    tools:context=".video.RecordVideoActivity">
+
+    <SurfaceView
+        android:id="@+id/sfv_main"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="9" />
+
+    <Button
+        android:id="@+id/bt_record_video"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/begin_record_video" />
+
+    <Button
+        android:id="@+id/bt_stop_record_video"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/stop_record_video" />
+</LinearLayout>

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">NDK测试</string>
+    <string name="begin_record_video">开始录制视频</string>
+    <string name="stop_record_video">停止录制视频</string>
 </resources>

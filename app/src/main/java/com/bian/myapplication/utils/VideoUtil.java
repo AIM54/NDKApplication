@@ -21,7 +21,6 @@ public class VideoUtil {
     public static native void encodeTest(String videoName);
 
 
-
     public static native void testSoLibrary();
 
     public static native void decodeVideo(String filePath, Surface holder);
@@ -32,5 +31,9 @@ public class VideoUtil {
         CommonLog.i(infor);
     }
 
-    public static native void compressVideo(String videoPath,String targetPath);
+    public static native void compressVideo(String videoPath, String targetPath);
+
+    public static native void papareForVideoRecord();
+
+    public static native void decodeImage(String filePath);
 }

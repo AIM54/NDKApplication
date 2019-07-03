@@ -39,8 +39,6 @@ Java_com_bian_myapplication_utils_VideoUtil_decodeVideo(JNIEnv *env, jclass type
     if ((status = avformat_open_input(&avFormatContext, file_name, NULL, NULL)) != 0) {
         return;
     }
-
-
     if (avformat_find_stream_info(avFormatContext, NULL) < 0) {
         return;
     }

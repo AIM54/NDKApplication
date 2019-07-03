@@ -9,6 +9,7 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 import com.bian.myapplication.R;
+import com.bian.myapplication.utils.VideoUtil;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -65,6 +66,8 @@ public class ImageListActivity extends AppCompatActivity implements LoaderManage
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+        Cursor cursor = (Cursor) mCursorAdapter.getItem(position);
+        String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+        VideoUtil.decodeImage(filePath);
     }
 }

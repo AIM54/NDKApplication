@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.bian.myapplication.bean.VideoBean;
 import com.bian.myapplication.dialog.SelectOptionDialog;
+import com.bian.myapplication.image.ImageListActivity;
 import com.bian.myapplication.utils.CommonLog;
 import com.bian.myapplication.utils.VideoUtil;
 import com.bian.myapplication.video.VideoPlayActivity;
@@ -162,8 +163,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case 1:
                     addTextToVideo(mFilePath, "AIM54");
                     break;
+                case 4:
+                    testDecoderImage();
+                    break;
             }
         }
+    }
+
+    private void testDecoderImage() {
+        Intent jpegIt = new Intent(this, ImageListActivity.class);
+        startActivity(jpegIt);
     }
 
     private void playVideo() {

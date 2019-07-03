@@ -5,6 +5,7 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/jniLibs/${ANDROID_ABI})
+add_subdirectory(${CMAKE_SOURCE_DIR}/native_pracise)
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
 # You can define multiple libraries, and CMake builds them for you.

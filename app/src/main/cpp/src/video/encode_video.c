@@ -37,6 +37,7 @@
 #include <libavutil/imgutils.h>
 #include <TestEncodeVideo.h>
 #include <GlobalConfig.h>
+#include <EGL/egl.h>
 
 
 static void encode(AVCodecContext *enc_ctx, AVFrame *frame, AVPacket *pkt,
@@ -103,6 +104,7 @@ int testEncodeVideo(char *filename, char *codec_name) {
     /* frames per second */
     c->time_base = (AVRational){1, 25};
     c->framerate = (AVRational){25, 1};
+    c->time_base.den;
 
     /* emit one intra frame every ten frames
      * check frame pict_type before passing frame
