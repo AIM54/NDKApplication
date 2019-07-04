@@ -2896,7 +2896,7 @@ typedef struct AVCodecContext {
                             /* below rtp_payload_size, the chunk will start */
                             /* with a start code on some codecs like H.263. */
                             /* This doesn't take account of any particular  */
-                            /* headers inside the transmitted RTP payload.  */
+                            /* src.headers inside the transmitted RTP payload.  */
 #endif
 
 #if FF_API_STAT_BITS

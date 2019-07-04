@@ -176,7 +176,7 @@ static void add_stream(OutputStream *ost, AVFormatContext *oc,
         break;
     }
 
-    /* Some formats want stream headers to be separate. */
+    /* Some formats want stream src.headers to be separate. */
     if (oc->oformat->flags & AVFMT_GLOBALHEADER)
         c->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 }

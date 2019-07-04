@@ -46,7 +46,7 @@ typedef union {
 } av_alias av_alias16;
 
 /*
- * Arch-specific headers can provide any combination of
+ * Arch-specific src.headers can provide any combination of
  * AV_[RW][BLN](16|24|32|48|64) and AV_(COPY|SWAP|ZERO)(64|128) macros.
  * Preprocessor symbols must be defined, even if these are implemented
  * as inline functions.
@@ -81,7 +81,7 @@ typedef union {
 #endif /* HAVE_AV_CONFIG_H */
 
 /*
- * Map AV_RNXX <-> AV_R[BL]XX for all variants provided by per-arch headers.
+ * Map AV_RNXX <-> AV_R[BL]XX for all variants provided by per-arch src.headers.
  */
 
 #if AV_HAVE_BIGENDIAN
@@ -212,7 +212,7 @@ typedef union {
 
 /*
  * Define AV_[RW]N helper macros to simplify definitions not provided
- * by per-arch headers.
+ * by per-arch src.headers.
  */
 
 #if defined(__GNUC__) && !defined(__TI_COMPILER_VERSION__)
