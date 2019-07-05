@@ -1,6 +1,8 @@
 package com.bian.myapplication.image;
 
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
@@ -9,6 +11,7 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 import com.bian.myapplication.R;
+import com.bian.myapplication.utils.BitMapCompressUtil;
 import com.bian.myapplication.utils.VideoUtil;
 
 import androidx.annotation.NonNull;
@@ -68,6 +71,8 @@ public class ImageListActivity extends AppCompatActivity implements LoaderManage
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Cursor cursor = (Cursor) mCursorAdapter.getItem(position);
         String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-        VideoUtil.decodeImage(filePath);
+        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+        BitMapCompressUtil.compressBitmap(bitmap,getCacheDir().getPath());
+
     }
 }

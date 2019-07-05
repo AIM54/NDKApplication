@@ -8,6 +8,16 @@
 #include <jni.h>
 #include <jpeglib.h>
 #include <malloc.h>
+#include <android/log.h>
+
+char *LOG_MARK = "BML";
+#define ALOGE(fmt, ...) __android_log_print(ANDROID_LOG_ERROR, LOG_MARK, fmt, ##__VA_ARGS__)
+
+#define ALOGI(fmt, ...) __android_log_print(ANDROID_LOG_INFO, LOG_MARK, fmt, ##__VA_ARGS__)
+
+#define ALOGD(fmt, ...) __android_log_print(ANDROID_LOG_DEBUG, LOG_MARK, fmt, ##__VA_ARGS__)
+
+#define ALOGW(fmt, ...) __android_log_print(ANDROID_LOG_WARN, LOG_MARK, fmt, ##__VA_ARGS__)
 
 int registerNativeMethod(JNIEnv *pInterface);
 
@@ -20,6 +30,8 @@ int compressBitmap(JNIEnv *env, jclass type,
                    jstring dstPath_) {
     AndroidBitmapInfo *androidBitmapInfo = malloc(sizeof(AndroidBitmapInfo));
     AndroidBitmap_getInfo(env, bitmap, androidBitmapInfo);
+    ALOGI("theMapWidth:%d |height:%d the format: %d", androidBitmapInfo->width,
+          androidBitmapInfo->height, androidBitmapInfo->format);
     free(androidBitmapInfo);
 }
 
