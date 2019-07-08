@@ -171,8 +171,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void testDecoderImage() {
-        Intent jpegIt = new Intent(this, ImageListActivity.class);
-        startActivity(jpegIt);
+     VideoUtil.decodeImage(mFilePath);
     }
 
     private void playVideo() {

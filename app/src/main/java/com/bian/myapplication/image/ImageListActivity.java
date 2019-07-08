@@ -14,6 +14,12 @@ import com.bian.myapplication.R;
 import com.bian.myapplication.utils.BitMapCompressUtil;
 import com.bian.myapplication.utils.VideoUtil;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,12 +35,14 @@ public class ImageListActivity extends AppCompatActivity implements LoaderManage
             MediaStore.Images.Media.DISPLAY_NAME
     };
     private SimpleCursorAdapter mCursorAdapter;
+    private ThreadPoolExecutor threadPoolExecutor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_list);
         mListView = findViewById(R.id.lv_img);
+        threadPoolExecutor=new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),10,10, TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
         initData();
     }
 
@@ -70,9 +78,13 @@ public class ImageListActivity extends AppCompatActivity implements LoaderManage
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Cursor cursor = (Cursor) mCursorAdapter.getItem(position);
-        String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
-        BitMapCompressUtil.compressBitmap(bitmap,getCacheDir().getPath());
+        final String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+        threadPoolExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                VideoUtil.decodeImage(filePath);
+            }
+        });
 
     }
 }

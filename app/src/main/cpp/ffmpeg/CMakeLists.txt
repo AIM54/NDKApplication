@@ -19,18 +19,20 @@ add_library( # Sets the name of the library.
         test/VideoPlay.c
         test/ChangeVideo.cpp
         test/VideoCompress.c
-        test/VideoFilter.c)
+        test/VideoFilter.c
+        test/VideoRecord.c
+        test/EncodePicToVideo.c
+        test/EncodeVideo.c)
 
 
 # 定义源码所在目录
-aux_source_directory(video VideoPlay)
-
+aux_source_directory(video VideoPlayDir)
 add_library( # Sets the name of the library.
         VideoPlay
         # Sets the library as a shared library.
         SHARED
         # Provides a relative path to your source file(s).
-        ${VideoPlay}
+        ${VideoPlayDir}
         )
 
 add_library(avcodec

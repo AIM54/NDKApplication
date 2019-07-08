@@ -31,7 +31,6 @@ public class VideoUtil {
         CommonLog.i(infor);
     }
 
-    public static native void compressVideo(String videoPath, String targetPath);
 
     public static native void papareForVideoRecord();
 
