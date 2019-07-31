@@ -12,10 +12,7 @@ import android.widget.SimpleCursorAdapter;
 
 import com.bian.myapplication.R;
 import com.bian.myapplication.utils.BitMapCompressUtil;
-import com.bian.myapplication.utils.VideoUtil;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -42,7 +39,7 @@ public class ImageListActivity extends AppCompatActivity implements LoaderManage
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_list);
         mListView = findViewById(R.id.lv_img);
-        threadPoolExecutor=new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),10,10, TimeUnit.SECONDS,new LinkedBlockingQueue<Runnable>());
+        threadPoolExecutor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), 10, 10, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
         initData();
     }
 
@@ -77,12 +74,13 @@ public class ImageListActivity extends AppCompatActivity implements LoaderManage
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Cursor cursor = (Cursor) mCursorAdapter.getItem(position);
+        final Cursor cursor = (Cursor) mCursorAdapter.getItem(position);
         final String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
         threadPoolExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                VideoUtil.decodeImage(filePath);
+                Bitmap srcBitMap = BitmapFactory.decodeFile(filePath);
+                BitMapCompressUtil.compressBitmap(srcBitMap, getExternalCacheDir() + "234.jpg");
             }
         });
 

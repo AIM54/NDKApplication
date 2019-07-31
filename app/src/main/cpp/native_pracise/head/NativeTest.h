@@ -6,3 +6,4 @@
 #define NDKAPPLICATION_NATIVETEST_H
 
 #endif //NDKAPPLICATION_NATIVETEST_H
+void testCLangeThread();

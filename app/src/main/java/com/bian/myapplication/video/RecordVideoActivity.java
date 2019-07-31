@@ -62,7 +62,6 @@ public class RecordVideoActivity extends AppCompatActivity implements View.OnCli
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.bt_record_video:
-                VideoUtil.papareForVideoRecord();
                 beginPreview();
                 break;
             case R.id.bt_stop_record_video:

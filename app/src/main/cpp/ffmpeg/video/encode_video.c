@@ -123,13 +123,11 @@ int testEncodeVideo(char *filename, char *codec_name) {
     ret = avcodec_open2(c, codec, NULL);
     if (ret < 0) {
         ALOGI( "Could not open codec: %s\n", av_err2str(ret));
-        exit(1);
     }
 
     f = fopen(filename, "wb");
     if (!f) {
         ALOGI("Could not open %s\n", filename);
-        exit(1);
     }
 
     frame = av_frame_alloc();
@@ -144,7 +142,6 @@ int testEncodeVideo(char *filename, char *codec_name) {
     ret = av_frame_get_buffer(frame, 32);
     if (ret < 0) {
         ALOGI("Could not allocate the video frame data\n");
-        exit(1);
     }
 
     /* encode 1 second of video */
@@ -154,7 +151,6 @@ int testEncodeVideo(char *filename, char *codec_name) {
         /* make sure the frame data is writable */
         ret = av_frame_make_writable(frame);
         if (ret < 0)
-            exit(1);
 
         /* prepare a dummy image */
         /* Y */

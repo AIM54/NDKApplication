@@ -17,12 +17,10 @@ add_library( # Sets the name of the library.
         SHARED
         # Provides a relative path to your source file(s).
         test/VideoPlay.c
-        test/ChangeVideo.cpp
         test/VideoCompress.c
         test/VideoFilter.c
-        test/VideoRecord.c
         test/EncodePicToVideo.c
-        test/EncodeVideo.c)
+        test/NewPlayVideoInterface.cpp)
 
 
 # 定义源码所在目录

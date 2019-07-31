@@ -1,4 +1,10 @@
 //
 // Created by Administrator on 2019/7/3.
 //
+#include <NativeTest.h>
+#include <jni.h>
+#include <stdio.h>
 
+void testCLangeThread() {
+    FILE * file=fopen("/sdcard/Downloads","a");
+}

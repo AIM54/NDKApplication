@@ -23,8 +23,8 @@
             android:layout_height="wrap_content"
             android:text="showImgList" />
         <Button
-            android:id="@+id/bt_encode_video"
-            android:text="encodeVideo"
+            android:id="@+id/bt_test_img"
+            android:text="testImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>

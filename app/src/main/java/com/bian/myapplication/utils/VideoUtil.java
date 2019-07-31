@@ -1,9 +1,6 @@
 package com.bian.myapplication.utils;
 
-import android.graphics.Bitmap;
-import android.util.Log;
 import android.view.Surface;
-import android.view.SurfaceHolder;
 
 public class VideoUtil {
     static {
@@ -18,7 +15,6 @@ public class VideoUtil {
         System.loadLibrary("Bian");
     }
 
-    public static native void encodeTest(String videoName);
 
 
     public static native void testSoLibrary();
@@ -31,8 +27,5 @@ public class VideoUtil {
         CommonLog.i(infor);
     }
 
-
-    public static native void papareForVideoRecord();
-
-    public static native void decodeImage(String filePath);
+    public static native void encodePic(String filePath,String dstPath);
 }

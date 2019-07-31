@@ -36,7 +36,7 @@ import androidx.loader.content.Loader;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
     private ListView mListView;
-    private Button toastButton, encodeVideoBt;
+    private Button toastButton, encodePictureBt;
     private CursorAdapter mCursorAdapter;
     private String[] videoProjects = new String[]{
             MediaStore.Video.Media._ID,
@@ -72,10 +72,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void initView() {
         mListView = findViewById(R.id.lv_video);
-        encodeVideoBt = findViewById(R.id.bt_encode_video);
         toastButton = findViewById(R.id.bt_toast);
+        encodePictureBt = findViewById(R.id.bt_test_img);
         toastButton.setOnClickListener(this);
-        encodeVideoBt.setOnClickListener(this);
+        encodePictureBt.setOnClickListener(this);
     }
 
     @Override
@@ -90,18 +90,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.bt_encode_video:
-                String videoName = null;
-                try {
-                    videoName = createTargetFile();
-                    CommonLog.i("");
-                    VideoUtil.encodeTest(videoName);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                break;
             case R.id.bt_toast:
                 VideoUtil.testSoLibrary();
+                break;
+            case R.id.bt_test_img:
+                Intent imgIt=new Intent(this,ImageListActivity.class);
+                startActivity(imgIt);
                 break;
         }
 
@@ -163,16 +157,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case 1:
                     addTextToVideo(mFilePath, "AIM54");
                     break;
-                case 4:
-                    testDecoderImage();
-                    break;
             }
         }
     }
 
-    private void testDecoderImage() {
-     VideoUtil.decodeImage(mFilePath);
-    }
 
     private void playVideo() {
         Intent playVideoIt = new Intent(this, VideoPlayActivity.class);

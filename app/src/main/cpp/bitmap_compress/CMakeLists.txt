@@ -17,7 +17,8 @@ add_library( # Sets the name of the library.
         # Sets the library as a shared library.
         SHARED
         # Provides a relative path to your source file(s).
-        src/BitMapCompress.c)
+        src/BitMapCompress.c
+        src/Student.c)
 
 add_library(turbojpeg
         SHARED

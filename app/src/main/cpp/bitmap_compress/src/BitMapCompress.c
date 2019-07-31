@@ -2,7 +2,6 @@
 // Created by Administrator on 2019/7/4.
 //
 #include <stdio.h>
-#include <BitMapCompress.h>
 #include <turbojpeg.h>
 #include <android/bitmap.h>
 #include <jni.h>
@@ -10,6 +9,7 @@
 #include <malloc.h>
 #include <android/log.h>
 #include <stdbool.h>
+#include <Student.h>
 
 char *LOG_MARK = "BML";
 #define ALOGE(fmt, ...) __android_log_print(ANDROID_LOG_ERROR, LOG_MARK, fmt, ##__VA_ARGS__)
@@ -22,15 +22,17 @@ char *LOG_MARK = "BML";
 
 int registerNativeMethod(JNIEnv *pInterface);
 
-void writeJpegToFile(uint8_t *temp, int width, int height, jint quality, const char *outPutPath) ;
-
+void writeJpegToFile(uint8_t *temp, int width, int height, jint quality, const char *outPutPath);
+int getImageFrame(JNIEnv *env, jclass type,
+                  jobject bitmap,
+                  jstring dstPath_);
 JNINativeMethod method[] = {
-        {"compressBitmap", "(Landroid/graphics/Bitmap;Ljava/lang/String;)I", (void *) compressBitmap}
+        {"compressBitmap", "(Landroid/graphics/Bitmap;Ljava/lang/String;)I", (void *) getImageFrame}
 };
 
-int compressBitmap(JNIEnv *env, jclass type,
-                   jobject bitmap,
-                   jstring dstPath_) {
+int getImageFrame(JNIEnv *env, jclass type,
+                  jobject bitmap,
+                  jstring dstPath_) {
     AndroidBitmapInfo *androidBitmapInfo = malloc(sizeof(AndroidBitmapInfo));
     AndroidBitmap_getInfo(env, bitmap, androidBitmapInfo);
     ALOGI("theMapWidth:%d |height:%d the format: %d", androidBitmapInfo->width,
@@ -55,13 +57,14 @@ int compressBitmap(JNIEnv *env, jclass type,
             bitmapPix += 4;// 每个像素有argb4个通道,其中alpha通道被我们丢弃掉了,没有存到data里面
         }
     }
-    writeJpegToFile(temp,androidBitmapInfo->width,androidBitmapInfo->height,70,dstPath_);
+    writeJpegToFile(temp, androidBitmapInfo->width, androidBitmapInfo->height, 70, dstPath_);
     AndroidBitmap_unlockPixels(env, bitmap);
     free(androidBitmapInfo);
     return 0;
 }
 
 void writeJpegToFile(uint8_t *temp, int width, int height, jint quality, const char *outPutPath) {
+    testStudent();
 ////    3.1、创建jpeg压缩对象
 //    struct jpeg_compress_struct jcs;
 //    //错误回调
