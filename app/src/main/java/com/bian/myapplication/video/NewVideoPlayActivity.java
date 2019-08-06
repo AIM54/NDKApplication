@@ -7,6 +7,7 @@ import android.widget.Button;
 import android.widget.SeekBar;
 
 import com.bian.myapplication.R;
+import com.bian.myapplication.utils.AppConstant;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -15,12 +16,19 @@ public class NewVideoPlayActivity extends AppCompatActivity implements SurfaceHo
     private SeekBar videoSeekBar;
     private Button playVideoBt, pauseVideoBt, getAudioBt;
     private SurfaceHolder mHolder;
+    private String mFileString;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_video_play);
+        initData();
         initView();
+
+    }
+
+    private void initData() {
+        mFileString = getIntent().getStringExtra(AppConstant.ARG_VIDEO_PATH);
     }
 
     private void initView() {
@@ -29,7 +37,7 @@ public class NewVideoPlayActivity extends AppCompatActivity implements SurfaceHo
         playVideoBt = findViewById(R.id.bt_video_play);
         pauseVideoBt = findViewById(R.id.bt_video_pause);
         getAudioBt = findViewById(R.id.bt_get_audio);
-        mHolder=mSurfaceView.getHolder();
+        mHolder = mSurfaceView.getHolder();
         mHolder.addCallback(this);
     }
 

@@ -4,6 +4,8 @@
 
 #ifndef NDKAPPLICATION_ANDROIDLOG_H
 #define NDKAPPLICATION_ANDROIDLOG_H
+#include <android/log.h>
+
 #define ALOGE(fmt, ...) __android_log_print(ANDROID_LOG_ERROR, "BML", fmt, ##__VA_ARGS__)
 
 #define ALOGI(fmt, ...) __android_log_print(ANDROID_LOG_INFO, "BML", fmt, ##__VA_ARGS__)

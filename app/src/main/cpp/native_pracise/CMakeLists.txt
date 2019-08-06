@@ -11,7 +11,12 @@ add_library(NdkTest
         SHARED
         src/TestThread.c
         src/NativeTest.c
-        src/Student.cpp)
+        src/Student.cpp
+        src/CppTest.cpp
+        src/ThreadTest.cpp
+        src/PthreadTest.c
+        src/MainControl.cpp)
+
 
 find_library( # Sets the name of the path variable.
         log-lib

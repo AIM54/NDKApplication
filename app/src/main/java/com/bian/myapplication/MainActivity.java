@@ -18,12 +18,16 @@ import android.widget.Toast;
 import com.bian.myapplication.bean.VideoBean;
 import com.bian.myapplication.dialog.SelectOptionDialog;
 import com.bian.myapplication.image.ImageListActivity;
+import com.bian.myapplication.utils.AppConstant;
 import com.bian.myapplication.utils.CommonLog;
+import com.bian.myapplication.utils.NativePracise;
 import com.bian.myapplication.utils.VideoUtil;
+import com.bian.myapplication.video.NewVideoPlayActivity;
 import com.bian.myapplication.video.VideoPlayActivity;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Native;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -54,6 +58,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         initView();
         initData();
+        testLibrary();
+    }
+
+    private void testLibrary() {
+        NativePracise.test();
     }
 
     private void initData() {
@@ -94,19 +103,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 VideoUtil.testSoLibrary();
                 break;
             case R.id.bt_test_img:
-                Intent imgIt=new Intent(this,ImageListActivity.class);
+                Intent imgIt = new Intent(this, ImageListActivity.class);
                 startActivity(imgIt);
                 break;
         }
 
-    }
-
-    private String createTargetFile() throws IOException {
-        String videoMenu = Environment.getExternalStorageDirectory() + File.separator + "Output";
-        File menu = new File(videoMenu);
-        menu.mkdirs();
-        File videoFile = new File(videoMenu + File.separator + "test.avi");
-        return videoFile.getAbsolutePath();
     }
 
     public void toastMessage(String message) {
@@ -156,15 +157,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case 1:
                     addTextToVideo(mFilePath, "AIM54");
+                case 5:
+                    usingCppPlayVideo();
                     break;
             }
         }
     }
 
+    private void usingCppPlayVideo() {
+        Intent cppPlayVideoit = new Intent(this, NewVideoPlayActivity.class);
+        cppPlayVideoit.putExtra(AppConstant.ARG_VIDEO_PATH, mFilePath);
+        startActivity(cppPlayVideoit);
+    }
+
 
     private void playVideo() {
         Intent playVideoIt = new Intent(this, VideoPlayActivity.class);
-        playVideoIt.putExtra(VideoPlayActivity.ARG_VIDEO_PATH, mFilePath);
+        playVideoIt.putExtra(AppConstant.ARG_VIDEO_PATH, mFilePath);
         startActivity(playVideoIt);
     }
 

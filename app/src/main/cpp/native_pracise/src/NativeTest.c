@@ -4,7 +4,5 @@
 #include <NativeTest.h>
 #include <jni.h>
 #include <stdio.h>
-
-void testCLangeThread() {
-    FILE * file=fopen("/sdcard/Downloads","a");
-}
+#include <zconf.h>
+#include <sys/signal.h>

@@ -29,6 +29,8 @@ public:
 
     virtual void release();
 
+    void setCurrentPlayState();
+
 
     PlayState getCurentPlayState() {
         return currentPlayState;

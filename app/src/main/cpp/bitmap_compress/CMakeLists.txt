@@ -18,6 +18,7 @@ add_library( # Sets the name of the library.
         SHARED
         # Provides a relative path to your source file(s).
         src/BitMapCompress.c
+        src/BitMapCompressCpp.cpp
         src/Student.c)
 
 add_library(turbojpeg
@@ -52,8 +53,8 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
         imageCompress
-        jnigraphics
         turbojpeg
+        jnigraphics
         # Links the target library to the log library
         # included in the NDK.
         ${log-lib}
