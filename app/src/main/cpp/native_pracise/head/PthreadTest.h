@@ -6,5 +6,5 @@
 #define NDKAPPLICATION_PTHREADTEST_H
 void* printSimpleMessage(void *data);
 void testSimpleThread();
-
+void testProducterAndConstumer(int initProductCount);
 #endif //NDKAPPLICATION_PTHREADTEST_H

@@ -5,5 +5,6 @@
     <string name="play_video">播放视频</string>
     <string name="pause_the_video">暂停播放</string>
     <string name="get_audio_data">获取音频数据</string>
-
+    <string name="app_label">TUV车辆认证</string>
+    <string name="benz_car_is_running">车辆认证正在运行</string>
 </resources>

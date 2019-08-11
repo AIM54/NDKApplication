@@ -1,8 +1,6 @@
-package com.bian.myapplication;
+package com.bian.opecvmodule;
 
 import org.junit.Test;
-
-import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 
@@ -12,16 +10,8 @@ import static org.junit.Assert.*;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 public class ExampleUnitTest {
-    private ArrayList<String> stringList;
-    private ArrayList<Integer> integerList;
-
     @Test
     public void addition_isCorrect() {
-        MyContainer<String> myContainer=new MyContainer<>();
-        String msg = myContainer.data;
-    }
-
-    class MyContainer<T> {
-        T data;
+        assertEquals(4, 2 + 2);
     }
 }

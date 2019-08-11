@@ -11,11 +11,9 @@
 
 using std::string;
 
-int (*videoPlayFunction[4])(string videoUrl, int time);
 
-
-class MyVideoPlayer {
-};
+void JNICALL onPapareForVideo(JNIEnv *env, jobject instance,
+             jstring url_);
 
 
 #endif //NDKAPPLICATION_MYVIDEOPLAYER_H

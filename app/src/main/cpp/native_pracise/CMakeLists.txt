@@ -6,16 +6,10 @@
 cmake_minimum_required(VERSION 3.4.1)
 #定义头文件目录
 include_directories(head)
-
+aux_source_directory(./src SourceCode)
 add_library(NdkTest
-        SHARED
-        src/TestThread.c
-        src/NativeTest.c
-        src/Student.cpp
-        src/CppTest.cpp
-        src/ThreadTest.cpp
-        src/PthreadTest.c
-        src/MainControl.cpp)
+            SHARED
+          ${SourceCode})
 
 
 find_library( # Sets the name of the path variable.

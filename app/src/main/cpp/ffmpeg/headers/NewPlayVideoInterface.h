@@ -7,6 +7,11 @@
 
 #include <string>
 #include <pthread.h>
+extern "C"
+{
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+}
 
 enum class PlayState {
     playing, paused, stoped, readyForPlay, error
@@ -31,7 +36,6 @@ public:
 
     void setCurrentPlayState();
 
-
     PlayState getCurentPlayState() {
         return currentPlayState;
     }
@@ -39,6 +43,18 @@ public:
 private:
     std::string playerName;
     PlayState currentPlayState;
+    AVFormatContext *avformat;
+    AVCodec *videoCodec;
+    AVCodec *audioCodec;
+    AVCodec *subtitleCodeC;
+    AVCodecContext* videoCodecContext;
+    AVCodecContext* audioCodecContext;
+    AVCodecParameters* videoCodecParameters;
+    AVCodecParameters*  audioCodecParameters;
+    AVPacket *avPacket;
+    int videoStreamIndex;
+    int audioStreamIndex;
+
 };
 
 #endif //NDKAPPLICATION_NEWPLAYVIDEO_H

@@ -19,9 +19,9 @@ add_library( # Sets the name of the library.
         test/VideoPlay.c
         test/VideoCompress.c
         test/VideoFilter.c
-        test/EncodePicToVideo.c
         test/NewPlayVideoInterface.cpp
-        test/MyVideoPlayer.cpp)
+        test/MyVideoPlayer.cpp
+        test/RegisterControl.cpp)
 
 
 # 定义源码所在目录
@@ -127,4 +127,5 @@ target_link_libraries( # Specifies the target library.
         # Links the target library to the log library
         # included in the NDK.
         ${log-lib}
-        ${android-lib})
+        ${android-lib}
+        OpenSLES)
