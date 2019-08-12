@@ -39,8 +39,6 @@ void NewPlayVideoInterface::playTheVideo() {
         return;
     }
     decodeVideoData();
-
-    ALOGI("openvideoFileSuccess");
 }
 
 int NewPlayVideoInterface::decodeAudioData() {
@@ -100,14 +98,37 @@ int NewPlayVideoInterface::decodeVideoData() {
         return status;
     }
     avPacket = av_packet_alloc();
+    avFrame = av_frame_alloc();
     av_init_packet(avPacket);
     if ((status = avcodec_open2(videoCodecContext, videoCodec, NULL)) < 0) {
         ALOGI("failed to open video Stream ");
         return status;
     }
-    while (av_read_frame(avFormatContext, avPacket) >= 0) {
-
+    int readPacketStatus = 0;
+    while ((readPacketStatus = av_read_frame(avformat, avPacket)) >= 0) {
+        if(avPacket->stream_index==videoStreamIndex){
+            status = avcodec_send_packet(videoCodecContext, avPacket);
+            if (status < 0) {
+                ALOGI("Error sending a packet for decoding");
+                break;
+            }
+            while (status >= 0) {
+                status = avcodec_receive_frame(videoCodecContext, avFrame);
+                if (status == AVERROR(EAGAIN) || status == AVERROR_EOF)
+                    break;
+                else if (status < 0) {
+                    fprintf(stderr, "Error during decoding\n");
+                    exit(1);
+                }
+                double timeStamp =
+                        avFrame->pts * av_q2d(avformat->streams[videoStreamIndex]->time_base);
+                if (timeStamp > 0) {
+                    ALOGI("currentFrameTime: %f", timeStamp);
+                }
+            }
+        }
     }
+    ALOGI("readPacketStatus:%d", readPacketStatus);
     return 1;
 }
 

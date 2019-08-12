@@ -11,6 +11,7 @@ extern "C"
 {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
 }
 
 enum class PlayState {
@@ -51,6 +52,7 @@ private:
     AVCodecParameters* videoCodecParameters;
     AVCodecParameters*  audioCodecParameters;
     AVPacket *avPacket;
+    AVFrame *avFrame;
     int videoStreamIndex;
     int audioStreamIndex;
     int decodeAudioData();
