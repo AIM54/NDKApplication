@@ -12,7 +12,7 @@ extern "C"{
 #include <stdio.h>
 
 extern "C" {
-JNINativeMethod method[] = {
+JNINativeMethod videoPlayerMethod[] = {
         {"test", "()V", (void *) testSimpleThread}
 };
 }
@@ -36,8 +36,8 @@ int registerNativeMethod(JNIEnv *pInterface) {
     if (!jobject) {
         return -1;
     }
-    if (pInterface->RegisterNatives(jobject, method,
-                                    sizeof(method) / sizeof(method[0])) < 0) {
+    if (pInterface->RegisterNatives(jobject, videoPlayerMethod,
+                                    sizeof(videoPlayerMethod) / sizeof(videoPlayerMethod[0])) < 0) {
         return -1;
     }
     return JNI_OK;

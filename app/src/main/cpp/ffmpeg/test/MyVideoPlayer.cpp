@@ -21,12 +21,12 @@ void JNICALL onPapareForVideo(JNIEnv *env, jobject instance,
 }
 
 void playVideo() {
+    ALOGI("playVideo");
     newPlayVideoInterface->playTheVideo();
 }
 
 void onDestory() {
     if (newPlayVideoInterface) {
-        newPlayVideoInterface->release();
         delete newPlayVideoInterface;
     }
 }

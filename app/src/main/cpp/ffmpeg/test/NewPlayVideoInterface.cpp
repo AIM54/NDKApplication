@@ -10,6 +10,7 @@
 #include <linux/media.h>
 #include <jni.h>
 #include <thread>
+#include "GlobalConfig.h"
 
 using namespace std;
 
@@ -21,7 +22,7 @@ void NewPlayVideoInterface::openInput(string filePath) {
         return;
     }
     int resultCode = avformat_open_input(&avformat, filePath.data(), nullptr, nullptr);
-    if (!resultCode) {
+    if (resultCode < 0) {
         currentPlayState = PlayState::error;
         return;
     }
@@ -34,29 +35,80 @@ void NewPlayVideoInterface::openInput(string filePath) {
 void NewPlayVideoInterface::playTheVideo() {
     int status = 0;
     if (currentPlayState == PlayState::error) {
+        ALOGI("failed to open video File");
         return;
     }
-    status = av_find_best_stream(avformat, AVMEDIA_TYPE_VIDEO, -1, -1, &videoCodec, 0);
-    if (!status) {
-        return;
-    }
-    videoStreamIndex = status;
+    decodeVideoData();
+
+    ALOGI("openvideoFileSuccess");
+}
+
+int NewPlayVideoInterface::decodeAudioData() {
+    int status = -1;
     status = av_find_best_stream(avformat, AVMEDIA_TYPE_AUDIO, -1, -1, &audioCodec, 0);
-    if (!status) {
-        return;
+    ALOGI("find Audio Stream");
+    if (status < 0) {
+        ALOGI("failed to find audio stream");
+        return status;
     }
     audioStreamIndex = status;
-    videoCodecContext = avcodec_alloc_context3(videoCodec);
-    audioCodecContext = avcodec_alloc_context3(audioCodec);
-    avcodec_parameters_from_context(videoCodecParameters,videoCodecContext);
-    avcodec_parameters_from_context(audioCodecParameters,audioCodecContext);
-    avPacket=av_packet_alloc();
-    av_init_packet(avPacket);
-    if (!avcodec_open2(videoCodecContext,videoCodec,NULL)){
-        return;
+    if (!audioCodec) {
+        status = -1;
+        ALOGI("failed to find audioCodec");
+        return status;
     }
+    audioCodecContext = avcodec_alloc_context3(audioCodec);
+    if (!audioCodecContext) {
+        status = -1;
+        ALOGI("failed to find audioCodecContext");
+        return status;
+    }
+    status = avcodec_parameters_to_context(audioCodecContext,
+                                           avformat->streams[audioStreamIndex]->codecpar);
+    if (status < 0) {
+        return status;
+    }
+    if ((status = avcodec_open2(audioCodecContext, audioCodec, NULL)) < 0) {
+        ALOGI("failed to open audio Stream ");
+        return status;
+    }
+    return 1;
+}
 
+int NewPlayVideoInterface::decodeVideoData() {
+    int status = -1;
+    status = av_find_best_stream(avformat, AVMEDIA_TYPE_VIDEO, -1, -1, &videoCodec, 0);
+    if (status < 0) {
+        ALOGI("failed to find video stream");
+        return status;
+    }
+    videoStreamIndex = status;
+    if (!videoCodec) {
+        status = -1;
+        ALOGI("failed to find videoCodeer");
+        return status;
+    }
+    videoCodecContext = avcodec_alloc_context3(videoCodec);
+    if (!videoCodecContext) {
+        status = -1;
+        ALOGI("failed to find videoCodecContext");
+        return status;
+    }
+    status = avcodec_parameters_to_context(videoCodecContext,
+                                           avformat->streams[videoStreamIndex]->codecpar);
+    if (status < 0) {
+        return status;
+    }
+    avPacket = av_packet_alloc();
+    av_init_packet(avPacket);
+    if ((status = avcodec_open2(videoCodecContext, videoCodec, NULL)) < 0) {
+        ALOGI("failed to open video Stream ");
+        return status;
+    }
+    while (av_read_frame(avFormatContext, avPacket) >= 0) {
 
+    }
+    return 1;
 }
 
 void NewPlayVideoInterface::pauseTheVideo() {
@@ -70,7 +122,11 @@ void NewPlayVideoInterface::resumePlay() {
 
 }
 
-void NewPlayVideoInterface::release() {
+
+NewPlayVideoInterface::~NewPlayVideoInterface() {
+    if (!avPacket) {
+        av_packet_free(&avPacket);
+    }
     if (!videoCodecContext) {
         avcodec_free_context(&videoCodecContext);
     }
@@ -81,5 +137,6 @@ void NewPlayVideoInterface::release() {
         avformat_free_context(avformat);
         avformat = nullptr;
     }
+
 }
 

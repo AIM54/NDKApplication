@@ -21,7 +21,7 @@ class NewPlayVideoInterface {
 public:
     bool isPlayingVideo;
     std::string theVideoUrl;
-
+    virtual ~NewPlayVideoInterface();
     virtual void openInput(std::string);
 
     virtual void playTheVideo();
@@ -32,7 +32,6 @@ public:
 
     virtual void resumePlay();
 
-    virtual void release();
 
     void setCurrentPlayState();
 
@@ -54,7 +53,11 @@ private:
     AVPacket *avPacket;
     int videoStreamIndex;
     int audioStreamIndex;
+    int decodeAudioData();
+    int decodeVideoData();
 
 };
+
+
 
 #endif //NDKAPPLICATION_NEWPLAYVIDEO_H

@@ -68,7 +68,7 @@ public class NewVideoPlayActivity extends AppCompatActivity implements SurfaceHo
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.bt_video_play:
-                mVideoPlayer.playerVideo(mFileString);
+                mVideoPlayer.playerVideo();
                 break;
         }
     }

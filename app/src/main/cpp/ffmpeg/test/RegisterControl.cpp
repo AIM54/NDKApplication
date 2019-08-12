@@ -4,12 +4,16 @@
 #include <jni.h>
 #include "MyVideoPlayer.h"
 #include "GlobalConfig.h"
+
 int registerNativeMethod(JNIEnv *pInterface);
+
 extern "C" {
-JNINativeMethod method[] = {
-        {"onpenVideo", "(Ljava/lang/String;)V", (void *) onPapareForVideo}
+JNINativeMethod videoPlayerMethod[] = {
+        {"onpenVideo", "(Ljava/lang/String;)V", (void *) onPapareForVideo},
+        {"playVideo", "()V", (void *) playVideo}
 };
 }
+
 jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env = NULL;
     if (vm->GetEnv((void **) &env, JNI_VERSION_1_6) != JNI_OK) {
@@ -23,13 +27,13 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved) {
 }
 
 int registerNativeMethod(JNIEnv *pInterface) {
-    jclass jobject =  pInterface->FindClass("com/bian/myapplication/video/VideoPlayer");
+    jclass jobject = pInterface->FindClass("com/bian/myapplication/video/VideoPlayer");
     if (!jobject) {
         ALOGE("can't find class");
         return -1;
     }
-    if (pInterface->RegisterNatives(jobject, method,
-                                    sizeof(method) / sizeof(method[0])) < 0) {
+    if (pInterface->RegisterNatives(jobject, videoPlayerMethod,
+                                    sizeof(videoPlayerMethod) / sizeof(videoPlayerMethod[0])) < 0) {
         ALOGE("can't Register Method");
         return -1;
     }

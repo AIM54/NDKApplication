@@ -14,6 +14,6 @@ using std::string;
 
 void JNICALL onPapareForVideo(JNIEnv *env, jobject instance,
              jstring url_);
-
+void playVideo();
 
 #endif //NDKAPPLICATION_MYVIDEOPLAYER_H

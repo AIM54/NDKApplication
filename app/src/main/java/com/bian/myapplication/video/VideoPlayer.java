@@ -12,7 +12,7 @@ public class VideoPlayer {
     HandlerThread mHandlerThread;
     private Handler videoHandler;
     public final static int OPEN_VIDEO_CODE = 110;
-    public final static int PAUSE_VIDEO_CODE = 111;
+    public final static int PLAY_VIDEO_CODE = 111;
 
     private Handler.Callback mCallback = new Handler.Callback() {
         @Override
@@ -20,6 +20,9 @@ public class VideoPlayer {
             switch (message.what) {
                 case OPEN_VIDEO_CODE:
                     onpenVideo((String) message.obj);
+                    break;
+                case PLAY_VIDEO_CODE:
+                    playVideo();
                     break;
             }
             return true;
@@ -45,16 +48,22 @@ public class VideoPlayer {
         videoHandler = new Handler(mHandlerThread.getLooper(), mCallback);
     }
 
-    public void playerVideo(String url) {
-
+    public void playerVideo() {
+        sendMessage(null,PLAY_VIDEO_CODE);
     }
 
     private native void onpenVideo(String url);
+    private native void playVideo();
 
-    public void prapareForVideo(String url) {
+
+    public <T> void  sendMessage(T data,int code ){
         Message message = new Message();
-        message.what = OPEN_VIDEO_CODE;
-        message.obj = url;
+        message.what = code;
+        message.obj = data;
         videoHandler.sendMessage(message);
+    }
+
+    public void prapareForVideo(String mFileString) {
+        sendMessage(mFileString,OPEN_VIDEO_CODE);
     }
 }
