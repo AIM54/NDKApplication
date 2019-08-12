@@ -11,11 +11,13 @@
 #include <jni.h>
 #include <thread>
 #include "GlobalConfig.h"
+#include <list>
 
 using namespace std;
 
 void NewPlayVideoInterface::openInput(string filePath) {
     av_register_all();
+    list<AVPacket> *avPacketList = new list<AVPacket>();
     avformat = avformat_alloc_context();
     if (!avformat) {
         currentPlayState = PlayState::error;
@@ -31,6 +33,15 @@ void NewPlayVideoInterface::openInput(string filePath) {
         return;
     }
 }
+
+
+void NewPlayVideoInterface::playAudio(std::string url) {
+    openInput(url);
+    if (currentPlayState == PlayState::error){
+        return;
+    }
+}
+
 
 void NewPlayVideoInterface::playTheVideo() {
     int status = 0;
@@ -106,7 +117,7 @@ int NewPlayVideoInterface::decodeVideoData() {
     }
     int readPacketStatus = 0;
     while ((readPacketStatus = av_read_frame(avformat, avPacket)) >= 0) {
-        if(avPacket->stream_index==videoStreamIndex){
+        if (avPacket->stream_index == videoStreamIndex) {
             status = avcodec_send_packet(videoCodecContext, avPacket);
             if (status < 0) {
                 ALOGI("Error sending a packet for decoding");

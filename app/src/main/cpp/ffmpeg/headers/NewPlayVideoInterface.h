@@ -7,6 +7,8 @@
 
 #include <string>
 #include <pthread.h>
+#include <SLES/OpenSLES.h>
+#include <SLES/OpenSLES_Android.h>
 extern "C"
 {
 #include <libavcodec/avcodec.h>
@@ -32,6 +34,8 @@ public:
     virtual void seekToPosition(int position);
 
     virtual void resumePlay();
+
+    void playAudio(std::string url);
 
 
     void setCurrentPlayState();
