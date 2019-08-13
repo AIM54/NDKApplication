@@ -32,8 +32,6 @@
 #include <string.h>
 
 #include <libavcodec/avcodec.h>
-#include <DecodeVideo.h>
-
 #define INBUF_SIZE 4096
 
 static void pgm_save(unsigned char *buf, int wrap, int xsize, int ysize,

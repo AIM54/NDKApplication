@@ -14,10 +14,10 @@
 #include <list>
 
 using namespace std;
+SLObjectItf slObjectItf = nullptr;
 
 void NewPlayVideoInterface::openInput(string filePath) {
     av_register_all();
-    list<AVPacket> *avPacketList = new list<AVPacket>();
     avformat = avformat_alloc_context();
     if (!avformat) {
         currentPlayState = PlayState::error;
@@ -34,23 +34,40 @@ void NewPlayVideoInterface::openInput(string filePath) {
     }
 }
 
-
 void NewPlayVideoInterface::playAudio(std::string url) {
     openInput(url);
-    if (currentPlayState == PlayState::error){
-        return;
-    }
-}
-
-
-void NewPlayVideoInterface::playTheVideo() {
-    int status = 0;
     if (currentPlayState == PlayState::error) {
-        ALOGI("failed to open video File");
         return;
     }
-    decodeVideoData();
+    decodeAudioData();
+    audioFrame = av_frame_alloc();
+    audioPacket = av_packet_alloc();
+    int status = 0;
+    while ((status = av_read_frame(avformat, audioPacket)) >= 0) {
+        if (audioPacket->stream_index == audioStreamIndex) {
+            status = avcodec_send_packet(audioCodecContext, audioPacket);
+            if (status < 0) {
+                fprintf(stderr, "Error submitting the packet to the decoder\n");
+                exit(1);
+            }
+            while ((status = avcodec_receive_frame(audioCodecContext, audioFrame))) {
+                if (status == AVERROR(EAGAIN) || status == AVERROR_EOF)
+                    break;
+                else if (status < 0) {
+                    fprintf(stderr, "Error during decoding\n");
+                    exit(1);
+                }
+                double timeStamp =
+                        avFrame->pts * av_q2d(avformat->streams[audioStreamIndex]->time_base);
+                if (timeStamp > 0) {
+                    ALOGI("currentFrameTime: %f", timeStamp);
+                }
+            }
+        }
+    }
+
 }
+
 
 int NewPlayVideoInterface::decodeAudioData() {
     int status = -1;
@@ -143,6 +160,7 @@ int NewPlayVideoInterface::decodeVideoData() {
     return 1;
 }
 
+
 void NewPlayVideoInterface::pauseTheVideo() {
 }
 
@@ -156,6 +174,9 @@ void NewPlayVideoInterface::resumePlay() {
 
 
 NewPlayVideoInterface::~NewPlayVideoInterface() {
+    if (!avFrame) {
+        av_frame_free(&avFrame);
+    }
     if (!avPacket) {
         av_packet_free(&avPacket);
     }
@@ -169,6 +190,16 @@ NewPlayVideoInterface::~NewPlayVideoInterface() {
         avformat_free_context(avformat);
         avformat = nullptr;
     }
+}
 
+
+void NewPlayVideoInterface::playTheVideo() {
+    int status = 0;
+    if (currentPlayState == PlayState::error) {
+        ALOGI("failed to open video File");
+        return;
+    }
+    thread decodeVideoThread(&NewPlayVideoInterface::decodeVideoData, this);
+    decodeVideoThread.detach();
 }
 

@@ -9,10 +9,6 @@
 
 NewPlayVideoInterface *newPlayVideoInterface;
 
-SLObjectItf slObjectItf = nullptr;
-
-SLEngineItf slEngineItf = nullptr;
-
 void JNICALL onPapareForVideo(JNIEnv *env, jobject instance,
                               jstring url_) {
     const char *videoPath = env->GetStringUTFChars(url_, 0);
@@ -23,17 +19,19 @@ void JNICALL onPapareForVideo(JNIEnv *env, jobject instance,
     newPlayVideoInterface->openInput(videoPath);
 }
 
-void playVideo() {
-    ALOGI("playVideo");
-    newPlayVideoInterface->playTheVideo();
-    slCreateEngine(&slObjectItf,0,0,0,0,0);
-    (*slObjectItf)->Realize(slObjectItf,SL_BOOLEAN_TRUE);
-    (*slObjectItf)->GetInterface(slObjectItf,SL_IID_ENGINE,&slEngineItf);
-
-
-
+void JNICALL playAudioData(JNIEnv *env, jobject instance,
+                           jstring url_) {
+    const char *videoPath = env->GetStringUTFChars(url_, 0);
+    ALOGI("the path is opened:%s", videoPath);
+    if (!newPlayVideoInterface) {
+        newPlayVideoInterface = new NewPlayVideoInterface();
+    }
+    newPlayVideoInterface->playAudio(videoPath);
 }
 
+void playVideo() {
+    newPlayVideoInterface->playTheVideo();
+}
 
 
 void onDestory() {

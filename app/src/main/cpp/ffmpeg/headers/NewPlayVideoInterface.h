@@ -9,6 +9,7 @@
 #include <pthread.h>
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
+
 extern "C"
 {
 #include <libavcodec/avcodec.h>
@@ -24,7 +25,11 @@ class NewPlayVideoInterface {
 public:
     bool isPlayingVideo;
     std::string theVideoUrl;
+
+    friend void decodeTask(NewPlayVideoInterface &anInterface);
+
     virtual ~NewPlayVideoInterface();
+
     virtual void openInput(std::string);
 
     virtual void playTheVideo();
@@ -51,19 +56,24 @@ private:
     AVCodec *videoCodec;
     AVCodec *audioCodec;
     AVCodec *subtitleCodeC;
-    AVCodecContext* videoCodecContext;
-    AVCodecContext* audioCodecContext;
-    AVCodecParameters* videoCodecParameters;
-    AVCodecParameters*  audioCodecParameters;
+    AVCodecContext *videoCodecContext;
+    AVCodecContext *audioCodecContext;
+    AVCodecParameters *videoCodecParameters;
+    AVCodecParameters *audioCodecParameters;
     AVPacket *avPacket;
     AVFrame *avFrame;
+    AVPacket *audioPacket;
+    AVFrame *audioFrame;
     int videoStreamIndex;
     int audioStreamIndex;
+
     int decodeAudioData();
+
     int decodeVideoData();
 
-};
+    void setupAndroidEnv();
 
+};
 
 
 #endif //NDKAPPLICATION_NEWPLAYVIDEO_H

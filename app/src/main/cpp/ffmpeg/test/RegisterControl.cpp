@@ -10,8 +10,8 @@ int registerNativeMethod(JNIEnv *pInterface);
 extern "C" {
 JNINativeMethod videoPlayerMethod[] = {
         {"onpenVideo", "(Ljava/lang/String;)V", (void *) onPapareForVideo},
-        {"playVideo", "()V", (void *) playVideo},
-        {"playAudio", "(Ljava/lang/String;)V", (void *) onPapareForVideo},
+        {"playAudio",  "(Ljava/lang/String;)V", (void *) playAudioData},
+        {"playVideo",  "()V",                   (void *) playVideo},
 
 };
 }

@@ -54,6 +54,7 @@ public class VideoPlayer {
 
     private native void onpenVideo(String url);
     private native void playVideo();
+    private native void playAudio(String filePath);
 
 
     public <T> void  sendMessage(T data,int code ){
