@@ -40,9 +40,19 @@ void NewPlayVideoInterface::openInput(string filePath) {
 }
 
 void NewPlayVideoInterface::playAudio(std::string url) {
+    thread decodeAudioThread(&NewPlayVideoInterface::decodeAudioMethod, this, url);
+    decodeAudioThread.detach();
+}
+
+/**
+ * 解析音频文件取出音频帧的代码
+ * @param url
+ * @return
+ */
+int NewPlayVideoInterface::decodeAudioMethod(std::string url) {
     openInput(url);
     if (currentPlayState == PlayState::error) {
-        return;
+        return -1;
     }
     decodeAudioData();
     audioFrame = av_frame_alloc();
@@ -70,14 +80,15 @@ void NewPlayVideoInterface::playAudio(std::string url) {
                     ALOGI("Error during decoding4\n");
                     goto destrory;
                 }
-                double timeStamp =audioFrame->pts * av_q2d(avformat->streams[audioStreamIndex]->time_base);
+                double timeStamp =
+                        audioFrame->pts * av_q2d(avformat->streams[audioStreamIndex]->time_base);
                 ALOGI("currentFrameTime: %f", timeStamp);
             }
         }
     }
     destrory:
-    ALOGI("failed to decodeAudio");
-
+    ALOGI("finish decode Audio frame");
+    return -1;
 }
 
 

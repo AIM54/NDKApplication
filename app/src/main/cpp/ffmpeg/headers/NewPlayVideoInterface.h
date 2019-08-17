@@ -72,6 +72,8 @@ private:
 
     int decodeAudioData();
 
+    int decodeAudioMethod(std::string url);
+
     int decodeVideoData();
 
     int displayVideoOnScreen();
