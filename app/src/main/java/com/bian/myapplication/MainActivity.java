@@ -23,6 +23,7 @@ import com.bian.myapplication.utils.CommonLog;
 import com.bian.myapplication.utils.NativePracise;
 import com.bian.myapplication.utils.VideoUtil;
 import com.bian.myapplication.video.NewVideoPlayActivity;
+import com.bian.myapplication.video.PlayAudioActivity;
 import com.bian.myapplication.video.VideoPlayActivity;
 
 import java.io.File;
@@ -160,8 +161,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case 5:
                     usingCppPlayVideo();
                     break;
+                case 6:
+                    gotoAudioPlayActivity();
+                    break;
             }
         }
+    }
+
+    private void gotoAudioPlayActivity() {
+        Intent audioPlayIt = new Intent(this, PlayAudioActivity.class);
+        audioPlayIt.putExtra(AppConstant.ARG_VIDEO_PATH,mFilePath);
+        startActivity(audioPlayIt);
     }
 
     private void usingCppPlayVideo() {

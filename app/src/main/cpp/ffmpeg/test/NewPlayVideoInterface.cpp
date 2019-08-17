@@ -11,10 +11,15 @@
 #include <jni.h>
 #include <thread>
 #include "GlobalConfig.h"
-#include <list>
 
 using namespace std;
 SLObjectItf slObjectItf = nullptr;
+
+NewPlayVideoInterface::NewPlayVideoInterface() {
+    if (!videoDequeue) {
+        videoDequeue = new deque<AVFrame>();
+    }
+}
 
 void NewPlayVideoInterface::openInput(string filePath) {
     av_register_all();
@@ -42,29 +47,36 @@ void NewPlayVideoInterface::playAudio(std::string url) {
     decodeAudioData();
     audioFrame = av_frame_alloc();
     audioPacket = av_packet_alloc();
+    av_init_packet(audioPacket);
     int status = 0;
     while ((status = av_read_frame(avformat, audioPacket)) >= 0) {
         if (audioPacket->stream_index == audioStreamIndex) {
             status = avcodec_send_packet(audioCodecContext, audioPacket);
             if (status < 0) {
-                fprintf(stderr, "Error submitting the packet to the decoder\n");
-                exit(1);
+                ALOGI("failed to send audio packet\n");
+                continue;
             }
-            while ((status = avcodec_receive_frame(audioCodecContext, audioFrame))) {
-                if (status == AVERROR(EAGAIN) || status == AVERROR_EOF)
+            while (status >= 0) {
+                status = avcodec_receive_frame(audioCodecContext, audioFrame);
+                if (status == AVERROR(EAGAIN) || status == AVERROR_EOF) {
                     break;
-                else if (status < 0) {
-                    fprintf(stderr, "Error during decoding\n");
-                    exit(1);
+                } else if (status < 0) {
+                    ALOGI("Error during decoding3\n");
+                    goto destrory;
                 }
-                double timeStamp =
-                        avFrame->pts * av_q2d(avformat->streams[audioStreamIndex]->time_base);
-                if (timeStamp > 0) {
-                    ALOGI("currentFrameTime: %f", timeStamp);
+                int data_size = av_get_bytes_per_sample(audioCodecContext->sample_fmt);
+                if (data_size < 0) {
+                    /* This should not occur, checking just for paranoia */
+                    ALOGI("Error during decoding4\n");
+                    goto destrory;
                 }
+                double timeStamp =audioFrame->pts * av_q2d(avformat->streams[audioStreamIndex]->time_base);
+                ALOGI("currentFrameTime: %f", timeStamp);
             }
         }
     }
+    destrory:
+    ALOGI("failed to decodeAudio");
 
 }
 
@@ -201,5 +213,8 @@ void NewPlayVideoInterface::playTheVideo() {
     }
     thread decodeVideoThread(&NewPlayVideoInterface::decodeVideoData, this);
     decodeVideoThread.detach();
+
 }
+
+
 

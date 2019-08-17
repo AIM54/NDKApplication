@@ -21,7 +21,8 @@ add_library( # Sets the name of the library.
         test/VideoFilter.c
         test/NewPlayVideoInterface.cpp
         test/MyVideoPlayer.cpp
-        test/RegisterControl.cpp)
+        test/RegisterControl.cpp
+        test/EncodePicToVideo.c)
 
 
 # 定义源码所在目录

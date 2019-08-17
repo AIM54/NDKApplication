@@ -76,6 +76,8 @@ Java_com_bian_myapplication_utils_VideoUtil_decodeVideo(JNIEnv *env, jclass type
     AVFrame *rgbFrame = av_frame_alloc();
     AVPacket *avPacket = av_packet_alloc();
     av_init_packet(avPacket);
+    avFormatContext->streams[0]->duration;
+    avFormatContext->streams[0]->time_base;
     ALOGI("可以开始解析视频了:");
     int videoWidth = avCodecContext->width;
     int videoHeight = avCodecContext->height;

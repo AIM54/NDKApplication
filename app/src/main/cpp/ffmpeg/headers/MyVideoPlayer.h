@@ -16,7 +16,7 @@ void JNICALL onPapareForVideo(JNIEnv *env, jobject instance,
                               jstring url_);
 
 void JNICALL playAudioData(JNIEnv *env, jobject instance,
-                              jstring url_);
+                              jstring url_,jstring ouptputUrl);
 
 void playVideo();
 

@@ -7,6 +7,7 @@
 
 #include <string>
 #include <pthread.h>
+#include <deque>
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 
@@ -25,9 +26,10 @@ class NewPlayVideoInterface {
 public:
     bool isPlayingVideo;
     std::string theVideoUrl;
-
+    std::string outputAudioPath;
+    std::string outputVideoPath;
     friend void decodeTask(NewPlayVideoInterface &anInterface);
-
+    NewPlayVideoInterface();
     virtual ~NewPlayVideoInterface();
 
     virtual void openInput(std::string);
@@ -66,10 +68,13 @@ private:
     AVFrame *audioFrame;
     int videoStreamIndex;
     int audioStreamIndex;
+    std::deque<AVFrame> *videoDequeue;
 
     int decodeAudioData();
 
     int decodeVideoData();
+
+    int displayVideoOnScreen();
 
     void setupAndroidEnv();
 

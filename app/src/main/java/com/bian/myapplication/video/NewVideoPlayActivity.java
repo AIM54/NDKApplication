@@ -72,4 +72,10 @@ public class NewVideoPlayActivity extends AppCompatActivity implements SurfaceHo
                 break;
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mVideoPlayer.onDestroy();
+    }
 }
