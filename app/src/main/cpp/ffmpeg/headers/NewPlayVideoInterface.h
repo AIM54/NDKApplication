@@ -10,12 +10,15 @@
 #include <deque>
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
+#include "AudioFrameDataBean.h"
 
 extern "C"
 {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
+#include "libswresample/swresample.h"
+#include "libavutil/opt.h"
 }
 
 enum class PlayState {
@@ -24,12 +27,17 @@ enum class PlayState {
 
 class NewPlayVideoInterface {
 public:
+    friend bool isCanPushDataIntoAudioQueue(NewPlayVideoInterface &newPlayVideoInterface);
+
     bool isPlayingVideo;
     std::string theVideoUrl;
-    std::string outputAudioPath;
+    char *outputAudioPath;
     std::string outputVideoPath;
+
     friend void decodeTask(NewPlayVideoInterface &anInterface);
+
     NewPlayVideoInterface();
+
     virtual ~NewPlayVideoInterface();
 
     virtual void openInput(std::string);
@@ -51,6 +59,8 @@ public:
         return currentPlayState;
     }
 
+    void setAudioOutputPath(const char *string);
+
 private:
     std::string playerName;
     PlayState currentPlayState;
@@ -65,22 +75,43 @@ private:
     AVPacket *avPacket;
     AVFrame *avFrame;
     AVPacket *audioPacket;
+    SwrContext *audioSwrContext;
     AVFrame *audioFrame;
     int videoStreamIndex;
     int audioStreamIndex;
-    std::deque<AVFrame> *videoDequeue;
+    std::deque<AVFrame> videoDequeue;
+    std::deque<AudioFrameDataBean> audioDeque;
+
+
+    SLObjectItf slObjectItf1 = nullptr;
+    SLEngineItf slEngine;
+    SLObjectItf outputMixObject;
+    //混合输出的辅助效果用于缓冲队列
+    const SLEnvironmentalReverbSettings slEnvironmentalReverbSettings = SL_I3DL2_ENVIRONMENT_PRESET_STONECORRIDOR;
+    SLEnvironmentalReverbItf outputMixoutputEnvironmentalReverbIter = nullptr;
 
     int decodeAudioData();
 
     int decodeAudioMethod(std::string url);
 
+    int playMusicInAndroid();
+
     int decodeVideoData();
 
     int displayVideoOnScreen();
 
+
+    AVFrame &popAudioFrameFromQueue();
+
+
     void setupAndroidEnv();
+
+    void pushToQueue(AudioFrameDataBean *dataBean);
 
 };
 
+bool isCanPushDataIntoAudioQueue(NewPlayVideoInterface &newPlayVideoInterface);
+
+bool isOkToProduceAudioData();
 
 #endif //NDKAPPLICATION_NEWPLAYVIDEO_H

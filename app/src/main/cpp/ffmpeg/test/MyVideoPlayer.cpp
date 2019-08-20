@@ -26,6 +26,7 @@ void JNICALL playAudioData(JNIEnv *env, jobject instance,
     ALOGI("the path is openeddada:%s\n the outputPaht:%s", videoPath,outputAudioPath);
     if (!newPlayVideoInterface) {
         newPlayVideoInterface = new NewPlayVideoInterface();
+        newPlayVideoInterface->setAudioOutputPath(outputAudioPath);
     }
     newPlayVideoInterface->playAudio(videoPath);
 }

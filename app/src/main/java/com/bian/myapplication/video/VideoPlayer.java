@@ -84,6 +84,8 @@ public class VideoPlayer {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }else{
+            return targetFile.getAbsolutePath();
         }
         return "";
     }

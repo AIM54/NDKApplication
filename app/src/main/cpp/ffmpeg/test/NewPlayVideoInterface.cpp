@@ -8,17 +8,19 @@
 #include <android/native_window_jni.h>
 #include <array>
 #include <linux/media.h>
+#include<unistd.h>
 #include <jni.h>
 #include <thread>
 #include "GlobalConfig.h"
+#include <condition_variable>
 
 using namespace std;
 SLObjectItf slObjectItf = nullptr;
+std::mutex audioQueueMutex;
+std::condition_variable produceCondition;
 
 NewPlayVideoInterface::NewPlayVideoInterface() {
-    if (!videoDequeue) {
-        videoDequeue = new deque<AVFrame>();
-    }
+
 }
 
 void NewPlayVideoInterface::openInput(string filePath) {
@@ -42,7 +44,10 @@ void NewPlayVideoInterface::openInput(string filePath) {
 void NewPlayVideoInterface::playAudio(std::string url) {
     thread decodeAudioThread(&NewPlayVideoInterface::decodeAudioMethod, this, url);
     decodeAudioThread.detach();
+    thread playAudioThread(&NewPlayVideoInterface::playMusicInAndroid, this);
+    playAudioThread.detach();
 }
+
 
 /**
  * 解析音频文件取出音频帧的代码
@@ -50,13 +55,29 @@ void NewPlayVideoInterface::playAudio(std::string url) {
  * @return
  */
 int NewPlayVideoInterface::decodeAudioMethod(std::string url) {
+    FILE *ouputFile = fopen(outputAudioPath, "a+");
+    if (!ouputFile) {
+        ALOGI("openFile failed:%s", outputAudioPath);
+    }
     openInput(url);
     if (currentPlayState == PlayState::error) {
         return -1;
     }
+    uint8_t *outputBuffer;
+    size_t outputBufferSize;
     decodeAudioData();
     audioFrame = av_frame_alloc();
     audioPacket = av_packet_alloc();
+    audioSwrContext = swr_alloc();
+    av_opt_set_int(audioSwrContext, "in_channel_layout", audioCodecContext->channel_layout, 0);
+    av_opt_set_int(audioSwrContext, "out_channel_layout", audioCodecContext->channel_layout, 0);
+    av_opt_set_int(audioSwrContext, "in_sample_rate", audioCodecContext->sample_rate, 0);
+    av_opt_set_int(audioSwrContext, "out_sample_rate", audioCodecContext->sample_rate, 0);
+    av_opt_set_sample_fmt(audioSwrContext, "in_sample_fmt", audioCodecContext->sample_fmt, 0);
+    av_opt_set_sample_fmt(audioSwrContext, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
+    swr_init(audioSwrContext);
+    outputBufferSize = 8196;
+    outputBuffer = new uint8_t[outputBufferSize];
     av_init_packet(audioPacket);
     int status = 0;
     while ((status = av_read_frame(avformat, audioPacket)) >= 0) {
@@ -75,6 +96,23 @@ int NewPlayVideoInterface::decodeAudioMethod(std::string url) {
                     goto destrory;
                 }
                 int data_size = av_get_bytes_per_sample(audioCodecContext->sample_fmt);
+                int newDataSize = av_samples_get_buffer_size(audioFrame->linesize,
+                                                             audioCodecContext->channels,
+                                                             audioFrame->nb_samples,
+                                                             audioCodecContext->sample_fmt,
+                                                             1);
+                if (newDataSize > outputBufferSize) {
+                    delete[] outputBuffer;
+                    outputBufferSize = newDataSize;
+                    outputBuffer = new uint8_t[newDataSize];
+                }
+                //在这里进行格式转换
+                swr_convert(audioSwrContext, &outputBuffer, audioFrame->nb_samples,
+                            const_cast<uint8_t const **>(audioFrame->extended_data),
+                            audioFrame->nb_samples);
+                AudioFrameDataBean *audioFrameDataBean = new AudioFrameDataBean(outputBufferSize,
+                                                                                outputBuffer);
+                pushToQueue(audioFrameDataBean);
                 if (data_size < 0) {
                     /* This should not occur, checking just for paranoia */
                     ALOGI("Error during decoding4\n");
@@ -82,15 +120,44 @@ int NewPlayVideoInterface::decodeAudioMethod(std::string url) {
                 }
                 double timeStamp =
                         audioFrame->pts * av_q2d(avformat->streams[audioStreamIndex]->time_base);
-                ALOGI("currentFrameTime: %f", timeStamp);
             }
         }
+    }
+    if (ouputFile) {
+        fclose(ouputFile);
     }
     destrory:
     ALOGI("finish decode Audio frame");
     return -1;
 }
 
+void NewPlayVideoInterface::pushToQueue(AudioFrameDataBean *dataBean) {
+    unique_lock<mutex> producerLock{audioQueueMutex};
+    produceCondition.wait(producerLock, [this] { return isCanPushDataIntoAudioQueue(*this); });
+    audioDeque.push_back(*dataBean);
+}
+
+
+bool isCanPushDataIntoAudioQueue(NewPlayVideoInterface &videoPlayer) {
+    return videoPlayer.audioDeque.size() < 10;
+}
+
+
+int NewPlayVideoInterface::playMusicInAndroid() {
+    SLresult sLresult;
+    sLresult = slCreateEngine(&slObjectItf1, 0, NULL, 0, NULL, NULL);
+    (*slObjectItf1)->Realize(slObjectItf1, SL_BOOLEAN_FALSE);
+    (*slObjectItf1)->GetInterface(slObjectItf1, SL_IID_ENGINE, &slEngine);
+
+    const SLInterfaceID ids[1] = {SL_IID_ENVIRONMENTALREVERB};
+    const SLboolean req[1] = {SL_BOOLEAN_FALSE};
+    sLresult = (*slEngine)->CreateOutputMix(slEngine, &outputMixObject, 1, ids, req);
+    sLresult = (*outputMixObject)->Realize(outputMixObject, SL_BOOLEAN_FALSE);
+    sLresult = (*outputMixObject)->GetInterface(outputMixObject, SL_IID_ENVIRONMENTALREVERB,
+                                                &outputMixoutputEnvironmentalReverbIter);
+
+    return 0;
+}
 
 int NewPlayVideoInterface::decodeAudioData() {
     int status = -1;
@@ -224,7 +291,10 @@ void NewPlayVideoInterface::playTheVideo() {
     }
     thread decodeVideoThread(&NewPlayVideoInterface::decodeVideoData, this);
     decodeVideoThread.detach();
+}
 
+void NewPlayVideoInterface::setAudioOutputPath(const char *string) {
+    outputAudioPath = const_cast<char *>(string);
 }
 
 
