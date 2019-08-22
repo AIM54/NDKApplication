@@ -13,8 +13,20 @@ AudioFrameDataBean::AudioFrameDataBean(size_t size, uint8_t *paramData) {
     memcpy(data, paramData, size * sizeof(uint8_t));
 }
 
+AudioFrameDataBean::AudioFrameDataBean(const AudioFrameDataBean &audioFrameDataBean) : packetSize{
+        audioFrameDataBean.packetSize}, data{new uint8_t[audioFrameDataBean.packetSize]} {
+    packetSize = audioFrameDataBean.packetSize;
+    memcpy(data, audioFrameDataBean.data, audioFrameDataBean.packetSize * sizeof(uint8_t));
+}
 
+AudioFrameDataBean &AudioFrameDataBean::operator=(const AudioFrameDataBean &audioFrameDataBean) {
+    uint8_t *newData = new uint8_t[audioFrameDataBean.packetSize];
+    memcpy(newData, audioFrameDataBean.data, audioFrameDataBean.packetSize * sizeof(uint8_t));
+    delete[] data;
+    data = newData;
+    packetSize = audioFrameDataBean.packetSize;
 
+}
 
 void AudioFrameDataBean::setTimeStamp(double timeStamp) {
     this->timeStamp = timeStamp;
@@ -23,6 +35,14 @@ void AudioFrameDataBean::setTimeStamp(double timeStamp) {
 AudioFrameDataBean::AudioFrameDataBean() {
     ALOGI("the constructor has been called");
     this->data = nullptr;
+}
+
+uint8_t *AudioFrameDataBean::getData() {
+    return data;
+}
+
+size_t AudioFrameDataBean::getSize() {
+    return packetSize;
 }
 
 AudioFrameDataBean::~AudioFrameDataBean() {

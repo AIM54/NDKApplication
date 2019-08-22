@@ -19,11 +19,16 @@ public:
 
     AudioFrameDataBean(size_t size, uint8_t *paramData);
 
+    AudioFrameDataBean(const AudioFrameDataBean &audioFrameDataBean);
+
+    AudioFrameDataBean &operator=(const AudioFrameDataBean &audioFrameDataBean);
+
     size_t getSize();
 
     uint8_t *getData();
 
     void setTimeStamp(double timeStamp);
+
     virtual ~AudioFrameDataBean();
 };
 

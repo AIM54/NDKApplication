@@ -32,6 +32,10 @@ public:
 
     friend bool isAudioQueueNoEmpty(NewPlayVideoInterface &newPlayVideoInterface);
 
+    friend void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context);
+
+    friend void initAudioEngine();
+
 
     bool isPlayingVideo;
     std::string theVideoUrl;
@@ -64,6 +68,8 @@ public:
 
     void setAudioOutputPath(const char *string);
 
+    void stopPlay();
+
 private:
     std::string playerName;
     PlayState currentPlayState;
@@ -92,7 +98,7 @@ private:
     SLEngineItf slEngine;
     SLObjectItf outputMixObject;
     //混合输出的辅助效果用于缓冲队列
-    const   SLEnvironmentalReverbSettings slEnvironmentalReverbSettings ;
+    const SLEnvironmentalReverbSettings slEnvironmentalReverbSettings;
     SLEnvironmentalReverbItf outputMixoutputEnvironmentalReverbIter = nullptr;
 
     int decodeAudioData();
@@ -111,14 +117,13 @@ private:
 
     void setupAndroidEnv();
 
-    void pushToQueue(AudioFrameDataBean *dataBean);
+    void pushToQueue(AudioFrameDataBean &dataBean);
 
-    AudioFrameDataBean &popAudioFrameBean();
 
 };
 
 bool isCanPushDataIntoAudioQueue(NewPlayVideoInterface &newPlayVideoInterface);
 
 bool isAudioQueueNoEmpty(NewPlayVideoInterface &newPlayVideoInterface);
-
+void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context);
 #endif //NDKAPPLICATION_NEWPLAYVIDEO_H
