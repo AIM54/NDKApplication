@@ -68,7 +68,9 @@ public class VideoPlayer {
     }
 
     public void playerAudio(String url) {
-        sendMessage(url, PLAY_AUDIO_CODE);
+        String ouputUrl=createOutputFile();
+        CommonLog.i(ouputUrl);
+        playAudio(url,ouputUrl);
     }
 
     private String createOutputFile() {

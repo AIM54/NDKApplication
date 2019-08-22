@@ -13,15 +13,47 @@
 #include <thread>
 #include "GlobalConfig.h"
 #include <condition_variable>
+#include<stdio.h>
 
 using namespace std;
-SLObjectItf slObjectItf = nullptr;
+SLObjectItf playerObjItr;
+SLPlayItf slPlayItf;
+SLAndroidSimpleBufferQueueItf slAndroidSimpleBufferQueueItf;
+
+SLEffectSendItf slEffectSendItf;
+
+SLVolumeItf slVolumeItf;
+
+atomic<int> audioChannels{0};
+
+atomic<int> audioSample{0};
+
+mutex audioStreamMutex;
+
+condition_variable audioStreamInfoCondition;
+
 std::mutex audioQueueMutex;
+
 std::condition_variable produceCondition;
 
-NewPlayVideoInterface::NewPlayVideoInterface() {
+std::condition_variable consumerCondition;
+static const SLEnvironmentalReverbSettings reverbSettings =
+        SL_I3DL2_ENVIRONMENT_PRESET_STONECORRIDOR;
+
+/**
+ * 他妈的音频播放的回调队列
+ * @param bq
+ * @param context
+ */
+void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context) {
 
 }
+
+NewPlayVideoInterface::NewPlayVideoInterface() : slEnvironmentalReverbSettings(
+        SL_I3DL2_ENVIRONMENT_PRESET_STONECORRIDOR) {
+
+}
+
 
 void NewPlayVideoInterface::openInput(string filePath) {
     av_register_all();
@@ -44,8 +76,7 @@ void NewPlayVideoInterface::openInput(string filePath) {
 void NewPlayVideoInterface::playAudio(std::string url) {
     thread decodeAudioThread(&NewPlayVideoInterface::decodeAudioMethod, this, url);
     decodeAudioThread.detach();
-    thread playAudioThread(&NewPlayVideoInterface::playMusicInAndroid, this);
-    playAudioThread.detach();
+    playMusicInAndroid();
 }
 
 
@@ -55,6 +86,7 @@ void NewPlayVideoInterface::playAudio(std::string url) {
  * @return
  */
 int NewPlayVideoInterface::decodeAudioMethod(std::string url) {
+    unique_lock<mutex> decodeAudioLock(audioStreamMutex);
     FILE *ouputFile = fopen(outputAudioPath, "a+");
     if (!ouputFile) {
         ALOGI("openFile failed:%s", outputAudioPath);
@@ -65,7 +97,13 @@ int NewPlayVideoInterface::decodeAudioMethod(std::string url) {
     }
     uint8_t *outputBuffer;
     size_t outputBufferSize;
-    decodeAudioData();
+    if (decodeAudioData() <= 0) {
+        return -1;
+    }
+    audioChannels.store(audioCodecContext->channels);
+    audioSample.store(audioCodecContext->sample_rate);
+    audioStreamInfoCondition.notify_all();
+    decodeAudioLock.unlock();
     audioFrame = av_frame_alloc();
     audioPacket = av_packet_alloc();
     audioSwrContext = swr_alloc();
@@ -75,6 +113,7 @@ int NewPlayVideoInterface::decodeAudioMethod(std::string url) {
     av_opt_set_int(audioSwrContext, "out_sample_rate", audioCodecContext->sample_rate, 0);
     av_opt_set_sample_fmt(audioSwrContext, "in_sample_fmt", audioCodecContext->sample_fmt, 0);
     av_opt_set_sample_fmt(audioSwrContext, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
+    ALOGI("the audio duration:", avformat->duration);
     swr_init(audioSwrContext);
     outputBufferSize = 8196;
     outputBuffer = new uint8_t[outputBufferSize];
@@ -135,6 +174,17 @@ void NewPlayVideoInterface::pushToQueue(AudioFrameDataBean *dataBean) {
     unique_lock<mutex> producerLock{audioQueueMutex};
     produceCondition.wait(producerLock, [this] { return isCanPushDataIntoAudioQueue(*this); });
     audioDeque.push_back(*dataBean);
+    ALOGI("push the  frame into the queue:%d", audioDeque.size());
+    consumerCondition.notify_all();
+}
+
+
+AudioFrameDataBean &NewPlayVideoInterface::popAudioFrameBean() {
+    unique_lock<mutex> constumerLock{audioQueueMutex};
+    consumerCondition.wait(constumerLock, [this] { return isAudioQueueNoEmpty(*this); });
+    AudioFrameDataBean dataBean = audioDeque.front();
+    audioDeque.pop_back();
+    return dataBean;
 }
 
 
@@ -142,12 +192,21 @@ bool isCanPushDataIntoAudioQueue(NewPlayVideoInterface &videoPlayer) {
     return videoPlayer.audioDeque.size() < 10;
 }
 
+bool isAudioQueueNoEmpty(NewPlayVideoInterface &videoPlayer) {
+    return !videoPlayer.audioDeque.empty();
+}
 
+/**
+ * 在这里进行Android音频播放器环境的创建
+ * @return
+ */
 int NewPlayVideoInterface::playMusicInAndroid() {
+    unique_lock<mutex> readLock(audioStreamMutex);
+    audioStreamInfoCondition.wait(readLock, [] { return audioChannels.load() > 0; });
     SLresult sLresult;
     sLresult = slCreateEngine(&slObjectItf1, 0, NULL, 0, NULL, NULL);
-    (*slObjectItf1)->Realize(slObjectItf1, SL_BOOLEAN_FALSE);
-    (*slObjectItf1)->GetInterface(slObjectItf1, SL_IID_ENGINE, &slEngine);
+    sLresult = (*slObjectItf1)->Realize(slObjectItf1, SL_BOOLEAN_FALSE);
+    sLresult = (*slObjectItf1)->GetInterface(slObjectItf1, SL_IID_ENGINE, &slEngine);
 
     const SLInterfaceID ids[1] = {SL_IID_ENVIRONMENTALREVERB};
     const SLboolean req[1] = {SL_BOOLEAN_FALSE};
@@ -155,6 +214,64 @@ int NewPlayVideoInterface::playMusicInAndroid() {
     sLresult = (*outputMixObject)->Realize(outputMixObject, SL_BOOLEAN_FALSE);
     sLresult = (*outputMixObject)->GetInterface(outputMixObject, SL_IID_ENVIRONMENTALREVERB,
                                                 &outputMixoutputEnvironmentalReverbIter);
+    if (sLresult == SL_RESULT_SUCCESS) {
+        sLresult = (*outputMixoutputEnvironmentalReverbIter)->SetEnvironmentalReverbProperties(
+                outputMixoutputEnvironmentalReverbIter, &reverbSettings);
+    }
+
+    ALOGI("the args of audio AudioChannels:%d  \n AudioSample:%d", audioChannels.load(),
+          audioSample.load());
+
+    //音频播放的缓冲队列
+    SLDataLocator_AndroidSimpleBufferQueue simpleBufferQueue = {
+            SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 2};
+    //音频播放的解析格式
+    SLDataFormat_PCM slDataFormat_pcm={
+            SL_DATAFORMAT_PCM,//播放pcm格式的数据
+            2,//2个声道（立体声）
+            SL_SAMPLINGRATE_44_1,//44100hz的频率
+            SL_PCMSAMPLEFORMAT_FIXED_16,//位数 16位
+            SL_PCMSAMPLEFORMAT_FIXED_16,//和位数一致就行
+            SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT,//立体声（前左前右）
+            SL_BYTEORDER_LITTLEENDIAN//结束标志
+    };
+    SLDataSource slDataSource{&simpleBufferQueue, &slDataFormat_pcm};
+    SLDataLocator_OutputMix slDataLocator_outputMix{SL_DATALOCATOR_OUTPUTMIX, outputMixObject};
+
+    SLDataSink slDataSink{&slDataLocator_outputMix, NULL};
+
+    const SLInterfaceID playerIds[3] = {SL_IID_BUFFERQUEUE, SL_IID_VOLUME, SL_IID_EFFECTSEND,
+            /*SL_IID_MUTESOLO,*/};
+    const SLboolean playReq[3] = {SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE, SL_BOOLEAN_TRUE,
+            /*SL_BOOLEAN_TRUE,*/ };
+    if (sLresult != SL_RESULT_SUCCESS) {
+        ALOGI("232 the reson is :%d", sLresult);
+        return -1;
+    }
+
+    sLresult = (*slEngine)->CreateAudioPlayer(slEngine, &playerObjItr, &slDataSource, &slDataSink,
+                                              3,
+                                              playerIds, playReq);
+    if (sLresult != SL_RESULT_SUCCESS) {
+        ALOGI("CreateAudioFailed the reson is :%d", sLresult);
+        return -1;
+    }
+
+    (*playerObjItr)->Realize(playerObjItr, SL_BOOLEAN_FALSE);
+
+    (*playerObjItr)->GetInterface(playerObjItr, SL_IID_PLAY, &slPlayItf);
+
+    (*playerObjItr)->GetInterface(playerObjItr, SL_IID_BUFFERQUEUE, &slAndroidSimpleBufferQueueItf);
+
+    (*slAndroidSimpleBufferQueueItf)->RegisterCallback(slAndroidSimpleBufferQueueItf,
+                                                       bqPlayerCallback,
+                                                       nullptr);
+
+    (*playerObjItr)->GetInterface(playerObjItr, SL_IID_EFFECTSEND, &slEffectSendItf);
+
+    (*playerObjItr)->GetInterface(playerObjItr, SL_IID_VOLUME, &slVolumeItf);
+    ALOGI("the args of audio audioChannels:%d  \naudioSample： %d", audioChannels.load(),
+          audioSample.load());
 
     return 0;
 }

@@ -8,6 +8,7 @@
 #include <string>
 #include <pthread.h>
 #include <deque>
+#include <atomic>
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 #include "AudioFrameDataBean.h"
@@ -29,12 +30,14 @@ class NewPlayVideoInterface {
 public:
     friend bool isCanPushDataIntoAudioQueue(NewPlayVideoInterface &newPlayVideoInterface);
 
+    friend bool isAudioQueueNoEmpty(NewPlayVideoInterface &newPlayVideoInterface);
+
+
     bool isPlayingVideo;
     std::string theVideoUrl;
     char *outputAudioPath;
     std::string outputVideoPath;
 
-    friend void decodeTask(NewPlayVideoInterface &anInterface);
 
     NewPlayVideoInterface();
 
@@ -79,6 +82,8 @@ private:
     AVFrame *audioFrame;
     int videoStreamIndex;
     int audioStreamIndex;
+
+    std::atomic_bool isQuiet{false};
     std::deque<AVFrame> videoDequeue;
     std::deque<AudioFrameDataBean> audioDeque;
 
@@ -87,7 +92,7 @@ private:
     SLEngineItf slEngine;
     SLObjectItf outputMixObject;
     //混合输出的辅助效果用于缓冲队列
-    const SLEnvironmentalReverbSettings slEnvironmentalReverbSettings = SL_I3DL2_ENVIRONMENT_PRESET_STONECORRIDOR;
+    const   SLEnvironmentalReverbSettings slEnvironmentalReverbSettings ;
     SLEnvironmentalReverbItf outputMixoutputEnvironmentalReverbIter = nullptr;
 
     int decodeAudioData();
@@ -108,10 +113,12 @@ private:
 
     void pushToQueue(AudioFrameDataBean *dataBean);
 
+    AudioFrameDataBean &popAudioFrameBean();
+
 };
 
 bool isCanPushDataIntoAudioQueue(NewPlayVideoInterface &newPlayVideoInterface);
 
-bool isOkToProduceAudioData();
+bool isAudioQueueNoEmpty(NewPlayVideoInterface &newPlayVideoInterface);
 
 #endif //NDKAPPLICATION_NEWPLAYVIDEO_H
