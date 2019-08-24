@@ -7,12 +7,13 @@
 
 int registerNativeMethod(JNIEnv *pInterface);
 
+JavaVM *javaVM = nullptr;
 extern "C" {
 JNINativeMethod videoPlayerMethod[] = {
-        {"onpenVideo", "(Ljava/lang/String;)V", (void *) onPapareForVideo},
+        {"onpenVideo", "(Ljava/lang/String;)V",                   (void *) onPapareForVideo},
         {"playAudio",  "(Ljava/lang/String;Ljava/lang/String;)V", (void *) playAudioData},
-        {"playVideo",  "()V",                   (void *) playVideo},
-        {"destory",  "()V",                   (void *) onDestory}
+        {"playVideo",  "(Landroid/view/Surface;)V",               (void *) playVideo},
+        {"destory",    "()V",                                     (void *) onDestory}
 
 };
 }
@@ -26,6 +27,7 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     if (registerNativeMethod(env) != JNI_OK) {
         return -1;
     }
+    javaVM = vm;
     return JNI_VERSION_1_6;
 }
 

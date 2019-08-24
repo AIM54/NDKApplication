@@ -14,6 +14,9 @@
 #include "GlobalConfig.h"
 #include <condition_variable>
 #include<stdio.h>
+#include <android/window.h>
+#include <android/native_window.h>
+#include <android/native_window_jni.h>
 
 using namespace std;
 SLObjectItf playerObjItr;
@@ -27,6 +30,8 @@ SLVolumeItf slVolumeItf;
 atomic<int> audioChannels{0};
 
 atomic<int> audioSample{0};
+
+atomic<bool> isPlayingVideoStream{false};
 
 
 /**
@@ -42,6 +47,14 @@ std::mutex audioQueueMutex;
  * 音频信息同步锁
  */
 mutex audioStreamMutex;
+atomic_bool hasLoadVideoInfor{false};
+mutex videoInforMutex;
+condition_variable videoInfoCondition;
+
+mutex videoQueueMutex;
+condition_variable videoProducerCondition;
+condition_variable videoConsumerCondition;
+
 
 std::condition_variable produceCondition;
 
@@ -55,7 +68,6 @@ atomic<NewPlayVideoInterface *> thisPlayer{nullptr};
 
 NewPlayVideoInterface::NewPlayVideoInterface() : slEnvironmentalReverbSettings(
         SL_I3DL2_ENVIRONMENT_PRESET_STONECORRIDOR) {
-
 }
 
 
@@ -133,6 +145,9 @@ int NewPlayVideoInterface::decodeAudioMethod(std::string url) {
                 continue;
             }
             while (status >= 0) {
+                if (isQuiet.load()) {
+                    goto destrory;
+                }
                 status = avcodec_receive_frame(audioCodecContext, audioFrame);
                 if (status == AVERROR(EAGAIN) || status == AVERROR_EOF) {
                     break;
@@ -140,26 +155,26 @@ int NewPlayVideoInterface::decodeAudioMethod(std::string url) {
                     ALOGI("Error during decoding3\n");
                     goto destrory;
                 }
-                int data_size = av_get_bytes_per_sample(audioCodecContext->sample_fmt);
                 int newDataSize = av_samples_get_buffer_size(audioFrame->linesize,
                                                              audioCodecContext->channels,
                                                              audioFrame->nb_samples,
                                                              audioCodecContext->sample_fmt,
                                                              1);
+
+                ALOGI("the new Data Size:%d", newDataSize);
                 if (newDataSize > outputBufferSize) {
                     delete[] outputBuffer;
                     outputBufferSize = newDataSize;
                     outputBuffer = new uint8_t[newDataSize];
                 }
                 //在这里进行格式转换
-                swr_convert(audioSwrContext, &outputBuffer, audioFrame->nb_samples,
-                            const_cast<uint8_t const **>(audioFrame->extended_data),
-                            audioFrame->nb_samples);
+                int length = swr_convert(audioSwrContext, &outputBuffer, audioFrame->nb_samples,
+                                         const_cast<uint8_t const **>(audioFrame->extended_data),
+                                         audioFrame->nb_samples);
                 AudioFrameDataBean audioFrameDataBean(outputBufferSize,
                                                       outputBuffer);
                 pushToQueue(audioFrameDataBean);
-                if (data_size < 0) {
-                    /* This should not occur, checking just for paranoia */
+                if (newDataSize < 0) {
                     ALOGI("Error during decoding4\n");
                     goto destrory;
                 }
@@ -172,7 +187,25 @@ int NewPlayVideoInterface::decodeAudioMethod(std::string url) {
         fclose(ouputFile);
     }
     destrory:
-    ALOGI("finish decode Audio frame");
+    if (!audioSwrContext) {
+        swr_free(&audioSwrContext);
+    }
+    if (!audioFrame) {
+        av_frame_free(&audioFrame);
+    }
+    if (!audioPacket) {
+        av_packet_unref(audioPacket);
+        av_packet_free(&audioPacket);
+    }
+    if (!outputBuffer) {
+        delete[] outputBuffer;
+    }
+    if (!audioCodecContext) {
+        avcodec_free_context(&audioCodecContext);
+    }
+    if (!avformat) {
+        avformat_close_input(&avformat);
+    }
     return -1;
 }
 
@@ -350,7 +383,9 @@ int NewPlayVideoInterface::decodeVideoData() {
         ALOGI("failed to open video Stream ");
         return status;
     }
-    int readPacketStatus = 0;
+    hasLoadVideoInfor.store(true);
+    videoInfoCondition.notify_all();
+    int readPacketStatus;
     while ((readPacketStatus = av_read_frame(avformat, avPacket)) >= 0) {
         if (avPacket->stream_index == videoStreamIndex) {
             status = avcodec_send_packet(videoCodecContext, avPacket);
@@ -360,11 +395,16 @@ int NewPlayVideoInterface::decodeVideoData() {
             }
             while (status >= 0) {
                 status = avcodec_receive_frame(videoCodecContext, avFrame);
+
                 if (status == AVERROR(EAGAIN) || status == AVERROR_EOF)
                     break;
                 else if (status < 0) {
                     fprintf(stderr, "Error during decoding\n");
                     exit(1);
+                }
+                AVFrame *videoFrame = av_frame_alloc();
+                if (av_frame_copy(videoFrame, avFrame) >= 0) {
+                    pushVideoFrameToQueue(videoFrame);
                 }
                 double timeStamp =
                         avFrame->pts * av_q2d(avformat->streams[videoStreamIndex]->time_base);
@@ -374,8 +414,16 @@ int NewPlayVideoInterface::decodeVideoData() {
             }
         }
     }
-    ALOGI("readPacketStatus:%d", readPacketStatus);
     return 1;
+}
+
+
+void NewPlayVideoInterface::pushVideoFrameToQueue(AVFrame *avFrame) {
+    unique_lock<mutex> videoQueueLock(videoQueueMutex);
+    videoProducerCondition.wait(videoQueueLock,
+                                [this] { return this->videoFrameList.size() < 10; });
+    videoFrameList.push_back(avFrame);
+    videoConsumerCondition.notify_all();
 }
 
 
@@ -411,15 +459,68 @@ NewPlayVideoInterface::~NewPlayVideoInterface() {
 }
 
 
-void NewPlayVideoInterface::playTheVideo() {
+void NewPlayVideoInterface::playTheVideo(JNIEnv *pEnv, jobject pJobject, JavaVM *pVM) {
     int status = 0;
     if (currentPlayState == PlayState::error) {
         ALOGI("failed to open video File");
         return;
     }
+    if (!pVM) {
+        ALOGI("get JavaVm failed");
+        return;
+    }
+    isPlayingVideoStream.store(true);
     thread decodeVideoThread(&NewPlayVideoInterface::decodeVideoData, this);
     decodeVideoThread.detach();
+    showVideoFrame(pEnv, pJobject, pVM);
 }
+
+void NewPlayVideoInterface::showVideoFrame(JNIEnv *pEnv, jobject surfaceHolder, JavaVM *javaVM) {
+    ANativeWindow *videoWindow = ANativeWindow_fromSurface(pEnv, surfaceHolder);
+    unique_lock<mutex> videoInfoLock(videoInforMutex);
+    ALOGI("before wait for videoCodecContext");
+    videoInfoCondition.wait(videoInfoLock, [this] {
+        return hasLoadVideoInfor.load();
+    });
+    ALOGI("after wait for videoCodecContext%d", videoCodecContext->height);
+    ANativeWindow_setBuffersGeometry(videoWindow, videoCodecContext->width,
+                                     videoCodecContext->height, WINDOW_FORMAT_RGBA_8888);
+    int imageBufferSize = av_image_get_buffer_size(AV_PIX_FMT_RGBA, videoCodecContext->width,
+                                                   videoCodecContext->height,
+                                                   1);
+    uint8_t *bufferArray = static_cast<uint8_t *>(av_malloc(imageBufferSize * sizeof(uint8_t)));
+    AVFrame *rgbFrame = av_frame_alloc();
+    av_image_fill_arrays(rgbFrame->data, rgbFrame->linesize, bufferArray, AV_PIX_FMT_RGBA,
+                         videoCodecContext->width, videoCodecContext->height, 0);
+
+    SwsContext *swsContext = sws_getContext(videoCodecContext->width, videoCodecContext->height,
+                                            videoCodecContext->pix_fmt,
+                                            videoCodecContext->width, videoCodecContext->height,
+                                            AV_PIX_FMT_RGBA,
+                                            SWS_BILINEAR, nullptr, nullptr, nullptr);
+    while (isPlayingVideoStream.load()) {
+        unique_lock<mutex> videoQueueLock(videoQueueMutex);
+        videoConsumerCondition.wait(videoQueueLock,
+                                    [this] { return !this->videoFrameList.empty(); });
+        AVFrame *srcFrame = videoFrameList.front();
+        ANativeWindow_Buffer windowBuffer;
+        ANativeWindow_lock(videoWindow, &windowBuffer, 0);
+        sws_scale(swsContext, srcFrame->data, srcFrame->linesize, 0, videoCodecContext->height,
+                  rgbFrame->data, rgbFrame->linesize);
+        uint8_t *dstBits = static_cast<uint8_t *>(windowBuffer.bits);
+        int dstStride = windowBuffer.stride * 4;
+        uint8_t *src = rgbFrame->data[0];
+        int srcStride = rgbFrame->linesize[0];
+        for (int i = 0; i < videoCodecContext->height; ++i) {
+            memcpy(dstBits + i * dstStride, src + i * srcStride, srcStride);
+        }
+        ANativeWindow_unlockAndPost(videoWindow);
+        videoFrameList.pop_front();
+        videoProducerCondition.notify_all();
+    }
+    javaVM->DetachCurrentThread();
+}
+
 
 void NewPlayVideoInterface::setAudioOutputPath(const char *string) {
     outputAudioPath = const_cast<char *>(string);
@@ -427,6 +528,12 @@ void NewPlayVideoInterface::setAudioOutputPath(const char *string) {
 
 void NewPlayVideoInterface::stopPlay() {
     isQuiet.store(true);
+    if (!slPlayItf) {
+        (*slPlayItf)->SetPlayState(slPlayItf, SL_PLAYSTATE_STOPPED);
+    }
+    while (!audioDeque.empty()) {
+        audioDeque.pop_back();
+    }
 }
 
 

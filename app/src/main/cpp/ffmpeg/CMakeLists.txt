@@ -23,7 +23,8 @@ add_library( # Sets the name of the library.
         test/MyVideoPlayer.cpp
         test/RegisterControl.cpp
         test/AudioFrameDataBean.cpp
-        test/EncodePicToVideo.c)
+        test/EncodePicToVideo.c
+        test/VideoList.c)
 
 
 # 定义源码所在目录

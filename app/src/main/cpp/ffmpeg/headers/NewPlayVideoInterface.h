@@ -11,7 +11,9 @@
 #include <atomic>
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
+#include <list>
 #include "AudioFrameDataBean.h"
+#include <jni.h>
 
 extern "C"
 {
@@ -19,6 +21,7 @@ extern "C"
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 #include "libswresample/swresample.h"
+#include "libavutil/imgutils.h"
 #include "libavutil/opt.h"
 }
 
@@ -49,7 +52,7 @@ public:
 
     virtual void openInput(std::string);
 
-    virtual void playTheVideo();
+    virtual void playTheVideo(JNIEnv *pEnv, jobject pJobject, JavaVM *pVM);
 
     virtual void pauseTheVideo();
 
@@ -90,8 +93,9 @@ private:
     int audioStreamIndex;
 
     std::atomic_bool isQuiet{false};
-    std::deque<AVFrame> videoDequeue;
     std::deque<AudioFrameDataBean> audioDeque;
+
+    std::list<AVFrame *> videoFrameList;
 
 
     SLObjectItf slObjectItf1 = nullptr;
@@ -104,6 +108,8 @@ private:
     int decodeAudioData();
 
     int decodeAudioMethod(std::string url);
+
+    void releaseResource();
 
     int playMusicInAndroid();
 
@@ -119,11 +125,17 @@ private:
 
     void pushToQueue(AudioFrameDataBean &dataBean);
 
+    void pushVideoFrameToQueue(AVFrame *avFrame);
+
+    void showVideoFrame(JNIEnv * pEnv, jobject  surfaceHolder, JavaVM *javaVM);
+
 
 };
 
 bool isCanPushDataIntoAudioQueue(NewPlayVideoInterface &newPlayVideoInterface);
 
 bool isAudioQueueNoEmpty(NewPlayVideoInterface &newPlayVideoInterface);
+
 void bqPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context);
+
 #endif //NDKAPPLICATION_NEWPLAYVIDEO_H

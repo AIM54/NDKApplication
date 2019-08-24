@@ -2,12 +2,14 @@
 // Created by Administrator on 2019/8/5.
 //
 
+#include <android/native_window_jni.h>
 #include "MyVideoPlayer.h"
 #include "GlobalConfig.h"
 #include "NewPlayVideoInterface.h"
 
 
 NewPlayVideoInterface *newPlayVideoInterface = nullptr;
+extern JavaVM *javaVM;
 
 void JNICALL onPapareForVideo(JNIEnv *env, jobject instance,
                               jstring url_) {
@@ -24,7 +26,6 @@ void JNICALL playAudioData(JNIEnv *env, jobject instance,
                            jstring url_, jstring outputUrl_) {
     const char *videoPath = env->GetStringUTFChars(url_, 0);
     const char *outputAudioPath = env->GetStringUTFChars(outputUrl_, 0);
-    ALOGI("the path is openeddada:%s\n the outputPaht:%s", videoPath, outputAudioPath);
     if (!newPlayVideoInterface) {
         newPlayVideoInterface = new NewPlayVideoInterface();
         newPlayVideoInterface->setAudioOutputPath(outputAudioPath);
@@ -34,8 +35,9 @@ void JNICALL playAudioData(JNIEnv *env, jobject instance,
     env->ReleaseStringUTFChars(url_, videoPath);
 }
 
-void playVideo() {
-    newPlayVideoInterface->playTheVideo();
+void playVideo(JNIEnv *env, jclass type,
+               jobject surface) {
+    newPlayVideoInterface->playTheVideo(env, surface, javaVM);
 }
 
 

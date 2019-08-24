@@ -4,6 +4,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 
 import androidx.annotation.NonNull;
@@ -29,7 +30,7 @@ public class VideoPlayer {
                     onpenVideo((String) message.obj);
                     break;
                 case PLAY_VIDEO_CODE:
-                    playVideo();
+                    playVideo(mHolder.getSurface());
                     break;
                 case PLAY_AUDIO_CODE:
                     String ouputUrl=createOutputFile();
@@ -94,7 +95,7 @@ public class VideoPlayer {
 
     private native void onpenVideo(String url);
 
-    private native void playVideo();
+    private native void playVideo(Surface holder);
 
     private native void playAudio(String filePath,String outputUrl);
 

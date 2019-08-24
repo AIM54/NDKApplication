@@ -21,8 +21,6 @@ public class NewVideoPlayActivity extends AppCompatActivity implements SurfaceHo
     private SurfaceHolder mHolder;
     private String mFileString;
     private VideoPlayer mVideoPlayer;
-    private HandlerThread mVideoThread;
-    private Handler mHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +48,8 @@ public class NewVideoPlayActivity extends AppCompatActivity implements SurfaceHo
 
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
-       mVideoPlayer=new VideoPlayer(surfaceHolder);
-       mVideoPlayer.prapareForVideo(mFileString);
+        mVideoPlayer = new VideoPlayer(surfaceHolder);
+        mVideoPlayer.prapareForVideo(mFileString);
     }
 
     @Override
@@ -66,7 +64,7 @@ public class NewVideoPlayActivity extends AppCompatActivity implements SurfaceHo
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()){
+        switch (view.getId()) {
             case R.id.bt_video_play:
                 mVideoPlayer.playerVideo();
                 break;

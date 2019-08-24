@@ -38,6 +38,7 @@ public class VideoPlayActivity extends AppCompatActivity implements SurfaceHolde
             @Override
             public void run() {
                 VideoUtil.decodeVideo(stringVideoPath,mSurfaceHolder.getSurface());
+
             }
         }).start();
 

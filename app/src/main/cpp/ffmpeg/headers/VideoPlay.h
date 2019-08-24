@@ -1,0 +1,9 @@
+//
+// Created by Administrator on 2019/8/24.
+//
+
+#ifndef NDKAPPLICATION_VIDEOPLAY_H
+#define NDKAPPLICATION_VIDEOPLAY_H
+
+
+#endif //NDKAPPLICATION_VIDEOPLAY_H
