@@ -46,7 +46,8 @@ AVFrame *popAvFrame() {
         return NULL;
     }
     listSize--;
-    if (!head->next) {
+    if (head == tail) {
+        head->value = NULL;
         return value;
     }
     ListEntity *newHead = head->next;

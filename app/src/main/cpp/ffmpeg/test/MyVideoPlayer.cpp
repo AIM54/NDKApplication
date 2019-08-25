@@ -5,8 +5,17 @@
 #include <android/native_window_jni.h>
 #include "MyVideoPlayer.h"
 #include "GlobalConfig.h"
-#include "NewPlayVideoInterface.h"
 
+extern "C" {
+#include "VideoPlay.h"
+}
+
+#include "NewPlayVideoInterface.h"
+#include "SimpleCppPlayer.h"
+#include "MutilThreadPlayer.h"
+
+char *videoUrl;
+std::list<AVFrame *> frameList;
 
 NewPlayVideoInterface *newPlayVideoInterface = nullptr;
 extern JavaVM *javaVM;
@@ -14,11 +23,12 @@ extern JavaVM *javaVM;
 void JNICALL onPapareForVideo(JNIEnv *env, jobject instance,
                               jstring url_) {
     const char *videoPath = env->GetStringUTFChars(url_, 0);
-    ALOGI("the path is opened:%s", videoPath);
-    if (!newPlayVideoInterface) {
-        newPlayVideoInterface = new NewPlayVideoInterface();
+    if (newPlayVideoInterface) {
+        delete newPlayVideoInterface;
     }
-    newPlayVideoInterface->openInput(videoPath);
+//    newPlayVideoInterface = new NewPlayVideoInterface();
+//    newPlayVideoInterface->openInput(videoPath);
+    videoUrl = const_cast<char *>(videoPath);
     env->ReleaseStringUTFChars(url_, videoPath);
 }
 
@@ -37,7 +47,10 @@ void JNICALL playAudioData(JNIEnv *env, jobject instance,
 
 void playVideo(JNIEnv *env, jclass type,
                jobject surface) {
-    newPlayVideoInterface->playTheVideo(env, surface, javaVM);
+//    if (newPlayVideoInterface) {
+//        newPlayVideoInterface->playTheVideo(env, surface, javaVM);
+//    }
+    playVideoSimple(env, type, surface);
 }
 
 
@@ -46,4 +59,11 @@ void onDestory() {
     if (newPlayVideoInterface) {
         delete newPlayVideoInterface;
     }
+}
+
+void playVideoSimple(JNIEnv *pEnv, jclass type,
+                     jobject surfaceHolder) {
+    MutilThreadPlayer* player=new MutilThreadPlayer();
+    player->playVideo(pEnv, surfaceHolder, videoUrl);
+
 }

@@ -21,6 +21,9 @@ void JNICALL playAudioData(JNIEnv *env, jobject instance,
 void playVideo(JNIEnv *env, jclass type,
                jobject surface);
 
+void playVideoSimple(JNIEnv *pEnv, jclass type,
+                     jobject surfaceHolder);
+
 void onDestory();
 
 #endif //NDKAPPLICATION_MYVIDEOPLAYER_H

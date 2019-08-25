@@ -15,7 +15,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class VideoPlayer {
-    private SurfaceHolder mHolder;
+    private Surface mSurface;
     HandlerThread mHandlerThread;
     private Handler videoHandler;
     public final static int OPEN_VIDEO_CODE = 110;
@@ -30,7 +30,7 @@ public class VideoPlayer {
                     onpenVideo((String) message.obj);
                     break;
                 case PLAY_VIDEO_CODE:
-                    playVideo(mHolder.getSurface());
+                    playVideo(mSurface);
                     break;
                 case PLAY_AUDIO_CODE:
                     String ouputUrl=createOutputFile();
@@ -57,8 +57,8 @@ public class VideoPlayer {
         System.loadLibrary("Bian");
     }
 
-    public VideoPlayer(SurfaceHolder holder) {
-        this.mHolder = holder;
+    public VideoPlayer(Surface holder) {
+        this.mSurface = holder;
         mHandlerThread = new HandlerThread("VideoPlayer");
         mHandlerThread.start();
         videoHandler = new Handler(mHandlerThread.getLooper(), mCallback);
@@ -93,7 +93,11 @@ public class VideoPlayer {
         return "";
     }
 
-    private native void onpenVideo(String url);
+    public native void onpenVideo(String url);
+
+    public void newPlayVideo(){
+        playVideo(mSurface);
+    }
 
     private native void playVideo(Surface holder);
 
@@ -108,6 +112,8 @@ public class VideoPlayer {
         message.obj = data;
         videoHandler.sendMessage(message);
     }
+
+
 
     public void prapareForVideo(String mFileString) {
         sendMessage(mFileString, OPEN_VIDEO_CODE);

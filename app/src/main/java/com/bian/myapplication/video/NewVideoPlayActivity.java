@@ -11,6 +11,7 @@ import android.widget.SeekBar;
 
 import com.bian.myapplication.R;
 import com.bian.myapplication.utils.AppConstant;
+import com.bian.myapplication.utils.VideoUtil;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -47,9 +48,17 @@ public class NewVideoPlayActivity extends AppCompatActivity implements SurfaceHo
     }
 
     @Override
-    public void surfaceCreated(SurfaceHolder surfaceHolder) {
-        mVideoPlayer = new VideoPlayer(surfaceHolder);
-        mVideoPlayer.prapareForVideo(mFileString);
+    public void surfaceCreated(final SurfaceHolder surfaceHolder) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mVideoPlayer = new VideoPlayer(surfaceHolder.getSurface());
+                mVideoPlayer.onpenVideo(mFileString);
+                mVideoPlayer.newPlayVideo();
+            }
+        }).start();
+
+
     }
 
     @Override

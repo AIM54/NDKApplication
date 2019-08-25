@@ -16,6 +16,7 @@
 #include <pthread.h>
 #include <string.h>
 #include <time.h>
+#include "VideoPlay.h"
 #include <TestEncodeVideo.h>
 #include <GlobalConfig.h>
 #include <VideoList.h>
@@ -44,6 +45,7 @@ pthread_cond_t videoInforCond;
 AVCodecContext *avCodecContext = NULL;
 bool isPlayingVideo = false;
 
+
 JNIEXPORT void JNICALL
 Java_com_bian_myapplication_utils_VideoUtil_testSoLibrary(JNIEnv *env, jclass type) {
     jclass jcls = (*env)->FindClass(env, "com/bian/myapplication/utils/VideoUtil");
@@ -58,6 +60,11 @@ void JNICALL
 Java_com_bian_myapplication_utils_VideoUtil_decodeVideo(JNIEnv *env, jclass type, jstring filePath_,
                                                         jobject surface) {
     const char *file_name = (*env)->GetStringUTFChars(env, filePath_, 0);
+    displayTheVideo(file_name, env, surface);
+    (*env)->ReleaseStringUTFChars(env, file_name, filePath_);
+}
+
+void displayTheVideo(char *videoUrl, JNIEnv *pEnv, jobject surface) {
     pthread_t decodeVideoThread;
     initList();
     pthread_mutex_init(&videoListMutex, NULL);
@@ -68,10 +75,9 @@ Java_com_bian_myapplication_utils_VideoUtil_decodeVideo(JNIEnv *env, jclass type
     pthread_cond_init(&videoConsumerCond, NULL);
     pthread_cond_init(&videoProduceCond, NULL);
 
-    pthread_create(&decodeVideoThread, NULL, (void *) decodeVideoData, (void *) file_name);
+    pthread_create(&decodeVideoThread, NULL, (void *) decodeVideoData, (void *) videoUrl);
     pthread_detach(decodeVideoThread);
-    dispayVideo(env, surface);
-    (*env)->ReleaseStringUTFChars(env, file_name, filePath_);
+    dispayVideo(pEnv, surface);
 }
 
 
@@ -150,9 +156,9 @@ int decodeVideoData(char *videoUrl) {
                         pthread_cond_wait(&videoProduceCond, &videoListMutex);
                     }
                     pushAvFrame(newAVFrame);
+                    av_frame_unref(avFrame);
                     pthread_mutex_unlock(&videoListMutex);
                     pthread_cond_signal(&videoConsumerCond);
-                    av_frame_unref(avFrame);
                     ALOGI("currentFrameTime: %f", timeStamp);
                 }
             }
@@ -201,6 +207,9 @@ int dispayVideo(JNIEnv *env, jobject surface) {
             pthread_cond_wait(&videoConsumerCond, &videoListMutex);
         }
         AVFrame *newAvFrame = popAvFrame();
+        if (!newAvFrame) {
+            break;
+        }
         ANativeWindow_lock(nativeWindow, &windowBuffer, 0);
 
         //对帧数据进行格式转换，视频的起始高度和结束高度
@@ -219,7 +228,6 @@ int dispayVideo(JNIEnv *env, jobject surface) {
         ANativeWindow_unlockAndPost(nativeWindow);
         pthread_mutex_unlock(&videoListMutex);
         pthread_cond_signal(&videoProduceCond);
-        av_frame_unref(newAvFrame);
         av_frame_free(&newAvFrame);
     }
 }

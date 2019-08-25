@@ -354,12 +354,24 @@ int NewPlayVideoInterface::decodeAudioData() {
 
 int NewPlayVideoInterface::decodeVideoData() {
     int status = -1;
-    status = av_find_best_stream(avformat, AVMEDIA_TYPE_VIDEO, -1, -1, &videoCodec, 0);
-    if (status < 0) {
+    int videoIndex = -1;
+    for (int index = 0; index < avformat->nb_streams; ++index) {
+        if (avformat->streams[index]->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+            videoIndex = index;
+            break;
+        }
+    }
+    if (videoIndex < 0) {
         ALOGI("failed to find video stream");
         return status;
     }
-    videoStreamIndex = status;
+    videoStreamIndex = videoIndex;
+
+    double videoLength = avformat->streams[videoStreamIndex]->duration *
+                         av_q2d(avformat->streams[videoStreamIndex]->time_base);
+    ALOGI("the totalLength of Video is: %f", videoLength);
+    AVCodec *videoCodec = avcodec_find_decoder(
+            avformat->streams[videoStreamIndex]->codecpar->codec_id);
     if (!videoCodec) {
         status = -1;
         ALOGI("failed to find videoCodeer");
@@ -403,14 +415,10 @@ int NewPlayVideoInterface::decodeVideoData() {
                     exit(1);
                 }
                 AVFrame *videoFrame = av_frame_alloc();
-                if (av_frame_copy(videoFrame, avFrame) >= 0) {
+                if (av_frame_ref(videoFrame, avFrame) >= 0) {
                     pushVideoFrameToQueue(videoFrame);
                 }
-                double timeStamp =
-                        avFrame->pts * av_q2d(avformat->streams[videoStreamIndex]->time_base);
-                if (timeStamp > 0) {
-                    ALOGI("currentFrameTime: %f", timeStamp);
-                }
+                av_frame_unref(avFrame);
             }
         }
     }
@@ -482,7 +490,8 @@ void NewPlayVideoInterface::showVideoFrame(JNIEnv *pEnv, jobject surfaceHolder, 
     videoInfoCondition.wait(videoInfoLock, [this] {
         return hasLoadVideoInfor.load();
     });
-    ALOGI("after wait for videoCodecContext%d", videoCodecContext->height);
+    ALOGI("after wait for videoCodecContext.width:%d||height:%d", videoCodecContext->width,
+          videoCodecContext->height);
     ANativeWindow_setBuffersGeometry(videoWindow, videoCodecContext->width,
                                      videoCodecContext->height, WINDOW_FORMAT_RGBA_8888);
     int imageBufferSize = av_image_get_buffer_size(AV_PIX_FMT_RGBA, videoCodecContext->width,
@@ -493,11 +502,13 @@ void NewPlayVideoInterface::showVideoFrame(JNIEnv *pEnv, jobject surfaceHolder, 
     av_image_fill_arrays(rgbFrame->data, rgbFrame->linesize, bufferArray, AV_PIX_FMT_RGBA,
                          videoCodecContext->width, videoCodecContext->height, 0);
 
-    SwsContext *swsContext = sws_getContext(videoCodecContext->width, videoCodecContext->height,
-                                            videoCodecContext->pix_fmt,
-                                            videoCodecContext->width, videoCodecContext->height,
-                                            AV_PIX_FMT_RGBA,
-                                            SWS_BILINEAR, nullptr, nullptr, nullptr);
+    struct SwsContenxt *swsContenxt = reinterpret_cast<struct SwsContenxt *>(sws_getContext(
+            videoCodecContext->width,
+            videoCodecContext->height,
+            videoCodecContext->pix_fmt,
+            videoCodecContext->width, videoCodecContext->height,
+            AV_PIX_FMT_RGBA,
+            SWS_BILINEAR, NULL, NULL, NULL));
     while (isPlayingVideoStream.load()) {
         unique_lock<mutex> videoQueueLock(videoQueueMutex);
         videoConsumerCondition.wait(videoQueueLock,
@@ -505,7 +516,9 @@ void NewPlayVideoInterface::showVideoFrame(JNIEnv *pEnv, jobject surfaceHolder, 
         AVFrame *srcFrame = videoFrameList.front();
         ANativeWindow_Buffer windowBuffer;
         ANativeWindow_lock(videoWindow, &windowBuffer, 0);
-        sws_scale(swsContext, srcFrame->data, srcFrame->linesize, 0, videoCodecContext->height,
+        sws_scale(reinterpret_cast<SwsContext *>(swsContenxt),
+                  (uint8_t const *const *) srcFrame->data, srcFrame->linesize, 0,
+                  videoCodecContext->height,
                   rgbFrame->data, rgbFrame->linesize);
         uint8_t *dstBits = static_cast<uint8_t *>(windowBuffer.bits);
         int dstStride = windowBuffer.stride * 4;
@@ -514,11 +527,14 @@ void NewPlayVideoInterface::showVideoFrame(JNIEnv *pEnv, jobject surfaceHolder, 
         for (int i = 0; i < videoCodecContext->height; ++i) {
             memcpy(dstBits + i * dstStride, src + i * srcStride, srcStride);
         }
+        double timeStamp =srcFrame->pts * av_q2d(avformat->streams[videoStreamIndex]->time_base);
+        if (timeStamp > 0) {
+            ALOGI("currentFrameTime: %f", timeStamp);
+        }
         ANativeWindow_unlockAndPost(videoWindow);
         videoFrameList.pop_front();
         videoProducerCondition.notify_all();
     }
-    javaVM->DetachCurrentThread();
 }
 
 
