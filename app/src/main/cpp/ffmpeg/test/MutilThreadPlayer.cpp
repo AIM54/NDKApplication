@@ -164,7 +164,6 @@ int MutilThreadPlayer::displayVideo(JNIEnv *pEnv, jobject surfaceView) {
         videoQueueLock.unlock();
         produceCond.notify_all();
     }
-    sws_freeContext(swsContenxt);
     return 0;
 }
 
