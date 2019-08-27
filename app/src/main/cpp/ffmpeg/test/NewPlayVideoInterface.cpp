@@ -27,43 +27,43 @@ SLEffectSendItf slEffectSendItf;
 
 SLVolumeItf slVolumeItf;
 
-atomic<int> audioChannels{0};
+static atomic<int> audioChannels{0};
 
-atomic<int> audioSample{0};
+static atomic<int> audioSample{0};
 
-atomic<bool> isPlayingVideoStream{false};
+static atomic<bool> isPlayingVideoStream{false};
 
 
 /**
  * 音频信息同步条件
  */
-condition_variable audioStreamInfoCondition;
+static condition_variable audioStreamInfoCondition;
 /**
  * 音频队列同步锁
  */
-std::mutex audioQueueMutex;
+static std::mutex audioQueueMutex;
 
 /**
  * 音频信息同步锁
  */
-mutex audioStreamMutex;
-atomic_bool hasLoadVideoInfor{false};
-mutex videoInforMutex;
-condition_variable videoInfoCondition;
+static mutex audioStreamMutex;
+static atomic_bool hasLoadVideoInfor{false};
+static mutex videoInforMutex;
+static condition_variable videoInfoCondition;
 
-mutex videoQueueMutex;
-condition_variable videoProducerCondition;
-condition_variable videoConsumerCondition;
+static mutex videoQueueMutex;
+static condition_variable videoProducerCondition;
+static condition_variable videoConsumerCondition;
 
 
-std::condition_variable produceCondition;
+static std::condition_variable produceCondition;
 
-std::condition_variable consumerCondition;
+static std::condition_variable consumerCondition;
 
 static const SLEnvironmentalReverbSettings reverbSettings =
         SL_I3DL2_ENVIRONMENT_PRESET_STONECORRIDOR;
 
-atomic<NewPlayVideoInterface *> thisPlayer{nullptr};
+static atomic<NewPlayVideoInterface *> thisPlayer{nullptr};
 
 
 NewPlayVideoInterface::NewPlayVideoInterface() : slEnvironmentalReverbSettings(
@@ -155,11 +155,10 @@ int NewPlayVideoInterface::decodeAudioMethod(std::string url) {
                     ALOGI("Error during decoding3\n");
                     goto destrory;
                 }
-                int newDataSize = av_samples_get_buffer_size(audioFrame->linesize,
-                                                             audioCodecContext->channels,
-                                                             audioFrame->nb_samples,
-                                                             audioCodecContext->sample_fmt,
-                                                             1);
+                int data_size = av_get_bytes_per_sample(audioCodecContext->sample_fmt);
+                int channelNumbers = av_get_channel_layout_nb_channels(
+                        audioCodecContext->channel_layout);
+                int newDataSize = channelNumbers * audioFrame->nb_samples * data_size;
 
                 ALOGI("the new Data Size:%d", newDataSize);
                 if (newDataSize > outputBufferSize) {
@@ -167,8 +166,9 @@ int NewPlayVideoInterface::decodeAudioMethod(std::string url) {
                     outputBufferSize = newDataSize;
                     outputBuffer = new uint8_t[newDataSize];
                 }
+                uint8_t *outArr[2] = {0};
                 //在这里进行格式转换
-                int length = swr_convert(audioSwrContext, &outputBuffer, audioFrame->nb_samples,
+                int length = swr_convert(audioSwrContext, outArr, audioFrame->nb_samples,
                                          const_cast<uint8_t const **>(audioFrame->extended_data),
                                          audioFrame->nb_samples);
                 AudioFrameDataBean audioFrameDataBean(outputBufferSize,
@@ -178,6 +178,8 @@ int NewPlayVideoInterface::decodeAudioMethod(std::string url) {
                     ALOGI("Error during decoding4\n");
                     goto destrory;
                 }
+
+
                 double timeStamp =
                         audioFrame->pts * av_q2d(avformat->streams[audioStreamIndex]->time_base);
             }
@@ -527,7 +529,7 @@ void NewPlayVideoInterface::showVideoFrame(JNIEnv *pEnv, jobject surfaceHolder, 
         for (int i = 0; i < videoCodecContext->height; ++i) {
             memcpy(dstBits + i * dstStride, src + i * srcStride, srcStride);
         }
-        double timeStamp =srcFrame->pts * av_q2d(avformat->streams[videoStreamIndex]->time_base);
+        double timeStamp = srcFrame->pts * av_q2d(avformat->streams[videoStreamIndex]->time_base);
         if (timeStamp > 0) {
             ALOGI("currentFrameTime: %f", timeStamp);
         }

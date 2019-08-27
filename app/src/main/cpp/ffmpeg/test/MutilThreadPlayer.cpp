@@ -25,29 +25,39 @@ int MutilThreadPlayer::deocodeVideo(char *videoUrl) {
     AVPacket *avPacket = av_packet_alloc();
     av_init_packet(avPacket);
     AVFrame *avFrame = av_frame_alloc();
-    while (av_read_frame(avFormatContext, avPacket) >= 0) {
+    int decodeVideoStatus;
+    while ((decodeVideoStatus = av_read_frame(avFormatContext, avPacket)) >= 0) {
         if (avPacket->stream_index == videoIndex) {
-            int deocodeResult = 0;
-            if ((deocodeResult = avcodec_send_packet(avCodecContext, avPacket)) < 0) {
+            if ((decodeVideoStatus = avcodec_send_packet(avCodecContext, avPacket)) < 0) {
+                av_packet_unref(avPacket);
                 break;
             }
-            while (deocodeResult >= 0) {
-                deocodeResult = avcodec_receive_frame(avCodecContext, avFrame);
-                if (deocodeResult < 0) {
-                    break;
+            while (decodeVideoStatus >= 0) {
+                decodeVideoStatus = avcodec_receive_frame(avCodecContext, avFrame);
+                if (decodeVideoStatus == AVERROR(EAGAIN) || decodeVideoStatus == AVERROR_EOF) {
+                    av_frame_unref(avFrame);
+                    continue;
+                } else if (decodeVideoStatus < 0) {
+                    av_frame_free(&avFrame);
+                    av_packet_free(&avPacket);
+                    exit(1);
                 }
-
                 double timeStamp =
                         avFrame->pts * av_q2d(avFormatContext->streams[videoIndex]->time_base);
                 AVFrame *newFrame = av_frame_alloc();
                 av_frame_ref(newFrame, avFrame);
                 enqueueFrame(newFrame);
+                av_frame_unref(avFrame);
                 if (timeStamp > 0) {
                     ALOGI("currentFrameTime: %f", timeStamp);
                 }
             }
         }
+        av_packet_unref(avPacket);
     }
+    av_frame_free(&avFrame);
+    av_packet_unref(avPacket);
+    av_packet_free(&avPacket);
     return 0;
 }
 
@@ -149,11 +159,12 @@ int MutilThreadPlayer::displayVideo(JNIEnv *pEnv, jobject surfaceView) {
             memcpy(dst + h * dstStride, src + h * srcStride, srcStride);
         }
         ANativeWindow_unlockAndPost(nativeWindow);
-        av_frame_free()
+        av_frame_free(&avFrame);
         avFrameList.pop_front();
         videoQueueLock.unlock();
         produceCond.notify_all();
     }
+    sws_freeContext(swsContenxt);
     return 0;
 }
 
@@ -162,10 +173,4 @@ void MutilThreadPlayer::enqueueFrame(AVFrame *avFrame) {
     produceCond.wait(videoQueueLock, [this] { return this->avFrameList.size() < 10; });
     avFrameList.push_back(avFrame);
     consumerCond.notify_all();
-}
-
-AVFrame *MutilThreadPlayer::popAvFrame() {
-    unique_lock<mutex> videoQueueLock(videoQueueMutex);
-    consumerCond.wait(videoQueueLock, [this] { return !this->avFrameList.empty(); });
-    return nullptr;
 }

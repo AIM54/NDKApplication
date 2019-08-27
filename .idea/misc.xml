@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectPlainTextFileTypeManager">
+    <file url="file://$PROJECT_DIR$/app/src/main/cpp/ffmpeg/headers/libavutil/hwcontext.h" />
+    <file url="file://$PROJECT_DIR$/app/src/main/cpp/ffmpeg/headers/libavutil/hwcontext_cuda.h" />
+    <file url="file://$PROJECT_DIR$/app/src/main/cpp/ffmpeg/headers/libavutil/hwcontext_d3d11va.h" />
+    <file url="file://$PROJECT_DIR$/app/src/main/cpp/ffmpeg/headers/libavutil/hwcontext_drm.h" />
+    <file url="file://$PROJECT_DIR$/app/src/main/cpp/ffmpeg/headers/libavutil/hwcontext_dxva2.h" />
+    <file url="file://$PROJECT_DIR$/app/src/main/cpp/ffmpeg/headers/libavutil/hwcontext_qsv.h" />
+    <file url="file://$PROJECT_DIR$/app/src/main/cpp/ffmpeg/headers/libavutil/hwcontext_vaapi.h" />
+    <file url="file://$PROJECT_DIR$/app/src/main/cpp/ffmpeg/headers/libavutil/hwcontext_vdpau.h" />
+    <file url="file://$PROJECT_DIR$/app/src/main/cpp/ffmpeg/headers/libavutil/hwcontext_videotoolbox.h" />
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>
