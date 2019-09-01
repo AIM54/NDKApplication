@@ -129,6 +129,8 @@ int AudioPlayer::decodeAudioData(char *url) {
                         swr_get_delay(swr_ctx, audioCodecContext->sample_rate) +
                         audioFrame->nb_samples,
                         audioFrame->sample_rate, audioFrame->sample_rate, AV_ROUND_INF);
+                ALOGI("The decodedVideo's dst_nb_sample:%d||newDataSize:%d", dst_nb_samples,
+                      newDataSize);
                 if (newDataSize > outputBufferSize) {
                     delete[] outputBuffer;
                     outputBufferSize = newDataSize;
@@ -139,9 +141,11 @@ int AudioPlayer::decodeAudioData(char *url) {
                 //根据布局获取声道数
                 int out_channels = av_get_channel_layout_nb_channels(dst_ch_layout);
                 int dataSize = out_channels * nb * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
-                AudioFrameDataBean audioFrameDataBean(outputBufferSize,
+                AudioFrameDataBean audioFrameDataBean(dataSize,
                                                       outputBuffer);
-                pushAudioFrameIntoList(audioFrameDataBean);
+                if (dataSize > 0) {
+                    pushAudioFrameIntoList(audioFrameDataBean);
+                }
             }
         }
     }
