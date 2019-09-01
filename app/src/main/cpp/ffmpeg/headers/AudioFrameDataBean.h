@@ -8,6 +8,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <string>
 
 class AudioFrameDataBean {
 private :
@@ -15,6 +16,8 @@ private :
     uint8_t *data;
     double timeStamp;
 public:
+    std::string deleteName;
+
     AudioFrameDataBean();
 
     AudioFrameDataBean(size_t size, uint8_t *paramData);
@@ -26,6 +29,8 @@ public:
     size_t getSize();
 
     uint8_t *getData();
+
+    double getTimeStamp();
 
     void setTimeStamp(double timeStamp);
 

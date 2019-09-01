@@ -16,13 +16,10 @@ extern "C" {
 #include "libswresample/swresample.h"
 #include "libavutil/opt.h"
 }
-
 static AVFormatContext *audioFormatContext;
 static AVCodec *audioCodec = nullptr;
 static AVCodecContext *audioCodecContext;
 static AVCodecParameters *audioAvCodecParameters;
-static uint64_t dst_layout;
-
 static int audioStreamIndex;
 
 static int dst_ch_layout = AV_CH_LAYOUT_STEREO;
@@ -50,6 +47,7 @@ SLEngineItf slEngine;
 SLObjectItf outputMixObject;
 SLEnvironmentalReverbItf outputMixoutputEnvironmentalReverbIter = nullptr;
 
+
 using namespace std;
 
 int AudioPlayer::decodeAudioData(char *url) {
@@ -75,8 +73,6 @@ int AudioPlayer::decodeAudioData(char *url) {
     av_opt_set_int(swr_ctx, "out_channel_layout", dst_ch_layout, 0);
     av_opt_set_int(swr_ctx, "out_sample_rate", dst_rate, 0);
     av_opt_set_sample_fmt(swr_ctx, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
-    ALOGI("the audio_rate:%d|| the channels:%d", audioCodecContext->sample_rate,
-          audioCodecContext->channels);
     if ((status = swr_init(swr_ctx)) < 0) {
         ALOGE("failed to init swrContext12:%d", status);
         return -1;
@@ -87,10 +83,8 @@ int AudioPlayer::decodeAudioData(char *url) {
         ALOGI("failed to alloc frame");
         return -1;
     }
-    uint8_t *outputBuffer;
-    size_t outputBufferSize;
-    outputBufferSize = 8196;
-    outputBuffer = new uint8_t[outputBufferSize];
+    size_t outputBufferSize = 8196;
+    uint8_t *outputBuffer = new uint8_t[outputBufferSize];
     while ((status = av_read_frame(audioFormatContext, audioPacket)) >= 0) {
         if (audioPacket->stream_index == audioStreamIndex) {
             status = avcodec_send_packet(audioCodecContext, audioPacket);
@@ -129,8 +123,7 @@ int AudioPlayer::decodeAudioData(char *url) {
                         swr_get_delay(swr_ctx, audioCodecContext->sample_rate) +
                         audioFrame->nb_samples,
                         audioFrame->sample_rate, audioFrame->sample_rate, AV_ROUND_INF);
-                ALOGI("The decodedVideo's dst_nb_sample:%d||newDataSize:%d", dst_nb_samples,
-                      newDataSize);
+
                 if (newDataSize > outputBufferSize) {
                     delete[] outputBuffer;
                     outputBufferSize = newDataSize;
@@ -141,11 +134,19 @@ int AudioPlayer::decodeAudioData(char *url) {
                 //根据布局获取声道数
                 int out_channels = av_get_channel_layout_nb_channels(dst_ch_layout);
                 int dataSize = out_channels * nb * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
-                AudioFrameDataBean audioFrameDataBean(dataSize,
-                                                      outputBuffer);
+                AudioFrameDataBean *audioFrameDataBean = new AudioFrameDataBean(dataSize,
+                                                                                outputBuffer);
+                double displayTime = audioFrame->pts *
+                                     av_q2d(audioFormatContext->streams[audioStreamIndex]->time_base);
+
+                audioFrameDataBean->setTimeStamp(displayTime);
                 if (dataSize > 0) {
                     pushAudioFrameIntoList(audioFrameDataBean);
                 }
+                delete audioFrameDataBean;
+                ALOGI("current displayTime:%f", displayTime);
+                av_frame_unref(audioFrame);
+                av_packet_unref(audioPacket);
             }
         }
     }
@@ -180,7 +181,6 @@ int AudioPlayer::openInputUrl(char *url) {
     }
     audioCodec = avcodec_find_decoder(
             audioFormatContext->streams[audioStreamIndex]->codecpar->codec_id);
-    ALOGI("audioStreamIndex:%d", audioStreamIndex);
     if (!audioCodec) {
         ALOGI("failed to find audioCodec");
         return -1;
@@ -212,7 +212,8 @@ int AudioPlayer::playAudio(char *url) {
     thisAudioPlayer.store(this);
     thread decodeAudioThread(&AudioPlayer::decodeAudioData, this, url);
     decodeAudioThread.detach();
-    playAudioAndroid();
+    thread displayMusicThread(&AudioPlayer::playAudioAndroid,this);
+    displayMusicThread.detach();
     return 0;
 }
 
@@ -285,10 +286,10 @@ int AudioPlayer::playAudioAndroid() {
     return 0;
 }
 
-void AudioPlayer::pushAudioFrameIntoList(AudioFrameDataBean audioFrameDataBean) {
+void AudioPlayer::pushAudioFrameIntoList(AudioFrameDataBean *audioFrameDataBean) {
     unique_lock<mutex> audioLock(audioListMutex);
-    produceCondition.wait(audioLock, [this] { return this->audioFrameList.size() < 10; });
-    audioFrameList.push_back(audioFrameDataBean);
+    produceCondition.wait(audioLock, [this] { return this->audioFrameList.size() < 1; });
+    audioFrameList.push_back(*audioFrameDataBean);
     consumerCondition.notify_all();
 }
 
@@ -300,6 +301,7 @@ void bqNewPlayerCallback(SLAndroidSimpleBufferQueueItf audioPlayQueue, void *con
     AudioFrameDataBean audioFrameDataBean = audioPlayer->audioFrameList.front();
     (*audioPlayQueue)->Enqueue(audioPlayQueue, audioFrameDataBean.getData(),
                                audioFrameDataBean.getSize());
+    ALOGI("the displayTime in ConsumerThread:%f", audioFrameDataBean.getTimeStamp());
     audioPlayer->audioFrameList.pop_front();
     produceCondition.notify_all();
 }

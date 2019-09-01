@@ -31,7 +31,7 @@ private:
 
     std::list<AudioFrameDataBean> audioFrameList;
 
-    void pushAudioFrameIntoList(AudioFrameDataBean audioFrameDataBean);
+    void pushAudioFrameIntoList(AudioFrameDataBean *audioFrameDataBean);
 
 };
 
