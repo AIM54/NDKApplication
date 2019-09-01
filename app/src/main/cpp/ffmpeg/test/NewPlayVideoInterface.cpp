@@ -63,12 +63,13 @@ static std::condition_variable consumerCondition;
 static const SLEnvironmentalReverbSettings reverbSettings =
         SL_I3DL2_ENVIRONMENT_PRESET_STONECORRIDOR;
 
-static atomic<NewPlayVideoInterface *> thisPlayer{nullptr};
 
 
 NewPlayVideoInterface::NewPlayVideoInterface() : slEnvironmentalReverbSettings(
         SL_I3DL2_ENVIRONMENT_PRESET_STONECORRIDOR) {
 }
+static atomic<NewPlayVideoInterface *> thisPlayer{nullptr};
+
 
 
 void NewPlayVideoInterface::openInput(string filePath) {
@@ -142,14 +143,19 @@ int NewPlayVideoInterface::decodeAudioMethod(std::string url) {
             status = avcodec_send_packet(audioCodecContext, audioPacket);
             if (status < 0) {
                 ALOGI("failed to send audio packet\n");
-                continue;
+                av_packet_unref(audioPacket);
+                break;
             }
             while (status >= 0) {
                 if (isQuiet.load()) {
                     goto destrory;
                 }
                 status = avcodec_receive_frame(audioCodecContext, audioFrame);
-                if (status == AVERROR(EAGAIN) || status == AVERROR_EOF) {
+                if (status == AVERROR(EAGAIN)) {
+                    av_frame_unref(audioFrame);
+                    continue;
+                } else if (status == AVERROR_EOF){
+                    av_frame_unref(audioFrame);
                     break;
                 } else if (status < 0) {
                     ALOGI("Error during decoding3\n");
@@ -165,10 +171,8 @@ int NewPlayVideoInterface::decodeAudioMethod(std::string url) {
                     delete[] outputBuffer;
                     outputBufferSize = newDataSize;
                     outputBuffer = new uint8_t[newDataSize];
-                }
-                uint8_t *outArr[2] = {0};
-                //在这里进行格式转换
-                int length = swr_convert(audioSwrContext, outArr, audioFrame->nb_samples,
+                }//在这里进行格式转换
+                int length = swr_convert(audioSwrContext, &outputBuffer, audioFrame->nb_samples,
                                          const_cast<uint8_t const **>(audioFrame->extended_data),
                                          audioFrame->nb_samples);
                 AudioFrameDataBean audioFrameDataBean(outputBufferSize,

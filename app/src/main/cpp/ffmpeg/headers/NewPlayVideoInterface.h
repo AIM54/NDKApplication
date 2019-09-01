@@ -93,17 +93,18 @@ private:
     int audioStreamIndex;
 
     std::atomic_bool isQuiet{false};
-    std::deque<AudioFrameDataBean> audioDeque;
 
     std::list<AVFrame *> videoFrameList;
 
+    std::deque<AudioFrameDataBean> audioDeque;
 
     SLObjectItf slObjectItf1 = nullptr;
     SLEngineItf slEngine;
     SLObjectItf outputMixObject;
+    SLEnvironmentalReverbItf outputMixoutputEnvironmentalReverbIter = nullptr;
+
     //混合输出的辅助效果用于缓冲队列
     const SLEnvironmentalReverbSettings slEnvironmentalReverbSettings;
-    SLEnvironmentalReverbItf outputMixoutputEnvironmentalReverbIter = nullptr;
 
     int decodeAudioData();
 

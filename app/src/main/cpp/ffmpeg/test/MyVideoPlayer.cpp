@@ -13,11 +13,15 @@ extern "C" {
 #include "NewPlayVideoInterface.h"
 #include "SimpleCppPlayer.h"
 #include "MutilThreadPlayer.h"
+#include "AudioPlayer.h"
 
 char *videoUrl;
 std::list<AVFrame *> frameList;
 
 NewPlayVideoInterface *newPlayVideoInterface = nullptr;
+
+AudioPlayer *audioPlayer = nullptr;
+
 extern JavaVM *javaVM;
 
 void JNICALL onPapareForVideo(JNIEnv *env, jobject instance,
@@ -26,8 +30,6 @@ void JNICALL onPapareForVideo(JNIEnv *env, jobject instance,
     if (newPlayVideoInterface) {
         delete newPlayVideoInterface;
     }
-//    newPlayVideoInterface = new NewPlayVideoInterface();
-//    newPlayVideoInterface->openInput(videoPath);
     videoUrl = const_cast<char *>(videoPath);
     env->ReleaseStringUTFChars(url_, videoPath);
 }
@@ -36,20 +38,14 @@ void JNICALL playAudioData(JNIEnv *env, jobject instance,
                            jstring url_, jstring outputUrl_) {
     const char *videoPath = env->GetStringUTFChars(url_, 0);
     const char *outputAudioPath = env->GetStringUTFChars(outputUrl_, 0);
-    if (!newPlayVideoInterface) {
-        newPlayVideoInterface = new NewPlayVideoInterface();
-        newPlayVideoInterface->setAudioOutputPath(outputAudioPath);
+    if (!audioPlayer) {
+        audioPlayer = new AudioPlayer();
     }
-    newPlayVideoInterface->playAudio(videoPath);
-    env->ReleaseStringUTFChars(outputUrl_, outputAudioPath);
-    env->ReleaseStringUTFChars(url_, videoPath);
+    audioPlayer->playAudio(const_cast<char *>(videoPath));
 }
 
 void playVideo(JNIEnv *env, jclass type,
                jobject surface) {
-//    if (newPlayVideoInterface) {
-//        newPlayVideoInterface->playTheVideo(env, surface, javaVM);
-//    }
     playVideoSimple(env, type, surface);
 }
 
@@ -63,7 +59,8 @@ void onDestory() {
 
 void playVideoSimple(JNIEnv *pEnv, jclass type,
                      jobject surfaceHolder) {
-    MutilThreadPlayer* player=new MutilThreadPlayer();
+    MutilThreadPlayer *player = new MutilThreadPlayer();
+    ALOGE("the video url is:%s", videoUrl);
     player->playVideo(pEnv, surfaceHolder, videoUrl);
 
 }
