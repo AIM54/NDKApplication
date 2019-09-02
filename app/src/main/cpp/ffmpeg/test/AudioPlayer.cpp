@@ -146,9 +146,9 @@ int AudioPlayer::decodeAudioData(char *url) {
                 delete audioFrameDataBean;
                 ALOGI("current displayTime:%f", displayTime);
                 av_frame_unref(audioFrame);
-                av_packet_unref(audioPacket);
             }
         }
+        av_packet_unref(audioPacket);
     }
     return 0;
 }
@@ -212,7 +212,7 @@ int AudioPlayer::playAudio(char *url) {
     thisAudioPlayer.store(this);
     thread decodeAudioThread(&AudioPlayer::decodeAudioData, this, url);
     decodeAudioThread.detach();
-    thread displayMusicThread(&AudioPlayer::playAudioAndroid,this);
+    thread displayMusicThread(&AudioPlayer::playAudioAndroid, this);
     displayMusicThread.detach();
     return 0;
 }
