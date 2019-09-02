@@ -48,9 +48,7 @@ int MutilThreadPlayer::deocodeVideo(char *videoUrl) {
                 av_frame_ref(newFrame, avFrame);
                 enqueueFrame(newFrame);
                 av_frame_unref(avFrame);
-                if (timeStamp > 0) {
-                    ALOGI("currentFrameTime: %f", timeStamp);
-                }
+                ALOGI("currentFrameTime: %f", timeStamp);
             }
         }
         av_packet_unref(avPacket);

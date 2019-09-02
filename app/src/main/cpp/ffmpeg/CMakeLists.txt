@@ -26,6 +26,7 @@ add_library( # Sets the name of the library.
         test/EncodePicToVideo.c
         test/AudioPlayer.cpp
         test/VideoList.c
+        test/List.c
         test/FFmpegCore.c
         test/SimpleCppPlayer.cpp
         test/MutilThreadPlayer.cpp

@@ -138,31 +138,35 @@ int decodeVideoData(char *videoUrl) {
         if (avPacket->stream_index == videoIndex) {
             int deocodeResult;
             if ((deocodeResult = avcodec_send_packet(avCodecContext, avPacket)) < 0) {
+                av_packet_unref(avPacket);
                 break;
             }
             while (deocodeResult >= 0) {
                 deocodeResult = avcodec_receive_frame(avCodecContext, avFrame);
-                av_packet_unref(avPacket);
-                if (decodeStatus < 0) {
-                    break;
+                if (deocodeResult == AVERROR(EAGAIN) || deocodeResult == AVERROR_EOF) {
+                    av_frame_unref(avFrame);
+                    continue;
+                } else if (deocodeResult < 0) {
+                    av_frame_free(&avFrame);
+                    av_packet_free(&avPacket);
+                    exit(1);
                 }
                 double timeStamp =
                         avFrame->pts * av_q2d(avFormatContext->streams[videoIndex]->time_base);
-                if (timeStamp > 0) {
-                    AVFrame *newAVFrame = av_frame_alloc();
-                    av_frame_ref(newAVFrame, avFrame);
-                    pthread_mutex_lock(&videoListMutex);
-                    if (getListSize() > 10) {
-                        pthread_cond_wait(&videoProduceCond, &videoListMutex);
-                    }
-                    pushAvFrame(newAVFrame);
-                    av_frame_unref(avFrame);
-                    pthread_mutex_unlock(&videoListMutex);
-                    pthread_cond_signal(&videoConsumerCond);
-                    ALOGI("currentFrameTime: %f", timeStamp);
+                AVFrame *newAVFrame = av_frame_alloc();
+                av_frame_ref(newAVFrame, avFrame);
+                pthread_mutex_lock(&videoListMutex);
+                while (getListSize() > 10) {
+                    pthread_cond_wait(&videoProduceCond, &videoListMutex);
                 }
+                pushAvFrame(newAVFrame);
+                av_frame_unref(avFrame);
+                pthread_mutex_unlock(&videoListMutex);
+                pthread_cond_signal(&videoConsumerCond);
+                ALOGI("currentFrameTime: %f", timeStamp);
             }
         }
+        av_packet_unref(avPacket);
     }
     avcodec_free_context(&avCodecContext);
     avformat_close_input(&avFormatContext);
