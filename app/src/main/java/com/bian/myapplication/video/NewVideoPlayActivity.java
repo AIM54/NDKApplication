@@ -27,7 +27,7 @@ public class NewVideoPlayActivity extends AppCompatActivity implements SurfaceHo
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON, WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_new_video_play);
         initData();
         initView();
@@ -51,16 +51,8 @@ public class NewVideoPlayActivity extends AppCompatActivity implements SurfaceHo
 
     @Override
     public void surfaceCreated(final SurfaceHolder surfaceHolder) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                mVideoPlayer = new VideoPlayer(surfaceHolder.getSurface());
-                mVideoPlayer.onpenVideo(mFileString);
-                mVideoPlayer.newPlayVideo();
-            }
-        }).start();
-
-
+        mVideoPlayer = new VideoPlayer(surfaceHolder.getSurface());
+        mVideoPlayer.onpenVideo(mFileString);
     }
 
     @Override
@@ -70,14 +62,17 @@ public class NewVideoPlayActivity extends AppCompatActivity implements SurfaceHo
 
     @Override
     public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-
+        mVideoPlayer.onDestroy();
+        mVideoPlayer = null;
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.bt_video_play:
-                mVideoPlayer.playerVideo();
+                if (mVideoPlayer != null) {
+                    mVideoPlayer.playerVideo(mFileString);
+                }
                 break;
         }
     }

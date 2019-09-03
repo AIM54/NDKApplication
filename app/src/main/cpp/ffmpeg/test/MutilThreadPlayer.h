@@ -23,21 +23,21 @@ extern "C" {
 
 class MutilThreadPlayer {
 public:
-    void playVideo(JNIEnv *jniEnv, jobject surfaceView, char *videoUrl);
+    virtual void playVideo(JNIEnv *jniEnv, jobject surfaceView, char *videoUrl);
 
-private:
+protected:
     AVFormatContext *avFormatContext;
     AVCodec *avCodec;
     AVCodecContext *avCodecContext;
     int videoIndex;
 
-    int openInputUrl(char *videoUrl);
+    virtual int openInputUrl(char *videoUrl);
 
-    int deocodeVideo(char *videoUrl);
+    virtual int deocodeVideo(char *videoUrl);
 
-    int displayVideo(JNIEnv *jniEnv, jobject surfaceView);
+    virtual int displayVideo(JNIEnv *jniEnv, jobject surfaceView);
 
-    void enqueueFrame(AVFrame *avFrame);
+    virtual void enqueueFrame(AVFrame *avFrame);
 
     AVFrame *popAvFrame();
 

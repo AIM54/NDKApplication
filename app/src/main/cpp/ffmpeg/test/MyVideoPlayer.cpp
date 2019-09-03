@@ -10,27 +10,16 @@ extern "C" {
 #include "VideoPlay.h"
 }
 
-#include "NewPlayVideoInterface.h"
 #include "SimpleCppPlayer.h"
-#include "MutilThreadPlayer.h"
 #include "AudioPlayer.h"
-
-char *videoUrl;
-std::list<AVFrame *> frameList;
-
-NewPlayVideoInterface *newPlayVideoInterface = nullptr;
+#include "NewVideoPlayer.h"
 
 AudioPlayer *audioPlayer = nullptr;
-
 extern JavaVM *javaVM;
 
 void JNICALL onPapareForVideo(JNIEnv *env, jobject instance,
                               jstring url_) {
     const char *videoPath = env->GetStringUTFChars(url_, 0);
-    if (newPlayVideoInterface) {
-        delete newPlayVideoInterface;
-    }
-    videoUrl = const_cast<char *>(videoPath);
     env->ReleaseStringUTFChars(url_, videoPath);
 }
 
@@ -44,23 +33,13 @@ void JNICALL playAudioData(JNIEnv *env, jobject instance,
     audioPlayer->playAudio(const_cast<char *>(videoPath));
 }
 
-void playVideo(JNIEnv *env, jclass type,
+void playVideo(JNIEnv *env, jclass type, jstring videoUrl_,
                jobject surface) {
-    playVideoSimple(env, type, surface);
+    const char *videoPath = env->GetStringUTFChars(videoUrl_, 0);
+    ALOGI("playVideo in native method:%s", videoPath);
+    NewVideoPlayer *newPlayer = new NewVideoPlayer();
+    newPlayer->playVideo(env, surface, const_cast<char *>(videoPath));
 }
-
-
-void onDestory() {
-    newPlayVideoInterface->stopPlay();
-    if (newPlayVideoInterface) {
-        delete newPlayVideoInterface;
-    }
-}
-
-void playVideoSimple(JNIEnv *pEnv, jclass type,
-                     jobject surfaceHolder) {
-    MutilThreadPlayer *player = new MutilThreadPlayer();
-    ALOGE("the video url is:%s", videoUrl);
-    player->playVideo(pEnv, surfaceHolder, videoUrl);
+void onDestory(){
 
 }

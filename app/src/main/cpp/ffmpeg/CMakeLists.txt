@@ -19,7 +19,6 @@ add_library( # Sets the name of the library.
         test/VideoPlay.c
         test/VideoCompress.c
         test/VideoFilter.c
-        test/NewPlayVideoInterface.cpp
         test/MyVideoPlayer.cpp
         test/RegisterControl.cpp
         test/AudioFrameDataBean.cpp
@@ -30,7 +29,8 @@ add_library( # Sets the name of the library.
         test/FFmpegCore.c
         test/SimpleCppPlayer.cpp
         test/MutilThreadPlayer.cpp
-        test/VideoFilter.cpp)
+        test/VideoFilter.cpp
+        test/NewVideoPlayer.cpp)
 
 
 # 定义源码所在目录

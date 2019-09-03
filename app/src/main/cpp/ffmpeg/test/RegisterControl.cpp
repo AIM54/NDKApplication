@@ -12,7 +12,7 @@ extern "C" {
 JNINativeMethod videoPlayerMethod[] = {
         {"onpenVideo", "(Ljava/lang/String;)V",                   (void *) onPapareForVideo},
         {"playAudio",  "(Ljava/lang/String;Ljava/lang/String;)V", (void *) playAudioData},
-        {"playVideo",  "(Landroid/view/Surface;)V",               (void *) playVideo},
+        {"playVideo",  "(Ljava/lang/String;Landroid/view/Surface;)V",               (void *) playVideo},
         {"destory",    "()V",                                     (void *) onDestory}
 
 };

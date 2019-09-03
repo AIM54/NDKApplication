@@ -18,11 +18,9 @@ void JNICALL onPapareForVideo(JNIEnv *env, jobject instance,
 void JNICALL playAudioData(JNIEnv *env, jobject instance,
                            jstring url_, jstring ouptputUrl);
 
-void playVideo(JNIEnv *env, jclass type,
+void playVideo(JNIEnv *env, jclass type, jstring videoUrl_,
                jobject surface);
 
-void playVideoSimple(JNIEnv *pEnv, jclass type,
-                     jobject surfaceHolder);
 
 void onDestory();
 

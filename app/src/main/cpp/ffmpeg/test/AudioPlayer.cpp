@@ -15,6 +15,7 @@ extern "C" {
 #include "libavformat/avformat.h"
 #include "libswresample/swresample.h"
 #include "libavutil/opt.h"
+#include "libavutil/timestamp.h"
 }
 static AVFormatContext *audioFormatContext;
 static AVCodec *audioCodec = nullptr;
@@ -138,13 +139,12 @@ int AudioPlayer::decodeAudioData(char *url) {
                                                                                 outputBuffer);
                 double displayTime = audioFrame->pts *
                                      av_q2d(audioFormatContext->streams[audioStreamIndex]->time_base);
-
+                ALOGI("av_ts2timestr:%s",av_ts2timestr(audioFrame->pts,&audioFormatContext->streams[audioStreamIndex]->time_base));
                 audioFrameDataBean->setTimeStamp(displayTime);
                 if (dataSize > 0) {
                     pushAudioFrameIntoList(audioFrameDataBean);
                 }
                 delete audioFrameDataBean;
-                ALOGI("current displayTime:%f", displayTime);
                 av_frame_unref(audioFrame);
             }
         }

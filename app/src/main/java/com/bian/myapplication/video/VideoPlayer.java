@@ -30,12 +30,13 @@ public class VideoPlayer {
                     onpenVideo((String) message.obj);
                     break;
                 case PLAY_VIDEO_CODE:
-                    playVideo(mSurface);
+                    CommonLog.i("beginPlayVideo:"+message.obj);
+                    playVideo((String) message.obj,mSurface);
                     break;
                 case PLAY_AUDIO_CODE:
-                    String ouputUrl=createOutputFile();
+                    String ouputUrl = createOutputFile();
                     CommonLog.i(ouputUrl);
-                    playAudio((String) message.obj,ouputUrl);
+                    playAudio((String) message.obj, ouputUrl);
                     break;
                 case PLAY_DESTORY_CODE:
                     destory();
@@ -64,30 +65,30 @@ public class VideoPlayer {
         videoHandler = new Handler(mHandlerThread.getLooper(), mCallback);
     }
 
-    public void playerVideo() {
-        sendMessage(null, PLAY_VIDEO_CODE);
+    public void playerVideo(String url) {
+        sendMessage(url, PLAY_VIDEO_CODE);
     }
 
     public void playerAudio(String url) {
-        String ouputUrl=createOutputFile();
+        String ouputUrl = createOutputFile();
         CommonLog.i(ouputUrl);
-        playAudio(url,ouputUrl);
+        playAudio(url, ouputUrl);
     }
 
     private String createOutputFile() {
-        File menuFile=new File(Environment.getExternalStorageDirectory().getAbsolutePath()+File.separator+"DecodeFile");
-        if (!menuFile.exists()){
+        File menuFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "DecodeFile");
+        if (!menuFile.exists()) {
             menuFile.mkdirs();
         }
-        File targetFile=new File(menuFile.getAbsolutePath()+File.separator+"1234.pcm");
-        if (!targetFile.exists()){
+        File targetFile = new File(menuFile.getAbsolutePath() + File.separator + "1234.pcm");
+        if (!targetFile.exists()) {
             try {
                 targetFile.createNewFile();
                 return targetFile.getAbsolutePath();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }else{
+        } else {
             return targetFile.getAbsolutePath();
         }
         return "";
@@ -95,13 +96,9 @@ public class VideoPlayer {
 
     public native void onpenVideo(String url);
 
-    public void newPlayVideo(){
-        playVideo(mSurface);
-    }
+    private native void playVideo(String url, Surface surface);
 
-    private native void playVideo(Surface holder);
-
-    private native void playAudio(String filePath,String outputUrl);
+    private native void playAudio(String filePath, String outputUrl);
 
     private native void destory();
 
@@ -112,7 +109,6 @@ public class VideoPlayer {
         message.obj = data;
         videoHandler.sendMessage(message);
     }
-
 
 
     public void prapareForVideo(String mFileString) {
