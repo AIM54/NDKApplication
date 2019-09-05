@@ -46,11 +46,8 @@ protected:
     std::mutex videoInforMutex;
     std::condition_variable videoInforCond;
     std::atomic_bool hasLoadVideoInfo{false};
-
     std::mutex videoQueueMutex;
-
     std::condition_variable produceCond;
-
     std::condition_variable consumerCond;
 
 };

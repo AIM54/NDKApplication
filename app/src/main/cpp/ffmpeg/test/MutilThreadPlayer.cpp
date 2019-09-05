@@ -26,7 +26,7 @@ int MutilThreadPlayer::deocodeVideo(char *videoUrl) {
     av_init_packet(avPacket);
     AVFrame *avFrame = av_frame_alloc();
     int decodeVideoStatus;
-    while ((decodeVideoStatus = av_read_frame(avFormatContext, avPacket)) >= 0) {
+    while (av_read_frame(avFormatContext, avPacket) >= 0) {
         if (avPacket->stream_index == videoIndex) {
             if ((decodeVideoStatus = avcodec_send_packet(avCodecContext, avPacket)) < 0) {
                 av_packet_unref(avPacket);

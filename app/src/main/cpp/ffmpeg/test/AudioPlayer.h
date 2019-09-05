@@ -35,6 +35,6 @@ private:
 
 };
 
-void bqNewPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context);
+ void bqNewPlayerCallback(SLAndroidSimpleBufferQueueItf bq, void *context);
 
 #endif //NDKAPPLICATION_AUDIOPLAYER_H

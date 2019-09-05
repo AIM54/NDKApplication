@@ -10,7 +10,6 @@ extern "C" {
 #include "VideoPlay.h"
 }
 
-#include "SimpleCppPlayer.h"
 #include "AudioPlayer.h"
 #include "NewVideoPlayer.h"
 

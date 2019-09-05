@@ -15,6 +15,10 @@ public:
     virtual int pauseTheVideo();
 
     virtual int resumeTheVideo();
+
+protected:
+    virtual int displayVideo(JNIEnv *jniEnv, jobject surfaceView) override;
+
 };
 
 #endif //NDKAPPLICATION_NEWVIDEOPLAYER_H

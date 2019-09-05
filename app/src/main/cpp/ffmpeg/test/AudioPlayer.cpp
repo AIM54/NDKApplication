@@ -139,7 +139,8 @@ int AudioPlayer::decodeAudioData(char *url) {
                                                                                 outputBuffer);
                 double displayTime = audioFrame->pts *
                                      av_q2d(audioFormatContext->streams[audioStreamIndex]->time_base);
-                ALOGI("av_ts2timestr:%s",av_ts2timestr(audioFrame->pts,&audioFormatContext->streams[audioStreamIndex]->time_base));
+                ALOGI("av_ts2timestr:%s", av_ts2timestr(audioFrame->pts,
+                                                        &audioFormatContext->streams[audioStreamIndex]->time_base));
                 audioFrameDataBean->setTimeStamp(displayTime);
                 if (dataSize > 0) {
                     pushAudioFrameIntoList(audioFrameDataBean);
@@ -293,7 +294,7 @@ void AudioPlayer::pushAudioFrameIntoList(AudioFrameDataBean *audioFrameDataBean)
     consumerCondition.notify_all();
 }
 
-void bqNewPlayerCallback(SLAndroidSimpleBufferQueueItf audioPlayQueue, void *context) {
+ void bqNewPlayerCallback(SLAndroidSimpleBufferQueueItf audioPlayQueue, void *context) {
     AudioPlayer *audioPlayer = thisAudioPlayer.load();
     unique_lock<mutex> audioLock(audioListMutex);
     consumerCondition.wait(audioLock,

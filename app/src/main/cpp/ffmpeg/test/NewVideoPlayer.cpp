@@ -8,7 +8,12 @@ int NewVideoPlayer::seekToFrame(int senconds, bool allowAround) {
     return 0;
 }
 
+int NewVideoPlayer::displayVideo(JNIEnv *jniEnv, jobject surfaceView) {
+    MutilThreadPlayer::displayVideo(jniEnv, surfaceView);
+}
+
 int NewVideoPlayer::resumeTheVideo() {
+
     return 0;
 }
 
