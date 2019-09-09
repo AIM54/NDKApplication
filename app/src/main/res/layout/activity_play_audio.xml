@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".video.PlayAudioActivity">
+    tools:context=".activity.PlayAudioActivity">
     <Button
         android:id="@+id/play_audio"
         android:text="@string/play_the_audio"

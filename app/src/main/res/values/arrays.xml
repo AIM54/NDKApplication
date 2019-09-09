@@ -8,6 +8,7 @@
         <item>BitMapToYUV</item>
         <item>cpp方式播放视频</item>
         <item>@string/play_the_audio</item>
+        <item>@string/play_video_and_sound</item>
     </string-array>
     <string-array name="test_img">
         <item>testYuv</item>

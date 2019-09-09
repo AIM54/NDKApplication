@@ -1,4 +1,4 @@
-package com.bian.myapplication.video;
+package com.bian.myapplication.activity;
 
 
 import android.os.Bundle;
@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.bian.myapplication.R;
 import com.bian.myapplication.utils.AppConstant;
+import com.bian.myapplication.video.VideoPlayer;
 
 public class PlayAudioActivity extends AppCompatActivity implements View.OnClickListener {
     private Button playAudioButton;

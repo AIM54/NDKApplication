@@ -1,4 +1,4 @@
-package com.bian.myapplication.video;
+package com.bian.myapplication.activity;
 
 import android.graphics.ImageFormat;
 import android.hardware.Camera;

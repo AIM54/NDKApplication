@@ -15,20 +15,18 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
-import com.bian.myapplication.bean.VideoBean;
+import com.bian.myapplication.activity.PlayAudioVideoActivity;
 import com.bian.myapplication.dialog.SelectOptionDialog;
 import com.bian.myapplication.image.ImageListActivity;
 import com.bian.myapplication.utils.AppConstant;
 import com.bian.myapplication.utils.CommonLog;
 import com.bian.myapplication.utils.NativePracise;
 import com.bian.myapplication.utils.VideoUtil;
-import com.bian.myapplication.video.NewVideoPlayActivity;
-import com.bian.myapplication.video.PlayAudioActivity;
-import com.bian.myapplication.video.VideoPlayActivity;
+import com.bian.myapplication.activity.NewVideoPlayActivity;
+import com.bian.myapplication.activity.PlayAudioActivity;
+import com.bian.myapplication.activity.VideoPlayActivity;
 
 import java.io.File;
-import java.io.IOException;
-import java.lang.annotation.Native;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -163,6 +161,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case 6:
                     gotoAudioPlayActivity();
+                case 7:
+                    Intent audioPlayIt = new Intent(MainActivity.this, PlayAudioVideoActivity.class);
+                    audioPlayIt.putExtra(AppConstant.ARG_VIDEO_PATH,mFilePath);
+                    startActivity(audioPlayIt);
                     break;
             }
         }

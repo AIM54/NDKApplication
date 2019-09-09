@@ -29,6 +29,7 @@ int AudioResampler::initSwrContex(AVCodecContext *audioCodecContex) {
     av_opt_set_int(swr_ctx, "out_sample_rate", dst_rate, 0);
     av_opt_set_sample_fmt(swr_ctx, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
     if (swr_init(swr_ctx) < 0) {
+        ALOGI("init swr failed");
         return -1;
     }
     return 0;

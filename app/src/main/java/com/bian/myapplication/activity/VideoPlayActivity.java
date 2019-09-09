@@ -1,4 +1,4 @@
-package com.bian.myapplication.video;
+package com.bian.myapplication.activity;
 
 import android.media.MediaCodec;
 import android.media.MediaRecorder;

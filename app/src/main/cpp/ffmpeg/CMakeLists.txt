@@ -26,12 +26,9 @@ add_library( # Sets the name of the library.
         test/AudioPlayer.cpp
         test/VideoList.c
         test/List.c
-        test/VideoAudioPlayer.cpp
         test/MutilThreadPlayer.cpp
         test/VideoFilter.cpp
-        test/NewVideoPlayer.cpp
-        test/AndroidPcmPlayer.cpp
-        test/AudioResampler.cpp)
+        test/NewVideoPlayer.cpp)
 
 
 # 定义源码所在目录

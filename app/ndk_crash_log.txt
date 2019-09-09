@@ -18,3 +18,6 @@
 07-08 16:06:33.691 9556-9556/? I/DEBUG:     #00 pc 00000000003277f0  /data/app/com.bian.myapplication-1/lib/arm64/libavcodec.so (av_parser_close+20)
 07-08 16:06:33.703 1390-2461/? I/System.out: [socket][609:42448] exception
 07-08 16:06:33.703 1390-2461/? I/System.out: [CDS]close[42448]
+
+Routine playNewVideo(_JNIEnv*, _jclass*, _jstring*, _jobject*) at D:\NativeCode\NDKApplication\app\src\main\cpp\videoplayer\main/VideoPlayControler.cpp:25
+adb logcat | ndk-stack -sym D:\NativeCode\NDKApplication\app\src\main\cpp\jniLibs\arm64-v8a

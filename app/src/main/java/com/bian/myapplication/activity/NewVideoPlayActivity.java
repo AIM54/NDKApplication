@@ -1,4 +1,4 @@
-package com.bian.myapplication.video;
+package com.bian.myapplication.activity;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +13,7 @@ import android.widget.SeekBar;
 import com.bian.myapplication.R;
 import com.bian.myapplication.utils.AppConstant;
 import com.bian.myapplication.utils.VideoUtil;
+import com.bian.myapplication.video.VideoPlayer;
 
 import androidx.appcompat.app.AppCompatActivity;
 

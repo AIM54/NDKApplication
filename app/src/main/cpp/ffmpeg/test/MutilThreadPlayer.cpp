@@ -144,9 +144,10 @@ int MutilThreadPlayer::displayVideo(JNIEnv *pEnv, jobject surfaceView) {
         }
         ANativeWindow_lock(nativeWindow, &windowBuffer, 0);
         //对帧数据进行格式转换，视频的起始高度和结束高度
-        sws_scale(reinterpret_cast<SwsContext *>(swsContenxt),
-                  (uint8_t const *const *) avFrame->data, avFrame->linesize, 0,
-                  avCodecContext->height, rgbFrame->data, rgbFrame->linesize);
+        int size = sws_scale(reinterpret_cast<SwsContext *>(swsContenxt),
+                             (uint8_t const *const *) avFrame->data, avFrame->linesize, 0,
+                             avCodecContext->height, rgbFrame->data, rgbFrame->linesize);
+        ALOGI("size: %d",size);
         uint8_t *dst = static_cast<uint8_t *>(windowBuffer.bits);
         int dstStride = windowBuffer.stride * 4;
         uint8_t *src = rgbFrame->data[0];

@@ -17,17 +17,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".video.PlayAudioActivity"></activity>
+        <activity
+            android:name=".activity.PlayAudioVideoActivity"
+            android:screenOrientation="landscape"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity android:name=".activity.PlayAudioActivity" />
 
         <service
             android:name=".service.SubmitService"
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".video.NewVideoPlayActivity"
+        <activity
+            android:name=".activity.NewVideoPlayActivity"
             android:screenOrientation="landscape" />
         <activity android:name=".image.TestImgActivity" />
-        <activity android:name=".video.RecordVideoActivity" />
+        <activity android:name=".activity.RecordVideoActivity" />
         <activity android:name=".image.ImageListActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
@@ -37,7 +42,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".video.VideoPlayActivity"
+            android:name=".activity.VideoPlayActivity"
             android:screenOrientation="landscape" />
     </application>
 
