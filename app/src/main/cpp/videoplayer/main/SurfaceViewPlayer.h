@@ -21,10 +21,10 @@ private:
     JNIEnv *pENV;
     AVFrame *rgbFrame = nullptr;
     ANativeWindow *nativeWindow = nullptr;
-    SwsContext *swsContext = nullptr;
+    struct SwsContenxt *swsContext = nullptr;
     AVCodecContext *videoCodecContext = nullptr;
+    int videoWidth, videoHeight;
 
-    ANativeWindow_Buffer windowBuffer;
 public:
     SurfaceViewPlayer(jobject surfaceView, JNIEnv *env);
 
