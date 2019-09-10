@@ -31,6 +31,8 @@ public:
     int setForVideo(AVCodecContext *avCodecContext) override;
 
     int playFrame(AVFrame *videoFrame) override;
+    int playFrame(AVFrame *videoFrame, ANativeWindow_Buffer *buffer)
+;
 
     virtual ~SurfaceViewPlayer();
 };

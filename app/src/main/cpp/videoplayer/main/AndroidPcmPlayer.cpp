@@ -80,7 +80,7 @@ AndroidPcmPlayer::AndroidPcmPlayer() {
 void AndroidPcmPlayer::bqNewPlayerCallback(SLAndroidSimpleBufferQueueItf audioPlayQueue,
                                            void *context) {
     unique_lock<mutex> androidListLock(thisPlayer->audioListMutex);
-    thisPlayer->audioCondition.wait(androidListLock,
+    thisPlayer->consumerCondition.wait(androidListLock,
                                     [] { return !thisPlayer->audioFrameList.empty(); });
     AudioFrameDataBean audioFrameDataBean = thisPlayer->audioFrameList.front();
     (*audioPlayQueue)->Enqueue(audioPlayQueue, audioFrameDataBean.getData(),
@@ -95,13 +95,6 @@ void AndroidPcmPlayer::play() {
     thisPlayer = this;
     (*slPlayItf)->SetPlayState(slPlayItf, SL_PLAYSTATE_PLAYING);
     bqNewPlayerCallback(slAndroidSimpleBufferQueueItf, nullptr);
-}
-
-void AndroidPcmPlayer::addAudioFrameData(AudioFrameDataBean &audioFrameDataBean) {
-    unique_lock<mutex>androidListLock(audioListMutex);
-    produceCondition.wait(androidListLock,[this]{ return this->audioFrameList.size()<10;});
-    audioFrameList.push_back(audioFrameDataBean);
-    audioCondition.notify_all();
 }
 
 AndroidPcmPlayer::~AndroidPcmPlayer() {

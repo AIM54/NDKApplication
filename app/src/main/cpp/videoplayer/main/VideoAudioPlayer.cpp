@@ -21,25 +21,64 @@ using namespace std;
 int VideoAudioPlayer::playVideo(char *videourl, JNIEnv *pEnv, jobject surfaceView) {
     this->pEnv = pEnv;
     isPlaying.store(true);
-    thread decodeThread(&VideoAudioPlayer::openIntput, this, videourl);
-    decodeThread.detach();
-    displayScreen(surfaceView);
+
+    thread decodeAudioThread(&VideoAudioPlayer::decodeAudio, this, videourl);
+    decodeAudioThread.detach();
+    thread displayAudioThread(&VideoAudioPlayer::playSound, this);
+    displayAudioThread.detach();
+//    thread deocdeVideoThread(&VideoAudioPlayer::decodeVideo, this, videourl);
+//    deocdeVideoThread.detach();
+//    displayScreen(surfaceView);
     return 0;
 }
 
-int VideoAudioPlayer::decodeStream() {
+int VideoAudioPlayer::decodeAudio(char *videoUrl) {
+    int status = openIntput(videoUrl);
+    if (status < 0) {
+        return status;
+    }
+    status = initCodec(audioIndex, &audioCodec, &audioCodecContex);
+    if (status < 0) {
+        return status;
+    }
+    initSwrContext();
+    androidPcmPlayer = new AndroidPcmPlayer();
+    isGetAudioInfor.store(true);
+    audioInforCond.notify_all();
+    decodeStream(audioIndex, audioCodecContex);
+    return 1;
+}
+
+int VideoAudioPlayer::decodeVideo(char *videoUrl) {
+    int status = openIntput(videoUrl);
+    if (status < 0) {
+        return status;
+    }
+    status = initCodec(videoIndex, &videoCodec, &videoCodecContext);
+    if (status < 0) {
+        return status;
+    }
+    isGetStreamInfor.store(true);
+    streamInforCond.notify_all();
+    decodeStream(videoIndex, videoCodecContext);
+    return 1;
+
+}
+
+
+int VideoAudioPlayer::decodeStream(int index, AVCodecContext *avCodecContext) {
     AVPacket *avPacket = av_packet_alloc();
     av_init_packet(avPacket);
     AVFrame *avFrame = av_frame_alloc();
-    int status = 0;
-    while ((status = av_read_frame(avFormatContext, avPacket)) >= 0) {
-        if (avPacket->stream_index == videoIndex) {
-            status = decodePacket(videoCodecContext, avPacket, avFrame);
+    while (av_read_frame(avFormatContext, avPacket) >= 0) {
+        if (avPacket->stream_index == index) {
+            decodePacket(avCodecContext, avPacket, avFrame);
         }
         av_packet_unref(avPacket);
     }
     return 0;
 }
+
 
 int VideoAudioPlayer::decodePacket(AVCodecContext *avCodecContext, AVPacket *avPacket,
                                    AVFrame *avFrame) {
@@ -59,7 +98,7 @@ int VideoAudioPlayer::decodePacket(AVCodecContext *avCodecContext, AVPacket *avP
         }
         if (avCodecContext == audioCodecContex) {
             decodeAudioFrame(avFrame);
-        } else {
+        } else if (avCodecContext == videoCodecContext) {
             decodeVideoFrame(avFrame);
         }
     }
@@ -70,13 +109,14 @@ int VideoAudioPlayer::decodeAudioFrame(AVFrame *audioFrame) {
     if (!audioResampler) {
         return -1;
     }
-    unique_lock<mutex> audioListLock(audioListMutex);
-    audioProduceCond.wait(audioListLock, [this] { return this->audioDataList.size() < 10; });
+    unique_lock<mutex> audioListLock(androidPcmPlayer->audioListMutex);
+    androidPcmPlayer->produceCondition.wait(audioListLock,
+                          [this] { return this->androidPcmPlayer->audioFrameList.size() < 10; });
     AudioFrameDataBean *dataBean = audioResampler->getDataBean(audioFrame, audioCodecContex,
                                                                audioIndex, avFormatContext);
-    audioDataList.push_back(*dataBean);
+    this->androidPcmPlayer->audioFrameList.push_back(*dataBean);
     delete dataBean;
-    audioConsumerCond.notify_all();
+    this->androidPcmPlayer->consumerCondition.notify_all();
     return 0;
 }
 
@@ -132,7 +172,7 @@ int VideoAudioPlayer::displayScreen(jobject surface) {
         int size = sws_scale(reinterpret_cast<SwsContext *>(swsContenxt),
                              (uint8_t const *const *) avFrame->data, avFrame->linesize, 0,
                              videoCodecContext->height, rgbFrame->data, rgbFrame->linesize);
-        ALOGI("size: %d",size);
+        ALOGI("size: %d", size);
         uint8_t *dst = static_cast<uint8_t *>(windowBuffer.bits);
         int dstStride = windowBuffer.stride * 4;
         uint8_t *src = rgbFrame->data[0];
@@ -152,15 +192,9 @@ int VideoAudioPlayer::displayScreen(jobject surface) {
 }
 
 int VideoAudioPlayer::playSound() {
-    androidPcmPlayer = new AndroidPcmPlayer();
+    unique_lock<mutex> audioInforLock{audioInforMutex};
+    audioInforCond.wait(audioInforLock, [this] { return this->isGetAudioInfor.load(); });
     androidPcmPlayer->play();
-    while (isPlaying.load()) {
-        unique_lock<mutex> audioListLock(audioListMutex);
-        audioConsumerCond.wait(audioListLock, [this] { return !this->audioDataList.empty(); });
-        androidPcmPlayer->addAudioFrameData(audioDataList.front());
-        audioDataList.pop_front();
-        audioProduceCond.notify_all();
-    }
     return 0;
 }
 
@@ -183,19 +217,8 @@ int VideoAudioPlayer::openIntput(char *videoUrl) {
             audioIndex = index;
         }
     }
-    int initVideoStatus = initCodec(videoIndex, &videoCodec, &videoCodecContext);
-
-//    int initAudioStatus = initCodec(audioIndex, &audioCodec, &audioCodecContex);
-    unique_lock<mutex> streamInforLock(streamInforMutex);
-    if (initVideoStatus >= 0) {
-        isGetStreamInfor.store(true);
-        streamInforCond.notify_all();
-        streamInforLock.unlock();
-        decodeStream();
-    }
     return 0;
 }
-
 
 int VideoAudioPlayer::initSwrContext() {
     audioResampler = new AudioResampler();

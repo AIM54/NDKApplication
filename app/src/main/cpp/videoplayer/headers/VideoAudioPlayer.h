@@ -38,30 +38,29 @@ protected:
 
     virtual int openIntput(char *videoUrl);
 
+    virtual int decodeAudio(char *videoUrl);
 
-    /**
-     * 音频数据缓冲队列
-     */
-    std::list<AudioFrameDataBean> audioDataList;
+    virtual int decodeVideo(char *videoUrl);
+
     /**
      * 音频数据转化为pcm数据后的播放器
      */
-    AndroidPcmPlayer *androidPcmPlayer;
+    AndroidPcmPlayer *androidPcmPlayer = nullptr;
 
 
     /**
      * 音频数据重采样,
      */
-    AudioResampler *audioResampler= nullptr;
+    AudioResampler *audioResampler = nullptr;
 
     /**
      * 音频解码器
      */
-    AVCodec *audioCodec= nullptr;
+    AVCodec *audioCodec = nullptr;
     /**
      * 音频解码上下文
      */
-    AVCodecContext *audioCodecContex= nullptr;
+    AVCodecContext *audioCodecContex = nullptr;
 
     /**
      * 判断是否在继续播放
@@ -81,18 +80,16 @@ protected:
     virtual int playSound();
 
     /**
- * 音频队列同步锁
- */
-    std::mutex audioListMutex;
+     * 音频信息的等待条件
+     */
+    std::condition_variable audioInforCond;
 
     /**
-     * 音频的消费者条件
+     * 音频信息的锁对象
      */
-    std::condition_variable audioConsumerCond;
-    /**
-     *音频的生产者条件
-     */
-    std::condition_variable audioProduceCond;
+    std::mutex audioInforMutex;
+
+    std::atomic_bool isGetAudioInfor{false};
 
     std::atomic_bool isGetStreamInfor{false};
 
@@ -101,10 +98,6 @@ protected:
      * 视频文件信息条件
      */
     std::condition_variable streamInforCond;
-    /**
-     * 视频播放显示器
-     */
-    VideoDisplayer *videoDisplayer = nullptr;
     /**
      * 视频帧缓冲队列
      */
@@ -137,7 +130,8 @@ protected:
      * 从视频流当中读取出包
      * @return 
      */
-    virtual int decodeStream();
+    virtual int decodeStream(int index, AVCodecContext *avCodecContext);
+
 
     /**
      * 从包中读取帧信息
@@ -160,8 +154,8 @@ protected:
 
     int audioIndex;
 
-    AVCodec *videoCodec= nullptr;
-    AVCodecContext *videoCodecContext= nullptr;
+    AVCodec *videoCodec = nullptr;
+    AVCodecContext *videoCodecContext = nullptr;
 };
 
 

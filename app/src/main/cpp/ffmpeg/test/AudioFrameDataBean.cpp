@@ -11,15 +11,13 @@ AudioFrameDataBean::AudioFrameDataBean(size_t size, uint8_t *paramData) {
     this->packetSize = size;
     this->data = new uint8_t[size];
     memcpy(data, paramData, size * sizeof(uint8_t));
-    ALOGE("after init soundData");
 }
 
 AudioFrameDataBean::AudioFrameDataBean(const AudioFrameDataBean &audioFrameDataBean) : packetSize{
         audioFrameDataBean.packetSize}, data{new uint8_t[audioFrameDataBean.packetSize]} {
     packetSize = audioFrameDataBean.packetSize;
-    timeStamp=audioFrameDataBean.timeStamp;
+    timeStamp = audioFrameDataBean.timeStamp;
     memcpy(data, audioFrameDataBean.data, audioFrameDataBean.packetSize * sizeof(uint8_t));
-    ALOGE("after1 copy soundData");
 }
 
 AudioFrameDataBean &AudioFrameDataBean::operator=(const AudioFrameDataBean &audioFrameDataBean) {
@@ -29,7 +27,6 @@ AudioFrameDataBean &AudioFrameDataBean::operator=(const AudioFrameDataBean &audi
     data = newData;
     packetSize = audioFrameDataBean.packetSize;
     timeStamp = audioFrameDataBean.timeStamp;
-    ALOGE("after2 copy soundData");
 }
 
 double AudioFrameDataBean::getTimeStamp() {
@@ -54,9 +51,6 @@ size_t AudioFrameDataBean::getSize() {
 
 AudioFrameDataBean::~AudioFrameDataBean() {
     if (data) {
-        ALOGI("delete array");
         delete[]data;
-    } else {
-        ALOGE("failed to deleteData");
     }
 }

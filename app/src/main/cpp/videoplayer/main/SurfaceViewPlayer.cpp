@@ -42,16 +42,17 @@ int SurfaceViewPlayer::setForVideo(AVCodecContext *videoCodecContext) {
 }
 
 int SurfaceViewPlayer::playFrame(AVFrame *avFrame) {
-    ANativeWindow_Buffer windowBuffer;
+}
 
-    ANativeWindow_lock(nativeWindow, &windowBuffer, 0);
+int SurfaceViewPlayer::playFrame(AVFrame *avFrame, ANativeWindow_Buffer *windowBuffer) {
+    ANativeWindow_lock(nativeWindow, windowBuffer, 0);
     //对帧数据进行格式转换，视频的起始高度和结束高度
     int size = sws_scale(reinterpret_cast<SwsContext *>(swsContext),
                          (uint8_t const *const *) avFrame->data, avFrame->linesize, 0,
                          videoCodecContext->height, rgbFrame->data, rgbFrame->linesize);
     ALOGI("size: %d", size);
-    uint8_t *dst = static_cast<uint8_t *>(windowBuffer.bits);
-    int dstStride = windowBuffer.stride * 4;
+    uint8_t *dst = static_cast<uint8_t *>(windowBuffer->bits);
+    int dstStride = windowBuffer->stride * 4;
     uint8_t *src = rgbFrame->data[0];
     int srcStride = rgbFrame->linesize[0];
     // 由于window的stride和帧的stride不同,因此需要逐行复制

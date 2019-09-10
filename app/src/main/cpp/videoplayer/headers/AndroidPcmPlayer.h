@@ -13,11 +13,12 @@
 #include "AudioFrameDataBean.h"
 
 class AndroidPcmPlayer {
-protected:
+public:
     std::mutex audioListMutex;
-    std::condition_variable audioCondition;
+    std::condition_variable consumerCondition;
     std::condition_variable produceCondition;
     std::list<AudioFrameDataBean> audioFrameList;
+protected:
     SLObjectItf playerObjItr;
     SLPlayItf slPlayItf;
     SLAndroidSimpleBufferQueueItf slAndroidSimpleBufferQueueItf;
@@ -42,8 +43,6 @@ public:
 
 
     static void bqNewPlayerCallback(SLAndroidSimpleBufferQueueItf audioPlayQueue, void *context);
-
-    void addAudioFrameData(AudioFrameDataBean &audioFrameDataBean);
 
     virtual ~AndroidPcmPlayer();
 };

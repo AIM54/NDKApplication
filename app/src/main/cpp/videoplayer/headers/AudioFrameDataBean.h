@@ -16,7 +16,6 @@ private :
     uint8_t *data;
     double timeStamp;
 public:
-    std::string deleteName;
 
     AudioFrameDataBean();
 
