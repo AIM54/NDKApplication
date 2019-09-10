@@ -21,7 +21,8 @@ add_library( # Sets the name of the library.
         main/VideoAudioPlayer.cpp
         main/AndroidPcmPlayer.cpp
         main/VideoPlayControler.cpp
-        main/SurfaceViewPlayer.cpp
+        main/NewSurfaceViewPlayer.cpp
+        main/VideoDisplayer.cpp
         )
 
 add_library(avcodec

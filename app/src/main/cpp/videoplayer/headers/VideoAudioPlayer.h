@@ -22,6 +22,7 @@ extern "C" {
 #include "AudioResampler.h"
 #include "VideoDisplayer.h"
 
+
 class VideoAudioPlayer {
 private:
     JNIEnv *pEnv;
@@ -98,23 +99,8 @@ protected:
      * 视频文件信息条件
      */
     std::condition_variable streamInforCond;
-    /**
-     * 视频帧缓冲队列
-     */
-    std::list<AVFrame *> videoFrameList;
-    /**
-     * 视频缓冲同步锁
-     */
-    std::mutex videoListMutex;
 
-    /**
-     * 视频队列的消费条件
-     */
-    std::condition_variable videoConsumerCond;
-    /**
-     * 视频队列的生产条件
-     */
-    std::condition_variable videoProduceCond;
+    VideoDisplayer *videoDisplayer;
 
     /**
      * 打开解码器
@@ -146,7 +132,8 @@ protected:
 
     virtual int decodeAudioFrame(AVFrame *audioFrame);
 
-    virtual int displayScreen(jobject surface);
+
+    virtual int displayVideo(jobject surface);
 
     AVFormatContext *avFormatContext;
 
