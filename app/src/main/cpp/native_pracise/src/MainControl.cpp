@@ -56,9 +56,9 @@ void initGL(JNIEnv *env, jobject jobj) {
     firstOpenGLDrawer->setAssertManger(g_pAssetManager);
 }
 
-void resizeGL(JNIEnv *jniEnv, jobject jobj, int width, int height) {
+void resizeGL(JNIEnv *jniEnv, jobject jobj, jint width, jint height) {
     ALOGI("resize");
-    firstOpenGLDrawer->reize();
+    firstOpenGLDrawer->reize(width, height);
 }
 
 void setAssertManager(JNIEnv *jniEnv, jobject claz, jobject assertManager) {

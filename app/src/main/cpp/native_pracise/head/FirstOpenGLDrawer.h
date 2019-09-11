@@ -7,21 +7,26 @@
 
 
 #include <android/asset_manager.h>
+#include <EGL/egl.h>
+#include <GLES3/gl3.h>
 
 class FirstOpenGLDrawer {
 private:
     AAssetManager *g_pAssetManager = nullptr;
-public:
-    FirstOpenGLDrawer();
+    GLuint mProgramObject;
+    int viewWidth, viewHeight;
 
-    void reize();
+public:
+    void reize(int width,int height);
 
     void step();
 
     void setAssertManger(AAssetManager *manager);
 };
 
-char *getStringFromAssert(AAssetManager *aAssetManager,char * path);
+char *getStringFromAssert(AAssetManager *aAssetManager, char *path);
+
+GLuint loadShader(GLenum type, const char *shaderSrc);
 
 
 #endif //NDKAPPLICATION_FIRSTOPENGLDRAWER_H
