@@ -22,12 +22,10 @@ add_library( # Sets the name of the library.
         test/MyVideoPlayer.cpp
         test/RegisterControl.cpp
         test/AudioFrameDataBean.cpp
-        test/EncodePicToVideo.c
         test/AudioPlayer.cpp
         test/VideoList.c
         test/List.c
         test/MutilThreadPlayer.cpp
-        test/VideoFilter.cpp
         test/NewVideoPlayer.cpp)
 
 

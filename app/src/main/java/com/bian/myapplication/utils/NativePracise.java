@@ -1,5 +1,7 @@
 package com.bian.myapplication.utils;
 
+import android.content.res.AssetManager;
+
 import java.util.ArrayList;
 
 public class NativePracise {
@@ -7,7 +9,12 @@ public class NativePracise {
         System.loadLibrary("NdkTest");
     }
 
-    public static native void test();
+    public static native void init();
 
-    public static native ArrayList<String> testTemple(int size,String message);
+    public static native void resize(int width, int height);
+
+    public static native void step();
+
+    public static native void initAsserts(AssetManager assertManager);
+
 }

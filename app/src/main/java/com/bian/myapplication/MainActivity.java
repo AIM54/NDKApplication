@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -15,6 +16,7 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
+import com.bian.myapplication.activity.OpenGlActivity;
 import com.bian.myapplication.activity.PlayAudioVideoActivity;
 import com.bian.myapplication.dialog.SelectOptionDialog;
 import com.bian.myapplication.image.ImageListActivity;
@@ -50,18 +52,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String mFilePath;
     private String saveVideodir;
 
+    private Button testGLBt;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        CommonLog.e("onCreate");
         setContentView(R.layout.activity_main);
         initView();
         initData();
-        testLibrary();
-    }
-
-    private void testLibrary() {
-        NativePracise.test();
     }
 
     private void initData() {
@@ -80,10 +78,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void initView() {
         mListView = findViewById(R.id.lv_video);
+        View headView = LayoutInflater.from(this).inflate(R.layout.headview_video_list, null);
+        testGLBt = headView.findViewById(R.id.test_gl_button);
+        mListView.addHeaderView(headView);
         toastButton = findViewById(R.id.bt_toast);
         encodePictureBt = findViewById(R.id.bt_test_img);
         toastButton.setOnClickListener(this);
         encodePictureBt.setOnClickListener(this);
+        testGLBt.setOnClickListener(this);
     }
 
     @Override
@@ -104,7 +106,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.bt_test_img:
                 Intent imgIt = new Intent(this, ImageListActivity.class);
                 startActivity(imgIt);
+            case R.id.test_gl_button:
+                startActivity(new Intent(this, OpenGlActivity.class));
                 break;
+
         }
 
     }
@@ -163,7 +168,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     gotoAudioPlayActivity();
                 case 7:
                     Intent audioPlayIt = new Intent(MainActivity.this, PlayAudioVideoActivity.class);
-                    audioPlayIt.putExtra(AppConstant.ARG_VIDEO_PATH,mFilePath);
+                    audioPlayIt.putExtra(AppConstant.ARG_VIDEO_PATH, mFilePath);
                     startActivity(audioPlayIt);
                     break;
             }
@@ -172,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void gotoAudioPlayActivity() {
         Intent audioPlayIt = new Intent(this, PlayAudioActivity.class);
-        audioPlayIt.putExtra(AppConstant.ARG_VIDEO_PATH,mFilePath);
+        audioPlayIt.putExtra(AppConstant.ARG_VIDEO_PATH, mFilePath);
         startActivity(audioPlayIt);
     }
 

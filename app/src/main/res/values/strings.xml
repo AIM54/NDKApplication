@@ -9,4 +9,5 @@
     <string name="benz_car_is_running">车辆认证正在运行</string>
     <string name="play_the_audio">播放音频文件</string>
     <string name="play_video_and_sound">视音频同步播放</string>
+    <string name="test_open_gl">测试Android原生绘制</string>
 </resources>

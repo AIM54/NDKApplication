@@ -4,20 +4,27 @@
 
 #include <jni.h>
 #include <list>
-extern "C"{
-#include "PthreadTest.h"
-
-}
 #include <iostream>
 #include <stdio.h>
+#include "MainControl.h"
+#include "FirstOpenGLDrawer.h"
+#include "AndroidLog.h"
+#include <android/asset_manager_jni.h>
+#include <android/asset_manager.h>
 
 extern "C" {
 JNINativeMethod videoPlayerMethod[] = {
-        {"test", "()V", (void *) testSimpleThread}
+        {"init",        "()V",                                   (void *) initGL},
+        {"resize",      "(II)V",                                 (void *) resizeGL},
+        {"step",        "()V",                                   (void *) step},
+        {"initAsserts", "(Landroid/content/res/AssetManager;)V", (void *) setAssertManager}
+
 };
 }
 
-int registerNativeMethod(JNIEnv *pInterface);
+FirstOpenGLDrawer *firstOpenGLDrawer = nullptr;
+
+AAssetManager *g_pAssetManager = nullptr;
 
 jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env = NULL;
@@ -42,6 +49,25 @@ int registerNativeMethod(JNIEnv *pInterface) {
     }
     return JNI_OK;
 }
-void  testList(){
 
+
+void initGL(JNIEnv *env, jobject jobj) {
+    firstOpenGLDrawer = new FirstOpenGLDrawer();
+    firstOpenGLDrawer->setAssertManger(g_pAssetManager);
+}
+
+void resizeGL(JNIEnv *jniEnv, jobject jobj, int width, int height) {
+    ALOGI("resize");
+    firstOpenGLDrawer->reize();
+}
+
+void setAssertManager(JNIEnv *jniEnv, jobject claz, jobject assertManager) {
+    ALOGI("setAssertManager");
+    g_pAssetManager = AAssetManager_fromJava(jniEnv, assertManager);
+
+}
+
+void step(JNIEnv *jniEnv, jobject jobj) {
+    ALOGI("step");
+    firstOpenGLDrawer->step();
 }
