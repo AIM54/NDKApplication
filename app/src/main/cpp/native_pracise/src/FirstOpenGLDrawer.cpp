@@ -9,6 +9,7 @@
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 #include <malloc.h>
+#include <cstring>
 
 void FirstOpenGLDrawer::reize(int width, int height) {
     viewWidth = width;
@@ -20,7 +21,6 @@ void FirstOpenGLDrawer::step() {
                            -0.5f, -0.5f, 0.0f,
                            0.5f, -0.5f, 0.0f
     };
-    ALOGI("the viewWidth:%d||the viewHeight:%d", viewWidth, viewHeight);
     // Set the viewport
     glViewport(0, 0, viewWidth, viewHeight);
     //clear the color buffer
@@ -46,12 +46,12 @@ void FirstOpenGLDrawer::setAssertManger(AAssetManager *manager) {
     if (!vertexShader) {
         return;
     }
-    delete[]vectorString;
+
     fragmentShader = loadShader(GL_FRAGMENT_SHADER, shaderString);
     if (!fragmentShader) {
         return;
     }
-    delete[]shaderString;
+
     programObject = glCreateProgram();
     if (!programObject) {
         return;
@@ -73,9 +73,11 @@ void FirstOpenGLDrawer::setAssertManger(AAssetManager *manager) {
         glDeleteProgram(programObject);
         return;
     }
-    glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+    glClearColor(1.0f, 1.0f, 0.0f, 0.0f);
     mProgramObject = programObject;
     ALOGI("after init gl");
+    delete[]shaderString;
+    delete[]vectorString;
 }
 
 GLuint loadShader(GLenum type, const char *shaderSrc) {
@@ -107,7 +109,8 @@ GLuint loadShader(GLenum type, const char *shaderSrc) {
 char *getStringFromAssert(AAssetManager *aAssetManager, char *path) {
     AAsset *aasert = AAssetManager_open(aAssetManager, path, AASSET_MODE_UNKNOWN);
     off_t assetSize = AAsset_getLength(aasert);
-    char *buffer = new char[assetSize];
+    char *buffer = new char[assetSize+1];
+    memset(buffer, 0, assetSize + 1);
     int readStatus = AAsset_read(aasert, buffer, assetSize);
     AAsset_close(aasert);
     if (readStatus >= 0) {
