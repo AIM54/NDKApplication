@@ -20,6 +20,7 @@
 #include <TestEncodeVideo.h>
 #include <GlobalConfig.h>
 #include <VideoList.h>
+#include <zconf.h>
 
 int decodeVideoData(char *videoUrl);
 
@@ -45,14 +46,23 @@ pthread_cond_t videoInforCond;
 AVCodecContext *avCodecContext = NULL;
 bool isPlayingVideo = false;
 
+void printSimpleThing() {
+    ALOGI("your are dead_the threadId:%d", getpid());
+    pthread_exit(0);
+}
 
 JNIEXPORT void JNICALL
 Java_com_bian_myapplication_utils_VideoUtil_testSoLibrary(JNIEnv *env, jclass type) {
     jclass jcls = (*env)->FindClass(env, "com/bian/myapplication/utils/VideoUtil");
     jmethodID jMethodId = (*env)->GetStaticMethodID(env, jcls, "log", "(Ljava/lang/String;)V");
-    char *message = "tomcat";
+    char *message = malloc(sizeof(char) * 50);
+    sprintf(message, "tomcat_mainthread_pid:%d", getpid());
     jstring jMsg = (*env)->NewStringUTF(env, message);
     (*env)->CallStaticVoidMethod(env, jcls, jMethodId, jMsg);
+    free(message);
+    pthread_t printTread;
+    pthread_create(&printTread, NULL, printSimpleThing, NULL);
+
 }
 
 

@@ -18,7 +18,6 @@ JNINativeMethod videoPlayerMethod[] = {
         {"resize",      "(II)V",                                 (void *) resizeGL},
         {"step",        "()V",                                   (void *) step},
         {"initAsserts", "(Landroid/content/res/AssetManager;)V", (void *) setAssertManager}
-
 };
 }
 
