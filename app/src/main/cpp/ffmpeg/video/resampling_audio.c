@@ -135,8 +135,9 @@ int testResamplingAudio(int argc, char **argv)
     }
 
     /* allocate source and destination samples buffers */
-
+    //这里是为了获取到声道的数量
     src_nb_channels = av_get_channel_layout_nb_channels(src_ch_layout);
+    //分配音频帧的空间
     ret = av_samples_alloc_array_and_samples(&src_data, &src_linesize, src_nb_channels,
                                              src_nb_samples, src_sample_fmt, 0);
     if (ret < 0) {

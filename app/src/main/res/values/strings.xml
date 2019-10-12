@@ -10,4 +10,5 @@
     <string name="play_the_audio">播放音频文件</string>
     <string name="play_video_and_sound">视音频同步播放</string>
     <string name="test_open_gl">测试Android原生绘制</string>
+    <string name="test_draw">测试openGL</string>
 </resources>

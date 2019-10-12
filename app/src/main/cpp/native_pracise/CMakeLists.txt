@@ -26,7 +26,9 @@ add_library(NdkTest
         SHARED
         ${GL3STUB_SRC}
         src/MainControl.cpp
-        src/FirstOpenGLDrawer.cpp)
+        src/FirstOpenGLDrawer.cpp
+        src/SimpleBean.cpp
+        src/SurfaceViewDrawer.cpp)
 
 
 find_library( # Sets the name of the path variable.

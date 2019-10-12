@@ -4,7 +4,7 @@
 
 #include "GlobalConfig.h"
 #include <android/native_window_jni.h>
-#include "NewSurfaceViewPlayer.h"
+#include "../NewSurfaceViewPlayer.h"
 
 extern "C" {
 #include "libavcodec/avcodec.h"

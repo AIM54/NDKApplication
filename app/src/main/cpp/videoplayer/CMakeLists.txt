@@ -23,6 +23,14 @@ add_library( # Sets the name of the library.
         main/VideoPlayControler.cpp
         main/NewSurfaceViewPlayer.cpp
         main/VideoDisplayer.cpp
+        main/AudioDecoder.cpp
+        main/VideoDecoder.cpp
+        main/StreamDecoder.cpp
+        main/AVFrameList.cpp
+        main/AVPacketList.cpp
+        main/bean/AvInfor.cpp
+        main/thread/Thread.cpp
+        main/thread/ExecutorThreadPool.cpp
         )
 
 add_library(avcodec

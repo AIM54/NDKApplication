@@ -27,7 +27,8 @@ add_library( # Sets the name of the library.
         test/List.c
         test/MutilThreadPlayer.cpp
         test/NewVideoPlayer.cpp
-        test/OpenGLPlayer.cpp)
+        test/OpenGLPlayer.cpp
+        test/TestVideoYUV.c)
 
 
 # 定义源码所在目录

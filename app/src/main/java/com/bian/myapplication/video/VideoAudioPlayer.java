@@ -32,7 +32,6 @@ public class VideoAudioPlayer {
         public boolean handleMessage(@NonNull Message message) {
             switch (message.what) {
                 case PLAY_VIDEO_CODE:
-                    CommonLog.i("beginPlayVideo:" + message.obj);
                     nPlayVideo((String) message.obj, mSurface);
                     break;
                 case PLAY_DESTORY_CODE:
@@ -45,7 +44,6 @@ public class VideoAudioPlayer {
             return true;
         }
     };
-
 
     public VideoAudioPlayer(Surface holder) {
         this.mSurface = holder;
@@ -72,7 +70,6 @@ public class VideoAudioPlayer {
         message.obj = data;
         videoHandler.sendMessage(message);
     }
-
 
     private native int nPlayVideo(String url, Surface surface);
 

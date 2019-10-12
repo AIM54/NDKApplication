@@ -3,6 +3,7 @@ package com.bian.myapplication.activity;
 import android.media.MediaCodec;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.WindowManager;
@@ -12,6 +13,7 @@ import com.bian.myapplication.utils.AppConstant;
 import com.bian.myapplication.utils.CommonLog;
 import com.bian.myapplication.utils.VideoUtil;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class VideoPlayActivity extends AppCompatActivity implements SurfaceHolder.Callback {
@@ -32,6 +34,15 @@ public class VideoPlayActivity extends AppCompatActivity implements SurfaceHolde
         mSurfaceHolder.addCallback(this);
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState, @NonNull PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+    }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {

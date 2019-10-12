@@ -1,0 +1,14 @@
+//
+// Created by Administrator on 2019/9/30.
+//
+
+#ifndef NDKAPPLICATION_LINKEDBLOCKINGQUEUE_H
+#define NDKAPPLICATION_LINKEDBLOCKINGQUEUE_H
+
+
+class LinkedBlockingQueue {
+
+};
+
+
+#endif //NDKAPPLICATION_LINKEDBLOCKINGQUEUE_H

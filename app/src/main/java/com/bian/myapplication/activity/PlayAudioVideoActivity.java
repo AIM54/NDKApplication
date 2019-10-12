@@ -47,7 +47,7 @@ public class PlayAudioVideoActivity extends AppCompatActivity implements Surface
 
     @Override
     public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-        videoAudioPlayer = null;
+
     }
 
     @Override
@@ -57,5 +57,11 @@ public class PlayAudioVideoActivity extends AppCompatActivity implements Surface
                 videoAudioPlayer.playVideo(videoUrl);
                 break;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        videoAudioPlayer.destroVideo();
     }
 }

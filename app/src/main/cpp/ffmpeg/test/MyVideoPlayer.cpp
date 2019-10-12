@@ -5,7 +5,8 @@
 #include <android/native_window_jni.h>
 #include "MyVideoPlayer.h"
 #include "GlobalConfig.h"
-
+#include <EGL/egl.h>
+#include <GLES3/gl3.h>
 extern "C" {
 #include "VideoPlay.h"
 }
@@ -15,6 +16,8 @@ extern "C" {
 
 AudioPlayer *audioPlayer = nullptr;
 extern JavaVM *javaVM;
+
+void wav_get_channels();
 
 void JNICALL onPapareForVideo(JNIEnv *env, jobject instance,
                               jstring url_) {
@@ -38,7 +41,13 @@ void playVideo(JNIEnv *env, jclass type, jstring videoUrl_,
     ALOGI("playVideo in native method:%s", videoPath);
     NewVideoPlayer *newPlayer = new NewVideoPlayer();
     newPlayer->playVideo(env, surface, const_cast<char *>(videoPath));
+    wav_get_channels();
 }
+
+void wav_get_channels() {
+
+}
+
 void onDestory(){
 
 }

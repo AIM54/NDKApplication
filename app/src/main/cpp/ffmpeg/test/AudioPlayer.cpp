@@ -9,7 +9,15 @@
 #include <atomic>
 #include <SLES/OpenSLES_Android.h>
 #include "AudioFrameDataBean.h"
+/**
+ * 对于packed格式的数据（例如RGB24），会存到data[0]里面。
+对于planar格式的数据（例如YUV420P），则会分开成data[0]，data[1]，data[2]...（YUV420P中data[0]存Y，data[1]存U，data[2]存V）
+ 因为opensl es 的缘故我们把所有的音频数据转化为packed 格式，采样的话，使用一个一维数组就可以了
 
+ 每秒理论PCM大小 = 采样率 * 声道数 * 位数/8
+ 如:
+ int s_time = 44100 * 2 * 16/8;
+ */
 extern "C" {
 #include "libavcodec/avcodec.h";
 #include "libavformat/avformat.h"
@@ -84,7 +92,12 @@ int AudioPlayer::decodeAudioData(char *url) {
         ALOGI("failed to alloc frame");
         return -1;
     }
-    size_t outputBufferSize = 8196;
+    //音频帧的数据量计算
+    // 一帧音频的数据量=channel数 * nb_samples样本数 * 每个样本占用的字节数
+    //ffmpeg 每一帧的默认采用数就是1024，
+    //每秒大概会播放43帧音频数据
+    //如果该音频帧是FLTP格式的PCM数据，包含1024个样本，双声道，那么该音频帧包含的音频数据量是2*1024*4=8192字节
+    size_t outputBufferSize = 8192;
     uint8_t *outputBuffer = new uint8_t[outputBufferSize];
     while ((status = av_read_frame(audioFormatContext, audioPacket)) >= 0) {
         if (audioPacket->stream_index == audioStreamIndex) {
@@ -114,13 +127,15 @@ int AudioPlayer::decodeAudioData(char *url) {
                     audioFrame->channels = av_get_channel_layout_nb_channels(
                             audioFrame->channel_layout);
                 }
+                //获取每一帧的大小
                 int newDataSize = av_samples_get_buffer_size(audioFrame->linesize,
                                                              audioCodecContext->channels,
                                                              audioFrame->nb_samples,
                                                              audioCodecContext->sample_fmt,
                                                              1);
                 dst_nb_samples = av_rescale_rnd(
-                        //得到输入sample和输出sample之间的延迟，并且其返回值的根据传入的第二个参数不同而不同。如果是输入的采样率，则返回值是输入sample个数；如果输入的是输出采样率，则返回值是输出sample个数。
+                        //得到输入sample和输出sample之间的延迟，并且其返回值的根据传入的第二个参数不同而不同。如果是输入的采样率，则返回值是输入sample个数
+                        // 如果输入的是输出采样率，则返回值是输出sample个数。
                         swr_get_delay(swr_ctx, audioCodecContext->sample_rate) +
                         audioFrame->nb_samples,
                         audioFrame->sample_rate, audioFrame->sample_rate, AV_ROUND_INF);
@@ -129,12 +144,18 @@ int AudioPlayer::decodeAudioData(char *url) {
                     delete[] outputBuffer;
                     outputBufferSize = newDataSize;
                     outputBuffer = new uint8_t[newDataSize];
-                }//在这里进行格式转换
-                int nb = swr_convert(swr_ctx, &outputBuffer, dst_nb_samples,
-                                     (const uint8_t **) audioFrame->data, audioFrame->nb_samples);
+                }
+                //在这里进行格式转换,返回是每个声道的采样数
+                int outSampleNumber = swr_convert(swr_ctx, &outputBuffer, dst_nb_samples,
+                                                  (const uint8_t **) audioFrame->data,
+                                                  audioFrame->nb_samples);
                 //根据布局获取声道数
                 int out_channels = av_get_channel_layout_nb_channels(dst_ch_layout);
-                int dataSize = out_channels * nb * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
+                //这里是为了获取采集到的一帧音频数据的大小，采集到的数据大小==声道数*采样数*采样深度
+                //因为我们这里播放音频的时候使用的是packed 格式的音频而不是planner
+                int dataSize =
+                        out_channels * outSampleNumber * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);
+
                 AudioFrameDataBean *audioFrameDataBean = new AudioFrameDataBean(dataSize,
                                                                                 outputBuffer);
                 double displayTime = audioFrame->pts *
@@ -151,6 +172,7 @@ int AudioPlayer::decodeAudioData(char *url) {
         }
         av_packet_unref(audioPacket);
     }
+    delete[]outputBuffer;
     return 0;
 }
 
@@ -294,7 +316,7 @@ void AudioPlayer::pushAudioFrameIntoList(AudioFrameDataBean *audioFrameDataBean)
     consumerCondition.notify_all();
 }
 
- void bqNewPlayerCallback(SLAndroidSimpleBufferQueueItf audioPlayQueue, void *context) {
+void bqNewPlayerCallback(SLAndroidSimpleBufferQueueItf audioPlayQueue, void *context) {
     AudioPlayer *audioPlayer = thisAudioPlayer.load();
     unique_lock<mutex> audioLock(audioListMutex);
     consumerCondition.wait(audioLock,

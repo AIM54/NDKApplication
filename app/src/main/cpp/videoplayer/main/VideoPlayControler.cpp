@@ -3,8 +3,11 @@
 //
 
 #include <GlobalConfig.h>
+#include <AvInfor.h>
 #include "VideoPlayControler.h"
 #include "VideoAudioPlayer.h"
+
+VideoAudioPlayer *videoAudioPlayer = nullptr;
 
 JNINativeMethod videoPlayerMethod[] = {
         {"nPlayVideo",     "(Ljava/lang/String;Landroid/view/Surface;)I", (void *) playNewVideo},
@@ -12,27 +15,32 @@ JNINativeMethod videoPlayerMethod[] = {
         {"nDestroyPlay",   "()I",                                         (void *) destoryVideo}
 };
 
-VideoAudioPlayer *videoAudioPlayer = nullptr;
-JavaVM *javaVM = nullptr;
 
 int playNewVideo(JNIEnv *env, jclass type, jstring videoUrl_,
                  jobject surface) {
     char *videoUrl = const_cast<char *>(env->GetStringUTFChars(videoUrl_, 0));
-    ALOGI("the current videoUrl is %s", videoUrl);
     if (!videoAudioPlayer) {
         videoAudioPlayer = new VideoAudioPlayer();
+        videoAudioPlayer->playVideo(videoUrl, env, surface);
     }
-    videoAudioPlayer->playVideo(videoUrl, env, surface);
     return 0;
 }
 
 
 int pauseVideo() {
-
+    return 0;
 }
 
 int destoryVideo() {
 
+    if (videoAudioPlayer) {
+        ALOGI("before destory");
+        videoAudioPlayer->stopPlay();
+        delete videoAudioPlayer;
+        videoAudioPlayer = nullptr;
+        ALOGI("after destory123");
+    }
+    return 0;
 }
 
 
@@ -45,7 +53,6 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     if (registerNativeMethod(env) != JNI_OK) {
         return -1;
     }
-    javaVM = vm;
     return JNI_VERSION_1_6;
 }
 

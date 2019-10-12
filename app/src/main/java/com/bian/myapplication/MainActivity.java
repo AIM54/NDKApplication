@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.bian.myapplication.activity.OpenGlActivity;
 import com.bian.myapplication.activity.PlayAudioVideoActivity;
+import com.bian.myapplication.activity.SurfaceViewActivity;
 import com.bian.myapplication.dialog.SelectOptionDialog;
 import com.bian.myapplication.image.ImageListActivity;
 import com.bian.myapplication.utils.AppConstant;
@@ -53,6 +54,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String saveVideodir;
 
     private Button testGLBt;
+    private Button newButton, deleteButton;
+
+    private Button surfaceBt;
+
+    private NativePracise nativePracise;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,15 +83,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initView() {
+        nativePracise = new NativePracise();
         mListView = findViewById(R.id.lv_video);
         View headView = LayoutInflater.from(this).inflate(R.layout.headview_video_list, null);
         testGLBt = headView.findViewById(R.id.test_gl_button);
+        newButton = headView.findViewById(R.id.test_new);
+        deleteButton = headView.findViewById(R.id.test_delete);
+        surfaceBt = headView.findViewById(R.id.bt_surface);
+        surfaceBt.setOnClickListener(this);
         mListView.addHeaderView(headView);
         toastButton = findViewById(R.id.bt_toast);
         encodePictureBt = findViewById(R.id.bt_test_img);
         toastButton.setOnClickListener(this);
         encodePictureBt.setOnClickListener(this);
         testGLBt.setOnClickListener(this);
+        newButton.setOnClickListener(this);
+        deleteButton.setOnClickListener(this);
     }
 
     @Override
@@ -108,6 +121,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(imgIt);
             case R.id.test_gl_button:
                 startActivity(new Intent(this, OpenGlActivity.class));
+            case R.id.test_new:
+                nativePracise.newObject();
+                break;
+            case R.id.test_delete:
+                nativePracise.deleteObject();
+                break;
+            case R.id.bt_surface:
+                startActivity(new Intent(this, SurfaceViewActivity.class));
                 break;
 
         }
@@ -143,7 +164,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Cursor cursor = (Cursor) mCursorAdapter.getItem(position);
+        Cursor cursor = (Cursor) mCursorAdapter.getItem(position - 1);
         mFilePath = cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media.DATA));
         selectOptionDialog = new SelectOptionDialog(this, new VideoOpertionListener());
         selectOptionDialog.show();
