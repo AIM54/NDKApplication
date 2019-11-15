@@ -54,12 +54,10 @@ public class NativePracise {
     }
 
     public void newObject() {
-        CommonLog.i("newObject");
         sendMessage(null, CODE_NEW);
     }
 
     public void deleteObject() {
-        CommonLog.i("deleteObject");
         sendMessage(null, CODE_DELETE);
     }
 

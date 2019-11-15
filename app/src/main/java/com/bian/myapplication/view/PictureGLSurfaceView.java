@@ -28,19 +28,16 @@ public class PictureGLSurfaceView extends GLSurfaceView {
 
         @Override
         public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
-            CommonLog.i("onSurfaceCreated");
             NativePracise.init();
         }
 
         @Override
         public void onSurfaceChanged(GL10 gl10, int i, int i1) {
-            CommonLog.i("onSurfaceChanged");
             NativePracise.resize(i, i1);
         }
 
         @Override
         public void onDrawFrame(GL10 gl10) {
-            CommonLog.i("onDrawFrame");
             NativePracise.step();
         }
     }

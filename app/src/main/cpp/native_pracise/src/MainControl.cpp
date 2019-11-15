@@ -27,9 +27,10 @@ JNINativeMethod videoPlayerMethod[] = {
 };
 
 JNINativeMethod openglMethod[] = {
-        {"initSurfaceView",   "(Landroid/view/Surface;)V", (void *) initSurfaceGL},
-        {"resizeSurfaceView", "()V",                       (void *) resizeSurfaceGL},
-        {"stepSurfaceView",   "()V",                       (void *) stepSurface}
+        {"initSurfaceView",   "(Landroid/view/Surface;Landroid/content/res/AssetManager;)V", (void *) initSurfaceGL},
+        {"resizeSurfaceView", "(II)V",                                                       (void *) resizeSurfaceGL},
+        {"stepSurfaceView",   "()V",                                                         (void *) stepSurface},
+        {"destroyView",       "()V",                                                         (void *) destroyDrawer}
 };
 }
 
@@ -115,18 +116,30 @@ void testDeleteObject() {
     }
 }
 
-void initSurfaceGL(JNIEnv *env, jobject jobj, jobject surface) {
-    ALOGE("initSurfaceGL");
+void initSurfaceGL(JNIEnv *env, jobject jobj, jobject surface, jobject assertManager) {
     if (!surfaceViewDrawer) {
-        surfaceViewDrawer = new SurfaceViewDrawer(env, surface);
+        surfaceViewDrawer = new SurfaceViewDrawer(env, surface, assertManager);
     }
     surfaceViewDrawer->init();
 }
 
-void resizeSurfaceGL(JNIEnv *jniEnv, jobject jobj, int width, int height) {
 
+void resizeSurfaceGL(JNIEnv *jniEnv, jobject jobj, int width, int height) {
+    if (surfaceViewDrawer) {
+        surfaceViewDrawer->resize(width, height);
+    }
 }
 
 void stepSurface(JNIEnv *jniEnv, jobject jobj) {
+    if (surfaceViewDrawer) {
+        surfaceViewDrawer->step();
+    }
+}
 
+void destroyDrawer() {
+    if (surfaceViewDrawer) {
+        ALOGE("onDELETE");
+        delete surfaceViewDrawer;
+        surfaceViewDrawer = nullptr;
+    }
 }

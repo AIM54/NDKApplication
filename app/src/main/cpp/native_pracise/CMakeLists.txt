@@ -28,7 +28,8 @@ add_library(NdkTest
         src/MainControl.cpp
         src/FirstOpenGLDrawer.cpp
         src/SimpleBean.cpp
-        src/SurfaceViewDrawer.cpp)
+        src/SurfaceViewDrawer.cpp
+        src/AssetReader.c)
 
 
 find_library( # Sets the name of the path variable.

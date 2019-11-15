@@ -21,3 +21,7 @@
 
 Routine playNewVideo(_JNIEnv*, _jclass*, _jstring*, _jobject*) at D:\NativeCode\NDKApplication\app\src\main\cpp\videoplayer\main/VideoPlayControler.cpp:25
 
+
+
+adb logcat | ndk-stack -sym D:\NativeCode\NDKApplication\app\src\main\cpp\jniLibs\arm64-v8a
+

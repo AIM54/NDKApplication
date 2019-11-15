@@ -11,6 +11,10 @@
 #include <malloc.h>
 #include <cstring>
 
+extern "C" {
+#include "AssetReader.h"
+}
+
 void FirstOpenGLDrawer::reize(int width, int height) {
     viewWidth = width;
     viewHeight = height;
@@ -36,8 +40,8 @@ void FirstOpenGLDrawer::step() {
 
 void FirstOpenGLDrawer::setAssertManger(AAssetManager *manager) {
     this->g_pAssetManager = manager;
-    char *shaderString = getStringFromAssert(g_pAssetManager, "first_shader.glsl");
-    char *vectorString = getStringFromAssert(g_pAssetManager, "first_v.glsl");
+    char *shaderString = readStringFromAssert(g_pAssetManager, "first_shader.glsl");
+    char *vectorString = readStringFromAssert(g_pAssetManager, "first_v.glsl");
     GLuint vertexShader;
     GLuint fragmentShader;
     GLuint programObject;
@@ -80,41 +84,3 @@ void FirstOpenGLDrawer::setAssertManger(AAssetManager *manager) {
     delete[]vectorString;
 }
 
-GLuint loadShader(GLenum type, const char *shaderSrc) {
-    GLuint shader;
-    GLint compiled;
-    shader = glCreateShader(type);
-    if (!shader) {
-        return 0;
-    }
-    glShaderSource(shader, 1, &shaderSrc, nullptr);
-    glCompileShader(shader);
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
-    if (!compiled) {
-        GLint inforLen = 0;
-        //获取失败的日志信息
-        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &inforLen);
-        if (inforLen > 0) {
-            char *inforLog = static_cast<char *>(malloc(inforLen * sizeof(char)));
-            glGetShaderInfoLog(shader, inforLen, nullptr, inforLog);
-            ALOGE("loadShaderError:%s", inforLog);
-            free(inforLog);
-        }
-        glDeleteShader(shader);
-        return 0;
-    }
-    return shader;
-}
-
-char *getStringFromAssert(AAssetManager *aAssetManager, char *path) {
-    AAsset *aasert = AAssetManager_open(aAssetManager, path, AASSET_MODE_UNKNOWN);
-    off_t assetSize = AAsset_getLength(aasert);
-    char *buffer = new char[assetSize+1];
-    memset(buffer, 0, assetSize + 1);
-    int readStatus = AAsset_read(aasert, buffer, assetSize);
-    AAsset_close(aasert);
-    if (readStatus >= 0) {
-        ALOGI("the read infor: %s", buffer);
-    }
-    return buffer;
-}

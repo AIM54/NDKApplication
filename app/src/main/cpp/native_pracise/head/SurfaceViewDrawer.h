@@ -17,27 +17,34 @@
 
 class SurfaceViewDrawer {
 private:
-    ANativeWindow *aNativeWindow = nullptr;
-    char *vertShader;
-    char *fragmentShader;
+    ANativeWindow *aNativeWindow;
+    AAssetManager *assetManager;
     EGLint majorVersion;
     EGLint minorVersion;
     EGLSurface eglWindow;
+    EGLDisplay disPlay;
+    EGLContext eglContext;
+    int viewWidth;
+    int viewHeight;
+
+protected:
+    void readGlsl();
 
 public:
 
-    SurfaceViewDrawer(JNIEnv *jniEnv, jobject surface);
+    SurfaceViewDrawer(JNIEnv *jniEnv, jobject surface, jobject pJobject);
 
     virtual ~SurfaceViewDrawer();
 
     void init();
 
+
     void resize(int width, int height);
 
     void step();
 
-};
 
-char *getStringFromAssert(AAssetManager *aAssetManager, char *path);
+    GLuint mProgramObject;
+};
 
 #endif //NDKAPPLICATION_SURFACEVIEWDRAWER_H

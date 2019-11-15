@@ -24,9 +24,5 @@ public:
     void setAssertManger(AAssetManager *manager);
 };
 
-char *getStringFromAssert(AAssetManager *aAssetManager, char *path);
-
-GLuint loadShader(GLenum type, const char *shaderSrc);
-
 
 #endif //NDKAPPLICATION_FIRSTOPENGLDRAWER_H

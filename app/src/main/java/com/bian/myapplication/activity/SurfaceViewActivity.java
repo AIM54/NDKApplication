@@ -30,19 +30,20 @@ public class SurfaceViewActivity extends AppCompatActivity implements SurfaceHol
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         if (surfaceDrawer == null) {
-            surfaceDrawer = new SurfaceDrawer(holder.getSurface());
+            surfaceDrawer = new SurfaceDrawer(holder.getSurface(), getAssets());
         }
-        CommonLog.i(" surfaceDrawer.initSurfaceView(holder.getSurface())");
-        surfaceDrawer.initSurfaceView(holder.getSurface());
+
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
+        surfaceDrawer.resizeSurfaceView(width, height);
+        surfaceDrawer.stepSurfaceView();
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
+        surfaceDrawer.destroyView();
         surfaceDrawer = null;
     }
 }
