@@ -11,7 +11,7 @@ extern "C" {
 #include "libavcodec/avcodec.h"
 };
 
-class StreamDecoder {
+class StreamDecoder  {
 
 protected:
     AVCodec *avCodec;

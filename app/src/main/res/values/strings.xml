@@ -11,4 +11,7 @@
     <string name="play_video_and_sound">视音频同步播放</string>
     <string name="test_open_gl">测试Android原生绘制</string>
     <string name="test_draw">测试openGL</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

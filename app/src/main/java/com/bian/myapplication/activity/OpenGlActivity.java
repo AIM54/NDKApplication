@@ -6,37 +6,39 @@ import android.content.pm.ConfigurationInfo;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.bian.myapplication.R;
+import com.bian.myapplication.fragment.FirstFragment;
 import com.bian.myapplication.utils.CommonLog;
 import com.bian.myapplication.view.PictureGLSurfaceView;
 
 public class OpenGlActivity extends AppCompatActivity {
-    private PictureGLSurfaceView pictureGLSurfaceView;
+    public static final String ARG_POSTION = "ARG_POSTION";
+    private Fragment fragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_open_gl);
-        pictureGLSurfaceView = findViewById(R.id.glv_main);
-        CommonLog.i("currentActivity can use opengl 3.0?:" + detectOpenGLES30());
+        createFragment();
+        commitFragment();
     }
 
-    private boolean detectOpenGLES30() {
-        ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        ConfigurationInfo info = am.getDeviceConfigurationInfo();
-        return (info.reqGlEsVersion >= 0x30000);
+    private void createFragment() {
+        int postion = getIntent().getIntExtra(ARG_POSTION, 0);
+        switch (postion) {
+            case 0:
+                fragment = new FirstFragment();
+                break;
+            default:
+                fragment = new FirstFragment();
+                break;
+        }
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        pictureGLSurfaceView.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        pictureGLSurfaceView.onResume();
+    private void commitFragment() {
+        getSupportFragmentManager().beginTransaction().add(R.id.fl_container, fragment, fragment.getClass().getSimpleName())
+                .commit();
     }
 }

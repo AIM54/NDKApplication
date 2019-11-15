@@ -17,7 +17,17 @@ add_library( # Sets the name of the library.
         # Sets the library as a shared library.
         SHARED
         # Provides a relative path to your source file(s).
-        src/Student.c)
+        src/Student.c
+        src/MainControl.cpp
+        src/BitmapCompress.cpp)
+
+
+add_library(jpeg
+        SHARED
+        IMPORTED)
+set_target_properties(jpeg
+        PROPERTIES IMPORTED_LOCATION
+        ${distribution_DIR}/libjpeg.so)
 
 add_library(turbojpeg
         SHARED
@@ -52,6 +62,7 @@ find_library( # Sets the name of the path variable.
 target_link_libraries( # Specifies the target library.
         imageCompress
         turbojpeg
+        jpeg
         jnigraphics
         # Links the target library to the log library
         # included in the NDK.

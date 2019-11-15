@@ -119,8 +119,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.bt_test_img:
                 Intent imgIt = new Intent(this, ImageListActivity.class);
                 startActivity(imgIt);
+                break;
             case R.id.test_gl_button:
                 startActivity(new Intent(this, OpenGlActivity.class));
+                break;
             case R.id.test_new:
                 nativePracise.newObject();
                 break;

@@ -52,7 +52,8 @@ AudioResampler::getDataBean(AVFrame *audioFrame, AVCodecContext *audioCodecConte
                                                  audioCodecContext->sample_fmt,
                                                  1);
     dst_nb_samples = av_rescale_rnd(
-            //得到输入sample和输出sample之间的延迟，并且其返回值的根据传入的第二个参数不同而不同。如果是输入的采样率，则返回值是输入sample个数；如果输入的是输出采样率，则返回值是输出sample个数。
+            //得到输入sample和输出sample之间的延迟，并且其返回值的根据传入的第二个参数不同而不同。如果是输入的采样率，则返回值是输入sample个数；
+            // 如果输入的是输出采样率，则返回值是输出sample个数。
             swr_get_delay(swr_ctx, audioCodecContext->sample_rate) +
             audioFrame->nb_samples,
             audioFrame->sample_rate, audioFrame->sample_rate, AV_ROUND_INF);

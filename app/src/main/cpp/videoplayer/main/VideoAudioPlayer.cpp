@@ -51,9 +51,7 @@ int VideoAudioPlayer::readStreamInfor() {
     while ((av_read_frame(avFormatContext, avPacket) >= 0) && isPlaying.load()) {
         double timeStamp =
                 avPacket->pts * av_q2d(avFormatContext->streams[videoIndex]->time_base);
-        av_usleep(1000 * 25);
         if (avPacket->stream_index == videoIndex) {
-            ALOGI("video current pts: %f", timeStamp);
         } else if (avPacket->stream_index == audioIndex) {
             ALOGI("audio current pts: %f", timeStamp);
         }

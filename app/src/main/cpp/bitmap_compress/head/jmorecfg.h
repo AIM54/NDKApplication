@@ -152,7 +152,7 @@ typedef short INT16;
  * NOTE: The INT32 typedef dates back to libjpeg v5 (1994.)  Integers were
  * sometimes 16-bit back then (MS-DOS), which is why INT32 is typedef'd to
  * long.  It also wasn't common (or at least as common) in 1994 for INT32 to be
- * defined by platform src.headers.  Since then, however, INT32 is defined in
+ * defined by platform headers.  Since then, however, INT32 is defined in
  * several other common places:
  *
  * Xmd.h (X11 header) typedefs INT32 to int on 64-bit platforms and long on
@@ -169,7 +169,7 @@ typedef short INT16;
  * of the libjpeg API for more than 20 years, we can't remove it, but we do not
  * use it internally any longer.  We instead define a separate type (JLONG)
  * for internal use, which ensures that internal behavior will always be the
- * same regardless of any external src.headers that may be included.
+ * same regardless of any external headers that may be included.
  */
 
 #ifndef XMD_H                   /* X11/xmd.h correctly defines INT32 */

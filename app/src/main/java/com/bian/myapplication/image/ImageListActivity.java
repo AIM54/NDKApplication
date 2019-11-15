@@ -80,7 +80,7 @@ public class ImageListActivity extends AppCompatActivity implements LoaderManage
             @Override
             public void run() {
                 Bitmap srcBitMap = BitmapFactory.decodeFile(filePath);
-                BitMapCompressUtil.compressBitmap(srcBitMap, getExternalCacheDir() + "234.jpg");
+                BitMapCompressUtil.compressBitmap(getExternalCacheDir() + "234.jpg",srcBitMap);
             }
         });
 
