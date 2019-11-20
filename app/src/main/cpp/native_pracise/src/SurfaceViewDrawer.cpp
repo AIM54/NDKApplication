@@ -7,12 +7,14 @@
 #include <malloc.h>
 #include "SurfaceViewDrawer.h"
 #include "AndroidLog.h"
+#include <math.h>
 
 extern "C" {
 #include "AssetReader.h"
 }
 
-SurfaceViewDrawer::SurfaceViewDrawer(JNIEnv *jniEnv, jobject surface, jobject assert) {
+SurfaceViewDrawer::SurfaceViewDrawer(JNIEnv *jniEnv, jobject surface, jobject assert)
+        : mProgramObject(0) {
     this->aNativeWindow = ANativeWindow_fromSurface(jniEnv, surface);
     this->assetManager = AAssetManager_fromJava(jniEnv, assert);
 }
@@ -69,12 +71,21 @@ void SurfaceViewDrawer::init() {
 }
 
 void SurfaceViewDrawer::readGlsl() {
-    char *fragmentShaderString = readStringFromAssert(assetManager, "first_shader.glsl");
-    char *veticalShaderString = readStringFromAssert(assetManager, "first_v.glsl");
+    char *fragmentShaderString = readStringFromAssert(assetManager, "second_shader.glsl");
+    char *veticalShaderString = readStringFromAssert(assetManager, "second_v.glsl");
     GLuint vertexShader = loadShader(GL_VERTEX_SHADER, veticalShaderString);
+    if (!vertexShader) {
+        ALOGI("failed to create vertexShader");
+        return;
+    }
     GLuint fragmentShader = loadShader(GL_FRAGMENT_SHADER, fragmentShaderString);
+    if (!fragmentShader) {
+        ALOGI("failed to create fragmentShader");
+        return;
+    }
     GLuint programObject = glCreateProgram();
     if (!programObject) {
+        ALOGI("failed to create programObject");
         return;
     }
     glAttachShader(programObject, vertexShader);
@@ -95,7 +106,7 @@ void SurfaceViewDrawer::readGlsl() {
         glDeleteProgram(programObject);
         return;
     }
-    glClearColor(1.0f, 1.0f, 0.0f, 0.0f);
+    glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
     mProgramObject = programObject;
     ALOGI("after init gl");
     delete[]fragmentShaderString;
@@ -107,7 +118,6 @@ void SurfaceViewDrawer::readGlsl() {
 void SurfaceViewDrawer::resize(int width, int height) {
     this->viewWidth = width;
     this->viewHeight = height;
-    ALOGI("viewWidth:%d||viewHeight:%d", viewWidth, viewHeight);
 }
 
 void SurfaceViewDrawer::step() {
@@ -115,6 +125,7 @@ void SurfaceViewDrawer::step() {
                            -0.5f, -0.5f, 0.0f,
                            0.5f, -0.5f, 0.0f
     };
+    GLfloat aColor[4] = {1.0, 1.0, 0.0, 1.0};
     // Set the viewport
     glViewport(0, 0, viewWidth, viewHeight);
     //clear the color buffer
@@ -124,8 +135,9 @@ void SurfaceViewDrawer::step() {
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vVertices);
     glEnableVertexAttribArray(0);
+    glVertexAttrib4fv(1, aColor);
     glDrawArrays(GL_TRIANGLES, 0, 3);
-    eglSwapBuffers(disPlay,eglWindow);
+    eglSwapBuffers(disPlay, eglWindow);
 }
 
 SurfaceViewDrawer::~SurfaceViewDrawer() {
@@ -145,6 +157,11 @@ SurfaceViewDrawer::~SurfaceViewDrawer() {
     disPlay = EGL_NO_DISPLAY;
     eglContext = EGL_NO_CONTEXT;
     eglWindow = EGL_NO_SURFACE;
+    if (mProgramObject) {
+        glDeleteProgram(mProgramObject);
+        mProgramObject = 0;
+    }
+
 }
 
 
