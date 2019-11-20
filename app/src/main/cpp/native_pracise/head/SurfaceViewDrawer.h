@@ -47,4 +47,6 @@ public:
     GLuint mProgramObject;
 };
 
+void drawWithoutVBOs(GLfloat *dataArray, GLint stride, GLint numberIndex, GLshort *indexs);
+
 #endif //NDKAPPLICATION_SURFACEVIEWDRAWER_H

@@ -9,6 +9,10 @@
 #include "AndroidLog.h"
 #include <math.h>
 
+static int VERTEX_POS_SIZE = 3;
+static int VERTEX_COLOR_SIZE = 4;
+
+
 extern "C" {
 #include "AssetReader.h"
 }
@@ -93,7 +97,6 @@ void SurfaceViewDrawer::readGlsl() {
     glLinkProgram(programObject);
     GLint linked;
     glGetProgramiv(programObject, GL_LINK_STATUS, &linked);
-
     if (!linked) {
         GLint inforLen = 0;
         glGetShaderiv(programObject, GL_INFO_LOG_LENGTH, &inforLen);
@@ -121,23 +124,38 @@ void SurfaceViewDrawer::resize(int width, int height) {
 }
 
 void SurfaceViewDrawer::step() {
-    GLfloat vVertices[] = {0.0f, 0.5f, 0.0f,
-                           -0.5f, -0.5f, 0.0f,
-                           0.5f, -0.5f, 0.0f
+    GLfloat vColorAndPostion[] = {0.0f, 0.5f, 0.0f,
+                                  0.0f, 1.0f, 0.0f, 1.0f,
+                                  -0.5f, -0.5f, 0.0f,
+                                  1.0f, 1.0f, 0.0f, 1.0f,
+                                  0.5f, -0.5f, 0.0f,
+                                  0.0f, 1.0f, 1.0f, 1.0f,
     };
-    GLfloat aColor[4] = {1.0, 1.0, 0.0, 1.0};
+
+    GLshort indices[3] = {0, 1, 2};
+
     // Set the viewport
     glViewport(0, 0, viewWidth, viewHeight);
     //clear the color buffer
     glClear(GL_COLOR_BUFFER_BIT);
+
     //use the programObject;
     glUseProgram(mProgramObject);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vVertices);
-    glEnableVertexAttribArray(0);
-    glVertexAttrib4fv(1, aColor);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    drawWithoutVBOs(vColorAndPostion, sizeof(GLfloat) * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE), 3,
+                    indices);
     eglSwapBuffers(disPlay, eglWindow);
+}
+
+void drawWithoutVBOs(GLfloat *dataArray, GLint stride, GLint numberIndex, GLshort *indexs) {
+    GLfloat *vtxBuf = dataArray;
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, vtxBuf);
+    vtxBuf += 3;
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stride, vtxBuf);
+    glDrawElements(GL_TRIANGLES, numberIndex, GL_UNSIGNED_SHORT, indexs);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(0);
 }
 
 SurfaceViewDrawer::~SurfaceViewDrawer() {
