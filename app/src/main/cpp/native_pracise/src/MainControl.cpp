@@ -16,7 +16,7 @@
 #include "SurfaceViewDrawer.h"
 
 extern "C" {
-JNINativeMethod videoPlayerMethod[] = {
+JNINativeMethod firstGlMethod[] = {
         {"init",        "()V",                                   (void *) initGL},
         {"resize",      "(II)V",                                 (void *) resizeGL},
         {"step",        "()V",                                   (void *) step},
@@ -63,8 +63,8 @@ int registerNativeMethod(JNIEnv *pInterface) {
     if (!jobject) {
         return -1;
     }
-    if (pInterface->RegisterNatives(jobject, videoPlayerMethod,
-                                    sizeof(videoPlayerMethod) / sizeof(videoPlayerMethod[0])) < 0) {
+    if (pInterface->RegisterNatives(jobject, firstGlMethod,
+                                    sizeof(firstGlMethod) / sizeof(firstGlMethod[0])) < 0) {
         return -1;
     }
 

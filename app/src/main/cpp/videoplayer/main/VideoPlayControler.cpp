@@ -9,7 +9,7 @@
 
 VideoAudioPlayer *videoAudioPlayer = nullptr;
 
-JNINativeMethod videoPlayerMethod[] = {
+JNINativeMethod firstGlMethod[] = {
         {"nPlayVideo",     "(Ljava/lang/String;Landroid/view/Surface;)I", (void *) playNewVideo},
         {"nPauseTheVideo", "()I",                                         (void *) pauseVideo},
         {"nDestroyPlay",   "()I",                                         (void *) destoryVideo}
@@ -62,8 +62,8 @@ int registerNativeMethod(JNIEnv *pInterface) {
         ALOGE("can't find class");
         return -1;
     }
-    if (pInterface->RegisterNatives(jobject, videoPlayerMethod,
-                                    sizeof(videoPlayerMethod) / sizeof(videoPlayerMethod[0])) < 0) {
+    if (pInterface->RegisterNatives(jobject, firstGlMethod,
+                                    sizeof(firstGlMethod) / sizeof(firstGlMethod[0])) < 0) {
         ALOGE("can't Register Method");
         return -1;
     }

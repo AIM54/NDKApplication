@@ -9,7 +9,7 @@ int registerNativeMethod(JNIEnv *pInterface);
 
 JavaVM *javaVM = nullptr;
 extern "C" {
-JNINativeMethod videoPlayerMethod[] = {
+JNINativeMethod firstGlMethod[] = {
         {"onpenVideo", "(Ljava/lang/String;)V",                   (void *) onPapareForVideo},
         {"playAudio",  "(Ljava/lang/String;Ljava/lang/String;)V", (void *) playAudioData},
         {"playVideo",  "(Ljava/lang/String;Landroid/view/Surface;)V",               (void *) playVideo},
@@ -37,8 +37,8 @@ int registerNativeMethod(JNIEnv *pInterface) {
         ALOGE("can't find class");
         return -1;
     }
-    if (pInterface->RegisterNatives(jobject, videoPlayerMethod,
-                                    sizeof(videoPlayerMethod) / sizeof(videoPlayerMethod[0])) < 0) {
+    if (pInterface->RegisterNatives(jobject, firstGlMethod,
+                                    sizeof(firstGlMethod) / sizeof(firstGlMethod[0])) < 0) {
         ALOGE("can't Register Method");
         return -1;
     }

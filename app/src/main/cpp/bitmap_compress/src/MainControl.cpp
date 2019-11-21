@@ -7,7 +7,7 @@
 #include "BitmapCompress.h"
 
 extern "C" {
-JNINativeMethod videoPlayerMethod[] = {
+JNINativeMethod firstGlMethod[] = {
         {"compressBitmap", "(Ljava/lang/String;Landroid/graphics/Bitmap;)I", (void *) compressBitmap},
 };
 }
@@ -29,8 +29,8 @@ int registerNativeMethod(JNIEnv *pInterface) {
     if (!jobject) {
         return -1;
     }
-    if (pInterface->RegisterNatives(jobject, videoPlayerMethod,
-                                    sizeof(videoPlayerMethod) / sizeof(videoPlayerMethod[0])) < 0) {
+    if (pInterface->RegisterNatives(jobject, firstGlMethod,
+                                    sizeof(firstGlMethod) / sizeof(firstGlMethod[0])) < 0) {
         return -1;
     }
     return JNI_OK;

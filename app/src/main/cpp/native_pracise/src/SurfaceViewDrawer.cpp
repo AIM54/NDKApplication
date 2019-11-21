@@ -16,6 +16,7 @@ static int VERTEX_COLOR_SIZE = 4;
 extern "C" {
 #include "AssetReader.h"
 }
+GLuint dataBuffer[2];
 
 SurfaceViewDrawer::SurfaceViewDrawer(JNIEnv *jniEnv, jobject surface, jobject assert)
         : mProgramObject(0) {
@@ -141,9 +142,36 @@ void SurfaceViewDrawer::step() {
 
     //use the programObject;
     glUseProgram(mProgramObject);
-    drawWithoutVBOs(vColorAndPostion, sizeof(GLfloat) * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE), 3,
-                    indices);
+    drawWithVBO(vColorAndPostion, 3, sizeof(GLfloat) * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE), 3,
+                indices);
     eglSwapBuffers(disPlay, eglWindow);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void drawWithVBO(GLfloat *dataArray, GLint verticalNumbs, GLint stride, GLint indexSize,
+                 GLshort *indexa) {
+    GLint offset = 0;
+    if (dataBuffer[0] == 0 && dataBuffer[1] == 0) {
+        glGenBuffers(2, dataBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, dataBuffer[0]);
+        glBufferData(GL_ARRAY_BUFFER, stride * verticalNumbs, dataArray, GL_STATIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, dataBuffer[1]);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLshort) * indexSize, indexa, GL_STATIC_DRAW);
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, dataBuffer[0]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, dataBuffer[1]);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (const void *) offset);
+
+    glEnableVertexAttribArray(1);
+    offset += 3 * sizeof(GLfloat);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stride, (const void *) offset);
+
+    glDrawElements(GL_TRIANGLES, indexSize, GL_UNSIGNED_SHORT, 0);
 }
 
 void drawWithoutVBOs(GLfloat *dataArray, GLint stride, GLint numberIndex, GLshort *indexs) {
