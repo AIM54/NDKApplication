@@ -31,6 +31,8 @@ add_library(NdkTest
         src/FirstOpenGLDrawer.cpp
         src/SimpleBean.cpp
         src/SurfaceViewDrawer.cpp
+        src/BaseOpenGlDrawer.cpp
+        src/SecondViewDrawer.cpp
         src/AssetReader.c)
 
 add_library(jpeg

@@ -2,13 +2,23 @@
 // Created by Administrator on 2019/11/17.
 //
 
+extern "C" {
+#include "AssetReader.h"
+}
 
 #include "BaseOpenGlDrawer.h"
 
-BaseOpenGlDrawer::BaseOpenGlDrawer(JNIEnv *jniEnv, jobject surface, jobject assert) {
+BaseOpenGlDrawer::BaseOpenGlDrawer(JNIEnv *jniEnv, jobject surface, jobject assert)
+        : mProgramObject(0) {
     this->aNativeWindow = ANativeWindow_fromSurface(jniEnv, surface);
     this->assetManager = AAssetManager_fromJava(jniEnv, assert);
 }
+
+void BaseOpenGlDrawer::resize(int width, int height) {
+    this->viewWidth = width;
+    this->viewHeight = height;
+}
+
 int BaseOpenGlDrawer::init() {
     disPlay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (disPlay == EGL_NO_DISPLAY) {
@@ -59,6 +69,47 @@ int BaseOpenGlDrawer::init() {
     }
     return 1;
 }
+
+void BaseOpenGlDrawer::createProgram(char *veticalShaderString, char *fragmentShaderString) {
+    GLuint vertexShader = loadShader(GL_VERTEX_SHADER, veticalShaderString);
+    if (!vertexShader) {
+        ALOGI("failed to create vertexShader");
+        return;
+    }
+    GLuint fragmentShader = loadShader(GL_FRAGMENT_SHADER, fragmentShaderString);
+    if (!fragmentShader) {
+        ALOGI("failed to create fragmentShader");
+        return;
+    }
+    GLuint programObject = glCreateProgram();
+    if (!programObject) {
+        ALOGI("failed to create programObject");
+        return;
+    }
+    glAttachShader(programObject, vertexShader);
+    glAttachShader(programObject, fragmentShader);
+    glLinkProgram(programObject);
+    GLint linked;
+    glGetProgramiv(programObject, GL_LINK_STATUS, &linked);
+    if (!linked) {
+        GLint inforLen = 0;
+        glGetShaderiv(programObject, GL_INFO_LOG_LENGTH, &inforLen);
+        if (inforLen > 0) {
+            char *logInfor = static_cast<char *>(malloc(inforLen * sizeof(char)));
+            glGetShaderInfoLog(programObject, inforLen, nullptr, logInfor);
+            ALOGE("link the opengl failed:%s", logInfor);
+            free(logInfor);
+        }
+        glDeleteProgram(programObject);
+        return;
+    }
+    glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
+    mProgramObject = programObject;
+    ALOGI("after init gl");
+    delete[]fragmentShaderString;
+    delete[]veticalShaderString;
+}
+
 
 BaseOpenGlDrawer::~BaseOpenGlDrawer() {
     if (eglWindow != EGL_NO_SURFACE) {

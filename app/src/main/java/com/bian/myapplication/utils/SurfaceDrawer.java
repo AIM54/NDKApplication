@@ -19,9 +19,17 @@ public class SurfaceDrawer {
         initSurfaceView(mSurface, assetManager);
     }
 
+    public SurfaceDrawer(Surface surface, AssetManager assets, int type) {
+        this.mSurface = surface;
+        this.assetManager = assets;
+        initSurfaceView(mSurface, assetManager,type);
+    }
+
     public native void initSurfaceView(Surface surface, AssetManager assetManager);
 
-    public native void resizeSurfaceView(int width,int height);
+    public native void initSurfaceView(Surface surface, AssetManager assetManager, int testType);
+
+    public native void resizeSurfaceView(int width, int height);
 
     public native void stepSurfaceView();
 

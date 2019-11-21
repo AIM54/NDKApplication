@@ -14,6 +14,8 @@
 #include <android/asset_manager.h>
 
 #include "SurfaceViewDrawer.h"
+#include "BaseOpenGlDrawer.h"
+#include "SecondViewDrawer.h"
 
 extern "C" {
 JNINativeMethod firstGlMethod[] = {
@@ -27,10 +29,11 @@ JNINativeMethod firstGlMethod[] = {
 };
 
 JNINativeMethod openglMethod[] = {
-        {"initSurfaceView",   "(Landroid/view/Surface;Landroid/content/res/AssetManager;)V", (void *) initSurfaceGL},
-        {"resizeSurfaceView", "(II)V",                                                       (void *) resizeSurfaceGL},
-        {"stepSurfaceView",   "()V",                                                         (void *) stepSurface},
-        {"destroyView",       "()V",                                                         (void *) destroyDrawer}
+        {"initSurfaceView",   "(Landroid/view/Surface;Landroid/content/res/AssetManager;)V",  (void *) initSurfaceGL},
+        {"initSurfaceView",   "(Landroid/view/Surface;Landroid/content/res/AssetManager;I)V", (void *) initSurfaceGLByType},
+        {"resizeSurfaceView", "(II)V",                                                        (void *) resizeSurfaceGL},
+        {"stepSurfaceView",   "()V",                                                          (void *) stepSurface},
+        {"destroyView",       "()V",                                                          (void *) destroyDrawer}
 };
 }
 
@@ -41,6 +44,9 @@ AAssetManager *g_pAssetManager = nullptr;
 SimpleBean *simpleBean = nullptr;
 
 SurfaceViewDrawer *surfaceViewDrawer = nullptr;
+
+BaseOpenGlDrawer *baseOpenGlDrawer = nullptr;
+
 
 jint JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env = NULL;
@@ -123,16 +129,31 @@ void initSurfaceGL(JNIEnv *env, jobject jobj, jobject surface, jobject assertMan
     surfaceViewDrawer->init();
 }
 
+void
+initSurfaceGLByType(JNIEnv *env, jobject jobj, jobject surface, jobject assertManager, jint type) {
+    if (!baseOpenGlDrawer) {
+        baseOpenGlDrawer = new SecondViewDrawer(env, surface, assertManager);
+    }
+    baseOpenGlDrawer->init();
+
+}
+
 
 void resizeSurfaceGL(JNIEnv *jniEnv, jobject jobj, int width, int height) {
     if (surfaceViewDrawer) {
         surfaceViewDrawer->resize(width, height);
+    }
+    if (baseOpenGlDrawer) {
+        baseOpenGlDrawer->resize(width, height);
     }
 }
 
 void stepSurface(JNIEnv *jniEnv, jobject jobj) {
     if (surfaceViewDrawer) {
         surfaceViewDrawer->step();
+    }
+    if (baseOpenGlDrawer) {
+        baseOpenGlDrawer->step();
     }
 }
 
@@ -141,5 +162,9 @@ void destroyDrawer() {
         ALOGE("onDELETE");
         delete surfaceViewDrawer;
         surfaceViewDrawer = nullptr;
+    }
+    if (baseOpenGlDrawer) {
+        delete baseOpenGlDrawer;
+        baseOpenGlDrawer = nullptr;
     }
 }

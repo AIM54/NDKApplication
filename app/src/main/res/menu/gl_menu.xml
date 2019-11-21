@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/simple_test"
+        android:title="三角形" />
+
+    <item
+        android:id="@+id/rect_test"
+        android:title="四边形" />
+
+    <item
+        android:id="@+id/line_test"
+        android:title="线条" />
+    <item
+        android:id="@+id/point_test"
+        android:title="圆点测试" />
+
+    <item
+        android:id="@+id/mix_test"
+        android:title="迷雾测试" />
+    <item
+        android:id="@+id/picture_test"
+        android:title="图片测试" />
+
+</menu>

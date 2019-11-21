@@ -24,7 +24,10 @@ void testNewObject();
 void testDeleteObject();
 
 
-void initSurfaceGL(JNIEnv *env, jobject jobj, jobject assertManager, jobject surface);
+void initSurfaceGL(JNIEnv *env, jobject jobj, jobject surface, jobject assertManager);
+
+void
+initSurfaceGLByType(JNIEnv *env, jobject jobj, jobject surface, jobject assertManager, jint type);
 
 void resizeSurfaceGL(JNIEnv *jniEnv, jobject jobj, int width, int height);
 

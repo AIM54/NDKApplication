@@ -27,14 +27,23 @@ protected:
     EGLSurface eglWindow;
     EGLDisplay disPlay;
     EGLContext eglContext;
+    GLuint mProgramObject;
+
     int viewWidth;
     int viewHeight;
 
 public:
     BaseOpenGlDrawer(JNIEnv *jniEnv, jobject surface, jobject pJobject);
+
     virtual int init();
 
+    virtual void resize(int width, int height);
+
+    virtual void createProgram(char *vertShader, char *fragmentShader);
+
     virtual ~BaseOpenGlDrawer();
+
+    virtual void step() = 0;
 
 };
 
