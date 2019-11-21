@@ -101,9 +101,10 @@ void BaseOpenGlDrawer::createProgram(char *veticalShaderString, char *fragmentSh
             free(logInfor);
         }
         glDeleteProgram(programObject);
+        delete[]fragmentShaderString;
+        delete[]veticalShaderString;
         return;
     }
-    glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
     mProgramObject = programObject;
     ALOGI("after init gl");
     delete[]fragmentShaderString;

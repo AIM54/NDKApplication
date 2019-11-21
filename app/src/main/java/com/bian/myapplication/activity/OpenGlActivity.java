@@ -38,6 +38,9 @@ public class OpenGlActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.simple_test:
+                commitFragment(new FirstFragment());
+                break;
+            case R.id.rect_test:
                 commitFragment(new RectFragment());
                 break;
 
