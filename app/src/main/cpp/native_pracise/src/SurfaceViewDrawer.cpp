@@ -12,15 +12,17 @@
 static GLuint VERTEX_POS_SIZE = 3;
 static GLuint VERTEX_COLOR_SIZE = 4;
 
-static GLuint  VERTEX_POS_INDEX=0;
+static GLuint VERTEX_POS_INDEX = 0;
 
-static GLuint  VERTEX_COLOR_INDEX=1;
+static GLuint VERTEX_COLOR_INDEX = 1;
 
 
 extern "C" {
 #include "AssetReader.h"
 }
 GLuint dataBuffer[2];
+
+GLuint vertexArray[1];
 
 SurfaceViewDrawer::SurfaceViewDrawer(JNIEnv *jniEnv, jobject surface, jobject assert)
         : mProgramObject(0) {
@@ -138,24 +140,47 @@ void SurfaceViewDrawer::step() {
     };
 
     GLshort indices[3] = {0, 1, 2};
-
+    glUseProgram(mProgramObject);
+    initVAO(vColorAndPostion, 3, sizeof(GLfloat) * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE), 3,
+            indices);
     // Set the viewport
     glViewport(0, 0, viewWidth, viewHeight);
     //clear the color buffer
     glClear(GL_COLOR_BUFFER_BIT);
     //use the programObject;
-    glUseProgram(mProgramObject);
-    drawWithVBO(vColorAndPostion, 3, sizeof(GLfloat) * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE), 3,
-                indices);
+    drawVAO();
     eglSwapBuffers(disPlay, eglWindow);
-
 }
 
-void drawWithVAO(GLfloat *dataArray, GLint verticalNumbs, GLint stride, GLint indexSize,
-                 GLshort *indexa) {
-
-
+void drawVAO() {
+    glBindVertexArray(vertexArray[0]);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, 0);
+    glBindVertexArray(0);
 }
+
+void initVAO(GLfloat *dataArray, GLint verticalNumbs, GLint stride, GLint indexSize,
+             GLshort *indexa) {
+
+    glGenBuffers(2, dataBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, dataBuffer[0]);
+    glBufferData(GL_ARRAY_BUFFER, verticalNumbs * stride, dataArray, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, dataBuffer[1]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLshort) * indexSize, indexa, GL_STATIC_DRAW);
+    glGenVertexArrays(1, vertexArray);
+    glBindVertexArray(vertexArray[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, dataBuffer[0]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, dataBuffer[1]);
+
+    glEnableVertexAttribArray(VERTEX_POS_INDEX);
+    glVertexAttribPointer(VERTEX_POS_INDEX, VERTEX_POS_SIZE, GL_FLOAT, GL_FALSE, stride,
+                          (const void *) 0);
+
+    glEnableVertexAttribArray(VERTEX_COLOR_INDEX);
+    glVertexAttribPointer(VERTEX_COLOR_INDEX, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE, stride,
+                          (const void *) (sizeof(GLfloat) * VERTEX_POS_SIZE));
+    glBindVertexArray(0);
+}
+
 
 void drawWithVBO(GLfloat *dataArray, GLint verticalNumbs, GLint stride, GLint indexSize,
                  GLshort *indexa) {
@@ -171,11 +196,13 @@ void drawWithVBO(GLfloat *dataArray, GLint verticalNumbs, GLint stride, GLint in
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, dataBuffer[1]);
 
     glEnableVertexAttribArray(VERTEX_POS_INDEX);
-    glVertexAttribPointer(VERTEX_POS_INDEX, VERTEX_POS_SIZE, GL_FLOAT, GL_FALSE, stride, (const void *) offset);
+    glVertexAttribPointer(VERTEX_POS_INDEX, VERTEX_POS_SIZE, GL_FLOAT, GL_FALSE, stride,
+                          (const void *) offset);
 
     glEnableVertexAttribArray(VERTEX_COLOR_INDEX);
     offset += VERTEX_POS_SIZE * sizeof(GLfloat);
-    glVertexAttribPointer(VERTEX_COLOR_INDEX, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE, stride, (const void *) offset);
+    glVertexAttribPointer(VERTEX_COLOR_INDEX, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE, stride,
+                          (const void *) offset);
 
     glDrawElements(GL_TRIANGLES, indexSize, GL_UNSIGNED_SHORT, 0);
 
@@ -218,7 +245,8 @@ SurfaceViewDrawer::~SurfaceViewDrawer() {
         glDeleteProgram(mProgramObject);
         mProgramObject = 0;
     }
-
+    glDeleteBuffers(2, dataBuffer);
+    glDeleteVertexArrays(1, vertexArray);
 }
 
 

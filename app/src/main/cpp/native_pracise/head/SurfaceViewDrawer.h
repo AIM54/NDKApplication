@@ -52,8 +52,10 @@ void drawWithoutVBOs(GLfloat *dataArray, GLint stride, GLint numberIndex, GLshor
 void drawWithVBO(GLfloat *dataArray, GLint verticalNumbs, GLint stride, GLint indexSize,
                  GLshort *indexa);
 
-void drawWithVAO(GLfloat *dataArray, GLint verticalNumbs, GLint stride, GLint indexSize,
-                 GLshort *indexa);
+void initVAO(GLfloat *dataArray, GLint verticalNumbs, GLint stride, GLint indexSize,
+             GLshort *indexa);
+
+void drawVAO();
 
 
 void drawWithVAO();
