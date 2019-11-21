@@ -9,8 +9,12 @@
 #include "AndroidLog.h"
 #include <math.h>
 
-static int VERTEX_POS_SIZE = 3;
-static int VERTEX_COLOR_SIZE = 4;
+static GLuint VERTEX_POS_SIZE = 3;
+static GLuint VERTEX_COLOR_SIZE = 4;
+
+static GLuint  VERTEX_POS_INDEX=0;
+
+static GLuint  VERTEX_COLOR_INDEX=1;
 
 
 extern "C" {
@@ -139,16 +143,18 @@ void SurfaceViewDrawer::step() {
     glViewport(0, 0, viewWidth, viewHeight);
     //clear the color buffer
     glClear(GL_COLOR_BUFFER_BIT);
-
     //use the programObject;
     glUseProgram(mProgramObject);
     drawWithVBO(vColorAndPostion, 3, sizeof(GLfloat) * (VERTEX_POS_SIZE + VERTEX_COLOR_SIZE), 3,
                 indices);
     eglSwapBuffers(disPlay, eglWindow);
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+}
+
+void drawWithVAO(GLfloat *dataArray, GLint verticalNumbs, GLint stride, GLint indexSize,
+                 GLshort *indexa) {
+
+
 }
 
 void drawWithVBO(GLfloat *dataArray, GLint verticalNumbs, GLint stride, GLint indexSize,
@@ -164,14 +170,19 @@ void drawWithVBO(GLfloat *dataArray, GLint verticalNumbs, GLint stride, GLint in
     glBindBuffer(GL_ARRAY_BUFFER, dataBuffer[0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, dataBuffer[1]);
 
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (const void *) offset);
+    glEnableVertexAttribArray(VERTEX_POS_INDEX);
+    glVertexAttribPointer(VERTEX_POS_INDEX, VERTEX_POS_SIZE, GL_FLOAT, GL_FALSE, stride, (const void *) offset);
 
-    glEnableVertexAttribArray(1);
-    offset += 3 * sizeof(GLfloat);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, stride, (const void *) offset);
+    glEnableVertexAttribArray(VERTEX_COLOR_INDEX);
+    offset += VERTEX_POS_SIZE * sizeof(GLfloat);
+    glVertexAttribPointer(VERTEX_COLOR_INDEX, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE, stride, (const void *) offset);
 
     glDrawElements(GL_TRIANGLES, indexSize, GL_UNSIGNED_SHORT, 0);
+
+    glDisableVertexAttribArray(VERTEX_COLOR_INDEX);
+    glDisableVertexAttribArray(VERTEX_POS_INDEX);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void drawWithoutVBOs(GLfloat *dataArray, GLint stride, GLint numberIndex, GLshort *indexs) {

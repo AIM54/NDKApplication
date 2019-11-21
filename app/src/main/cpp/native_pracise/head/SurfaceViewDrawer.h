@@ -49,6 +49,13 @@ public:
 
 void drawWithoutVBOs(GLfloat *dataArray, GLint stride, GLint numberIndex, GLshort *indexs);
 
-void drawWithVBO(GLfloat *dataArray, GLint verticalNumbs,GLint stride, GLint indexSize, GLshort *indexa);
+void drawWithVBO(GLfloat *dataArray, GLint verticalNumbs, GLint stride, GLint indexSize,
+                 GLshort *indexa);
+
+void drawWithVAO(GLfloat *dataArray, GLint verticalNumbs, GLint stride, GLint indexSize,
+                 GLshort *indexa);
+
+
+void drawWithVAO();
 
 #endif //NDKAPPLICATION_SURFACEVIEWDRAWER_H

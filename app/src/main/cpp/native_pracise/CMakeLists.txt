@@ -5,6 +5,8 @@
 
 cmake_minimum_required(VERSION 3.4.1)
 
+# 设置libjpeg库所在路径的目录
+set(distribution_DIR ${CMAKE_SOURCE_DIR}/../jniLibs/${ANDROID_ABI})
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fno-rtti -fno-exceptions -Wall")
@@ -31,6 +33,19 @@ add_library(NdkTest
         src/SurfaceViewDrawer.cpp
         src/AssetReader.c)
 
+add_library(jpeg
+        SHARED
+        IMPORTED)
+set_target_properties(jpeg
+        PROPERTIES IMPORTED_LOCATION
+        ${distribution_DIR}/libjpeg.so)
+
+add_library(turbojpeg
+        SHARED
+        IMPORTED)
+set_target_properties(turbojpeg
+        PROPERTIES IMPORTED_LOCATION
+        ${distribution_DIR}/libturbojpeg.so)
 
 find_library( # Sets the name of the path variable.
         log-lib
@@ -46,6 +61,9 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
         NdkTest
+        turbojpeg
+        jpeg
+        jnigraphics
         ${OPENGL_LIB}
         # Links the target library to the log library
         # included in the NDK.
