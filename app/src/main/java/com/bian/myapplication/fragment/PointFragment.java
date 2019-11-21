@@ -2,22 +2,25 @@ package com.bian.myapplication.fragment;
 
 
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.bian.myapplication.R;
+import com.bian.myapplication.utils.SurfaceDrawer;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PointFragment extends Fragment {
-
-
-    public PointFragment() {
-        // Required empty public constructor
-    }
+public class PointFragment extends Fragment implements SurfaceHolder.Callback {
+    private SurfaceView mainSv;
+    private SurfaceDrawer surfaceDrawer;
 
 
     @Override
@@ -25,6 +28,31 @@ public class PointFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_point, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        mainSv = view.findViewById(R.id.sfv_main);
+        mainSv.getHolder().addCallback(this);
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+        if (surfaceDrawer == null) {
+            surfaceDrawer = new SurfaceDrawer(holder.getSurface(), getContext().getAssets(),2);
+        }
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        surfaceDrawer.resizeSurfaceView(width, height);
+        surfaceDrawer.stepSurfaceView();
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        surfaceDrawer.destroyView();
+        surfaceDrawer = null;
     }
 
 }

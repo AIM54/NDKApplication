@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bian.myapplication.R;
+import com.bian.myapplication.utils.CommonLog;
 import com.bian.myapplication.utils.SurfaceDrawer;
 
 /**
@@ -53,6 +54,7 @@ public class RectFragment extends Fragment implements SurfaceHolder.Callback {
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         surfaceDrawer.destroyView();
+        CommonLog.i(this.getClass().getSimpleName()+"surfaceDestroyed");
         surfaceDrawer = null;
     }
 }

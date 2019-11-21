@@ -27,12 +27,17 @@ include_directories(head)
 add_library(NdkTest
         SHARED
         ${GL3STUB_SRC}
+        src/common/esUtil.c
+        src/common/esShader.c
+        src/common/esTransform.c
+        src/common/esShapes.c
         src/MainControl.cpp
         src/FirstOpenGLDrawer.cpp
         src/SimpleBean.cpp
         src/SurfaceViewDrawer.cpp
         src/BaseOpenGlDrawer.cpp
         src/SecondViewDrawer.cpp
+        src/PointDrawer.cpp
         src/AssetReader.c)
 
 add_library(jpeg

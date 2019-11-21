@@ -13,6 +13,8 @@ import androidx.fragment.app.Fragment;
 
 import com.bian.myapplication.R;
 import com.bian.myapplication.fragment.FirstFragment;
+import com.bian.myapplication.fragment.LineFragment;
+import com.bian.myapplication.fragment.PointFragment;
 import com.bian.myapplication.fragment.RectFragment;
 import com.bian.myapplication.utils.CommonLog;
 import com.bian.myapplication.view.PictureGLSurfaceView;
@@ -42,6 +44,9 @@ public class OpenGlActivity extends AppCompatActivity {
                 break;
             case R.id.rect_test:
                 commitFragment(new RectFragment());
+                break;
+            case R.id.point_test:
+                commitFragment(new PointFragment());
                 break;
 
         }

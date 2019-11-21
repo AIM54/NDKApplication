@@ -16,7 +16,6 @@ char *readStringFromAssert(AAssetManager *aAssetManager, char *path) {
     int readStatus = AAsset_read(aasert, buffer, assetSize);
     AAsset_close(aasert);
     if (readStatus >= 0) {
-        ALOGI("the read infor: %s", buffer);
     }
     return buffer;
 }

@@ -6,13 +6,14 @@
 #include <list>
 #include <iostream>
 #include <stdio.h>
+#include <android/asset_manager_jni.h>
+#include <android/asset_manager.h>
+
 #include "MainControl.h"
 #include "FirstOpenGLDrawer.h"
 #include "AndroidLog.h"
 #include "SimpleBean.h"
-#include <android/asset_manager_jni.h>
-#include <android/asset_manager.h>
-
+#include "PointDrawer.h"
 #include "SurfaceViewDrawer.h"
 #include "BaseOpenGlDrawer.h"
 #include "SecondViewDrawer.h"
@@ -132,7 +133,18 @@ void initSurfaceGL(JNIEnv *env, jobject jobj, jobject surface, jobject assertMan
 void
 initSurfaceGLByType(JNIEnv *env, jobject jobj, jobject surface, jobject assertManager, jint type) {
     if (!baseOpenGlDrawer) {
-        baseOpenGlDrawer = new SecondViewDrawer(env, surface, assertManager);
+        switch (type) {
+            case 1:
+                baseOpenGlDrawer = new SecondViewDrawer(env, surface, assertManager);
+                break;
+            case 2:
+                baseOpenGlDrawer = new PointDrawer(env, surface, assertManager);
+                break;
+            default:
+                baseOpenGlDrawer = new SecondViewDrawer(env, surface, assertManager);
+                break;
+        }
+
     }
     baseOpenGlDrawer->init();
 
