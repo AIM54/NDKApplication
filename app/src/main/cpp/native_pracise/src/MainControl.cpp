@@ -17,6 +17,8 @@
 #include "SurfaceViewDrawer.h"
 #include "BaseOpenGlDrawer.h"
 #include "SecondViewDrawer.h"
+#include "BitmapDrawer.h"
+#include "ImageDrawer.h"
 
 extern "C" {
 JNINativeMethod firstGlMethod[] = {
@@ -30,11 +32,13 @@ JNINativeMethod firstGlMethod[] = {
 };
 
 JNINativeMethod openglMethod[] = {
-        {"initSurfaceView",   "(Landroid/view/Surface;Landroid/content/res/AssetManager;)V",  (void *) initSurfaceGL},
-        {"initSurfaceView",   "(Landroid/view/Surface;Landroid/content/res/AssetManager;I)V", (void *) initSurfaceGLByType},
-        {"resizeSurfaceView", "(II)V",                                                        (void *) resizeSurfaceGL},
-        {"stepSurfaceView",   "()V",                                                          (void *) stepSurface},
-        {"destroyView",       "()V",                                                          (void *) destroyDrawer}
+        {"initSurfaceView",   "(Landroid/view/Surface;Landroid/content/res/AssetManager;)V",                           (void *) initSurfaceGL},
+        {"initSurfaceView",   "(Landroid/view/Surface;Landroid/content/res/AssetManager;I)V",                          (void *) initSurfaceGLByType},
+        {"initPicture",       "(Landroid/view/Surface;Landroid/content/res/AssetManager;ILjava/lang/String;)V",        (void *) initPictureSurface},
+        {"initPicture",       "(Landroid/view/Surface;Landroid/content/res/AssetManager;ILandroid/graphics/Bitmap;)V", (void *) initBitmapSurface},
+        {"resizeSurfaceView", "(II)V",                                                                                 (void *) resizeSurfaceGL},
+        {"stepSurfaceView",   "()V",                                                                                   (void *) stepSurface},
+        {"destroyView",       "()V",                                                                                   (void *) destroyDrawer}
 };
 }
 
@@ -132,24 +136,45 @@ void initSurfaceGL(JNIEnv *env, jobject jobj, jobject surface, jobject assertMan
 
 void
 initSurfaceGLByType(JNIEnv *env, jobject jobj, jobject surface, jobject assertManager, jint type) {
-    if (!baseOpenGlDrawer) {
-        switch (type) {
-            case 1:
-                baseOpenGlDrawer = new SecondViewDrawer(env, surface, assertManager);
-                break;
-            case 2:
-                baseOpenGlDrawer = new PointDrawer(env, surface, assertManager);
-                break;
-            default:
-                baseOpenGlDrawer = new SecondViewDrawer(env, surface, assertManager);
-                break;
-        }
-
+    if (baseOpenGlDrawer) {
+        destroyDrawer();
     }
-    baseOpenGlDrawer->init();
+    switch (type) {
+        case 1:
+            baseOpenGlDrawer = new SecondViewDrawer(env, surface, assertManager);
+            break;
+        case 2:
+            baseOpenGlDrawer = new PointDrawer(env, surface, assertManager);
+            break;
+        default:
+            baseOpenGlDrawer = new SecondViewDrawer(env, surface, assertManager);
+            break;
+    }
 
+    baseOpenGlDrawer->init();
 }
 
+void
+initPictureSurface(JNIEnv *env, jobject jobj, jobject surface, jobject assertManager, jint type,
+                   jstring imagePath_) {
+    const char *imagePath = env->GetStringUTFChars(imagePath_, 0);
+    ALOGI("the Picture path is:%s", imagePath);
+    if (baseOpenGlDrawer) {
+        destroyDrawer();
+    }
+    baseOpenGlDrawer = new ImageDrawer(env, surface, assertManager, const_cast<char *>(imagePath));
+    baseOpenGlDrawer->init();
+}
+
+void
+initBitmapSurface(JNIEnv *env, jobject jobj, jobject surface, jobject assertManager, jint type,
+                  jobject bitmap) {
+    if (baseOpenGlDrawer) {
+        destroyDrawer();
+    }
+    baseOpenGlDrawer = new BitmapDrawer(env, surface, assertManager, bitmap);
+    baseOpenGlDrawer->init();
+}
 
 void resizeSurfaceGL(JNIEnv *jniEnv, jobject jobj, int width, int height) {
     if (surfaceViewDrawer) {
@@ -171,7 +196,6 @@ void stepSurface(JNIEnv *jniEnv, jobject jobj) {
 
 void destroyDrawer() {
     if (surfaceViewDrawer) {
-        ALOGE("onDELETE");
         delete surfaceViewDrawer;
         surfaceViewDrawer = nullptr;
     }

@@ -9,7 +9,7 @@
 #include "AndroidLog.h"
 #include <math.h>
 #include "jpeglib.h"
-
+#include "esUtil.h"
 static GLuint VERTEX_POS_SIZE = 3;
 static GLuint VERTEX_COLOR_SIZE = 4;
 

@@ -12,6 +12,8 @@
     <string name="test_open_gl">测试Android原生绘制</string>
     <string name="test_draw">测试openGL</string>
 
+    <string name="select_picture">挑选图片</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

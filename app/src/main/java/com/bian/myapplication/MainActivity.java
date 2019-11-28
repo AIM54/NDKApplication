@@ -16,6 +16,7 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
+import com.bian.myapplication.activity.ImageActivity;
 import com.bian.myapplication.activity.OpenGlActivity;
 import com.bian.myapplication.activity.PlayAudioVideoActivity;
 import com.bian.myapplication.activity.SurfaceViewActivity;
@@ -117,7 +118,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 VideoUtil.testSoLibrary();
                 break;
             case R.id.bt_test_img:
-                Intent imgIt = new Intent(this, ImageListActivity.class);
+                Intent imgIt = new Intent(this, ImageActivity.class);
                 startActivity(imgIt);
                 break;
             case R.id.test_gl_button:

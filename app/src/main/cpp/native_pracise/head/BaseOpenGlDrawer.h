@@ -41,6 +41,8 @@ public:
 
     virtual void createProgram(char *vertShader, char *fragmentShader);
 
+    virtual void initProgram(char *vertShaderAssetsPath, char *fragShaderAssetsPath);
+
     virtual ~BaseOpenGlDrawer();
 
     virtual void step() = 0;

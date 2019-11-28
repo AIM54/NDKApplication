@@ -1,16 +1,19 @@
 package com.bian.myapplication.image;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 import com.bian.myapplication.R;
+import com.bian.myapplication.utils.AppConstant;
 import com.bian.myapplication.utils.BitMapCompressUtil;
 
 import java.util.concurrent.LinkedBlockingQueue;
@@ -33,6 +36,7 @@ public class ImageListActivity extends AppCompatActivity implements LoaderManage
     };
     private SimpleCursorAdapter mCursorAdapter;
     private ThreadPoolExecutor threadPoolExecutor;
+    private boolean isSelectAction;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +45,9 @@ public class ImageListActivity extends AppCompatActivity implements LoaderManage
         mListView = findViewById(R.id.lv_img);
         threadPoolExecutor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), 10, 10, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
         initData();
+        if (TextUtils.equals(getIntent().getAction(), AppConstant.SELECT_PICTURE)) {
+            isSelectAction = true;
+        }
     }
 
     private void initData() {
@@ -76,13 +83,20 @@ public class ImageListActivity extends AppCompatActivity implements LoaderManage
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final Cursor cursor = (Cursor) mCursorAdapter.getItem(position);
         final String filePath = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-        threadPoolExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                Bitmap srcBitMap = BitmapFactory.decodeFile(filePath);
-                BitMapCompressUtil.compressBitmap(getExternalCacheDir() + "234.jpg",srcBitMap);
-            }
-        });
+        if (isSelectAction) {
+            Intent it = new Intent();
+            it.putExtra(AppConstant.ARG_VIDEO_PATH, filePath);
+            setResult(RESULT_OK, it);
+            finish();
+        } else {
+            compressPicture(filePath);
+        }
+    }
 
+    private void compressPicture(String filePath) {
+        threadPoolExecutor.execute(() -> {
+            Bitmap srcBitMap = BitmapFactory.decodeFile(filePath);
+            BitMapCompressUtil.compressBitmap(getExternalCacheDir() + "234.jpg", srcBitMap);
+        });
     }
 }

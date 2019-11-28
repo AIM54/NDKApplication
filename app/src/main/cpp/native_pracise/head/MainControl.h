@@ -29,6 +29,14 @@ void initSurfaceGL(JNIEnv *env, jobject jobj, jobject surface, jobject assertMan
 void
 initSurfaceGLByType(JNIEnv *env, jobject jobj, jobject surface, jobject assertManager, jint type);
 
+void
+initPictureSurface(JNIEnv *env, jobject jobj, jobject surface, jobject assertManager, jint type,
+                   jstring imagePath_);
+
+void
+initBitmapSurface(JNIEnv *env, jobject jobj, jobject surface, jobject assertManager, jint type,
+                  jobject bitmap);
+
 void resizeSurfaceGL(JNIEnv *jniEnv, jobject jobj, int width, int height);
 
 void stepSurface(JNIEnv *jniEnv, jobject jobj);

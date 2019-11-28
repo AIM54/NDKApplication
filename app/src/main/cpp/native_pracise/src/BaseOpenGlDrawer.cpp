@@ -70,15 +70,21 @@ int BaseOpenGlDrawer::init() {
     return 1;
 }
 
+void BaseOpenGlDrawer::initProgram(char *vertShaderAssetsPath, char *fragShaderAssetsPath) {
+    char *vertexString = readStringFromAssert(assetManager, vertShaderAssetsPath);
+    char *fragmentString = readStringFromAssert(assetManager, fragShaderAssetsPath);
+    createProgram(vertexString, fragmentString);
+}
+
 void BaseOpenGlDrawer::createProgram(char *veticalShaderString, char *fragmentShaderString) {
     GLuint vertexShader = loadShader(GL_VERTEX_SHADER, veticalShaderString);
     if (!vertexShader) {
-        ALOGI("failed to create vertexShader");
+        ALOGI("failed to create vertexShader%s", veticalShaderString);
         return;
     }
     GLuint fragmentShader = loadShader(GL_FRAGMENT_SHADER, fragmentShaderString);
     if (!fragmentShader) {
-        ALOGI("failed to create fragmentShader");
+        ALOGI("failed to create fragmentShader%s", fragmentShaderString);
         return;
     }
     GLuint programObject = glCreateProgram();
@@ -129,4 +135,5 @@ BaseOpenGlDrawer::~BaseOpenGlDrawer() {
     disPlay = EGL_NO_DISPLAY;
     eglContext = EGL_NO_CONTEXT;
     eglWindow = EGL_NO_SURFACE;
+    ALOGE("delete base data");
 }

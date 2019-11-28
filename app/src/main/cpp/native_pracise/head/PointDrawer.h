@@ -16,6 +16,7 @@ class PointDrawer : public BaseOpenGlDrawer {
 private:
     GLuint dataBuffer[2];
     GLuint vertexArray[1];
+    void initVAO();
 public:
     PointDrawer(JNIEnv *jniEnv, const _jobject *surface, const _jobject *pJobject);
 

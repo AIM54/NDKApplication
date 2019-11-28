@@ -37,8 +37,12 @@ add_library(NdkTest
         src/SurfaceViewDrawer.cpp
         src/BaseOpenGlDrawer.cpp
         src/SecondViewDrawer.cpp
+        src/OffScreenDrawer.cpp
         src/PointDrawer.cpp
-        src/AssetReader.c)
+        src/ImageDrawer.cpp
+        src/AssetReader.c
+        src/Instancing.c
+        src/BitmapDrawer.cpp)
 
 add_library(jpeg
         SHARED
@@ -68,8 +72,8 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
         NdkTest
-        turbojpeg
         jpeg
+        turbojpeg
         jnigraphics
         ${OPENGL_LIB}
         # Links the target library to the log library

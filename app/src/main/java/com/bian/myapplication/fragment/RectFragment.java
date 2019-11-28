@@ -57,4 +57,10 @@ public class RectFragment extends Fragment implements SurfaceHolder.Callback {
         CommonLog.i(this.getClass().getSimpleName()+"surfaceDestroyed");
         surfaceDrawer = null;
     }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        CommonLog.i(this.getClass().getSimpleName()+"onDestroyView");
+    }
 }
