@@ -14,14 +14,19 @@ BitmapDrawer::BitmapDrawer(JNIEnv *jniEnv, const _jobject *surface, const _jobje
         : BaseOpenGlDrawer(jniEnv, const_cast<jobject>(surface), const_cast<jobject>(pJobject)) {
     AndroidBitmapInfo infoColor;
     AndroidBitmap_getInfo(jniEnv, bitmap, &infoColor);
-    byte *pixelColor;
+    pixelColor = nullptr;
     if (ANDROID_BITMAP_RESULT_SUCCESS ==
         AndroidBitmap_lockPixels(jniEnv, bitmap, reinterpret_cast<void **>(&pixel_source))) {
-        ALOGI("lock pixs success:%d", sizeof(pixelColor));
-        ALOGI("bitmap.size:%ld",infoColor.stride*infoColor.height);
+        pixelColor = new byte[infoColor.stride * infoColor.height];
+        ALOGI("bitmap.size:%ld", infoColor.stride * infoColor.height);
+        if (pixelColor) {
+            memcpy(pixelColor, pixel_source, infoColor.stride * infoColor.height);
+            ALOGI("memcpy success");
+        }
         AndroidBitmap_unlockPixels(jniEnv, bitmap);
     }
-    ALOGI("the Image width:%d,the Image Height:%d   ImageStride,%ld", infoColor.width, infoColor.height,infoColor.stride);
+    ALOGI("the Image width:%d,the Image Height:%d   ImageStride,%ld", infoColor.width,
+          infoColor.height, infoColor.stride);
 }
 
 int BitmapDrawer::init() {
@@ -63,14 +68,33 @@ void BitmapDrawer::step() {
             1.0f, 0.0f,
             1.0f, 1.0f,
     };
+    GLshort indics[]{0, 1, 2, 0, 2, 3};
+    glViewport(0, 0, viewWidth, viewHeight);
 
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, bitmapTexture[0]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewWidth, viewHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                 pixelColor);
+    glBindTexture(GL_TEXTURE_2D, 0);
 
+    glUseProgram(mProgramObject);
+    glEnableVertexAttribArray(VERTEX_POS_INDX);
+    glVertexAttribPointer(VERTEX_POS_INDX, VERTEX_POS_SIZE, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
+                          rect);
+    glEnableVertexAttribArray(TEXT_POS_INDEX);
+    glVertexAttribPointer(TEXT_POS_INDEX, TEXT_POS_SIZE, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat),
+                          textRect);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, bitmapTexture[0]);
+    glUniform1i(sTexture, 0);
+    glDrawElements(GL_TRIANGLE_STRIP, 6, GL_UNSIGNED_SHORT, indics);
     eglSwapBuffers(disPlay, eglWindow);
     ALOGE("step");
 }
 
 BitmapDrawer::~BitmapDrawer() {
     glDeleteBuffers(3, dataBuffer);
+    delete[]pixelColor;
 }
 
 

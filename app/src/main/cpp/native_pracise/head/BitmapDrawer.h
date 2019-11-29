@@ -34,7 +34,8 @@ public:
 
     void step() override;
 
-    int pixel_source;
+    byte *pixel_source;
+    byte *pixelColor;
 };
 
 
