@@ -13,12 +13,11 @@
 #define VERTEX_POS_SIZE         3
 #define TEXT_POS_SIZE           2
 
+typedef uint8_t byte;
 
 class BitmapDrawer : public BaseOpenGlDrawer {
 private:
 
-    JNIEnv *mEnv;
-    jobject mBitMap;
     GLint sTexture;
 
 protected:
@@ -35,7 +34,7 @@ public:
 
     void step() override;
 
-    void *pixel_source;
+    int pixel_source;
 };
 
 

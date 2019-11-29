@@ -58,6 +58,7 @@ public class ImageActivity extends AppCompatActivity implements SurfaceHolder.Ca
         if (!TextUtils.isEmpty(mPicturePath)) {
             if (surfaceDrawer == null) {
                 Bitmap trueBitmap = BitmapFactory.decodeFile(mPicturePath);
+                CommonLog.i("trueBitmap.getByteCount:" + trueBitmap.getByteCount());
                 surfaceDrawer = new SurfaceDrawer(holder.getSurface(), getAssets(), 1, trueBitmap);
             }
 
