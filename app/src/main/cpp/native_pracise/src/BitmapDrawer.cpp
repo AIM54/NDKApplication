@@ -63,10 +63,10 @@ void BitmapDrawer::step() {
     };
 
     GLfloat textRect[]{
-            0.0f, 1.0f,
             0.0f, 0.0f,
-            1.0f, 0.0f,
+            0.0f, 1.0f,
             1.0f, 1.0f,
+            1.0f, 0.0f,
     };
     GLshort indices[6] = {0, 1, 2, 2, 0, 3};
 
