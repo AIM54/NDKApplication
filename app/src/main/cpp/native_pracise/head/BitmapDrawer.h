@@ -19,6 +19,12 @@ class BitmapDrawer : public BaseOpenGlDrawer {
 private:
 
     GLint sTexture;
+    byte *pixel_source;
+    byte *pixelColor;
+
+    uint32_t imageHeight;
+
+    uint32_t imageWidth;
 
 protected:
     GLuint dataBuffer[3];
@@ -34,8 +40,7 @@ public:
 
     void step() override;
 
-    byte *pixel_source;
-    byte *pixelColor;
+
 };
 
 

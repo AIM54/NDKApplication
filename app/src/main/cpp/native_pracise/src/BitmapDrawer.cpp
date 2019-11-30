@@ -14,14 +14,14 @@ BitmapDrawer::BitmapDrawer(JNIEnv *jniEnv, const _jobject *surface, const _jobje
         : BaseOpenGlDrawer(jniEnv, const_cast<jobject>(surface), const_cast<jobject>(pJobject)) {
     AndroidBitmapInfo infoColor;
     AndroidBitmap_getInfo(jniEnv, bitmap, &infoColor);
+    imageHeight = infoColor.height;
+    imageWidth = infoColor.width;
     pixelColor = nullptr;
     if (ANDROID_BITMAP_RESULT_SUCCESS ==
         AndroidBitmap_lockPixels(jniEnv, bitmap, reinterpret_cast<void **>(&pixel_source))) {
         pixelColor = new byte[infoColor.stride * infoColor.height];
-        ALOGI("bitmap.size:%ld", infoColor.stride * infoColor.height);
         if (pixelColor) {
             memcpy(pixelColor, pixel_source, infoColor.stride * infoColor.height);
-            ALOGI("memcpy success");
         }
         AndroidBitmap_unlockPixels(jniEnv, bitmap);
     }
@@ -56,9 +56,9 @@ void BitmapDrawer::step() {
         return;
     }
     GLfloat rect[]{
+            -1.0f, 1.0f, 0.0f,
             -1.0f, -1.0f, 0.0f,
             1.0f, -1.0f, 0.0f,
-            -1.0f, 1.0f, 0.0f,
             1.0f, 1.0f, 0.0f,
     };
 
@@ -68,14 +68,16 @@ void BitmapDrawer::step() {
             1.0f, 0.0f,
             1.0f, 1.0f,
     };
-    GLshort indics[]{0, 1, 2, 0, 2, 3};
+    GLshort indices[6] = {0, 1, 2, 2, 0, 3};
+
     glViewport(0, 0, viewWidth, viewHeight);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, bitmapTexture[0]);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewWidth, viewHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE,
                  pixelColor);
     glBindTexture(GL_TEXTURE_2D, 0);
+
 
     glUseProgram(mProgramObject);
     glEnableVertexAttribArray(VERTEX_POS_INDX);
@@ -87,7 +89,8 @@ void BitmapDrawer::step() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, bitmapTexture[0]);
     glUniform1i(sTexture, 0);
-    glDrawElements(GL_TRIANGLE_STRIP, 6, GL_UNSIGNED_SHORT, indics);
+    glDrawElements(GL_TRIANGLE_STRIP, 6, GL_UNSIGNED_SHORT, indices);
+    glBindTexture(GL_TEXTURE_2D, 0);
     eglSwapBuffers(disPlay, eglWindow);
     ALOGE("step");
 }
