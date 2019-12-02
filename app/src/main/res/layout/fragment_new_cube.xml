@@ -3,10 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.CubeFragment">
+    tools:context=".fragment.NewCubeFragment">
 
-    <SurfaceView
-        android:id="@+id/sfv_main"
+    <android.opengl.GLSurfaceView
+        android:id="@+id/glsv_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

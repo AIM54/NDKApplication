@@ -18,7 +18,7 @@
 #include "BaseOpenGlDrawer.h"
 #include "SecondViewDrawer.h"
 #include "BitmapDrawer.h"
-#include "ImageDrawer.h"
+#include "CubeDrawer.h"
 
 extern "C" {
 JNINativeMethod firstGlMethod[] = {
@@ -146,7 +146,12 @@ initSurfaceGLByType(JNIEnv *env, jobject jobj, jobject surface, jobject assertMa
         case 2:
             baseOpenGlDrawer = new PointDrawer(env, surface, assertManager);
             break;
+        case 3:
+            ALOGI("init CubeDrawer:%d", type);
+            baseOpenGlDrawer = new CubeDrawer(env, surface, assertManager);
+            break;
         default:
+            ALOGI("init SecondViewDrawer:%d", type);
             baseOpenGlDrawer = new SecondViewDrawer(env, surface, assertManager);
             break;
     }
@@ -162,8 +167,6 @@ initPictureSurface(JNIEnv *env, jobject jobj, jobject surface, jobject assertMan
     if (baseOpenGlDrawer) {
         destroyDrawer();
     }
-    baseOpenGlDrawer = new ImageDrawer(env, surface, assertManager, const_cast<char *>(imagePath));
-    baseOpenGlDrawer->init();
 }
 
 void

@@ -13,7 +13,7 @@ SecondViewDrawer::SecondViewDrawer(JNIEnv *jniEnv, const _jobject *surface,
                                    const _jobject *pJobject) : BaseOpenGlDrawer(jniEnv,
                                                                                 const_cast<jobject>(surface),
                                                                                 const_cast<jobject>(pJobject)) {
-    ALOGI("init SecondViewDrawer");
+
 }
 
 int SecondViewDrawer::init() {
@@ -40,7 +40,7 @@ int SecondViewDrawer::init() {
     GLshort indices[6] = {0, 1, 2, 2, 0, 3};
     //use the programObject;
     glUseProgram(mProgramObject);
-    initVAO(vColorAndPostion, indices, sizeof(GLfloat) * (VERTEX_COLOR_SIZE + VERTEX_POS_SIZE),6,
+    initVAO(vColorAndPostion, indices, sizeof(GLfloat) * (VERTEX_COLOR_SIZE + VERTEX_POS_SIZE), 6,
             6);
     return 1;
 }

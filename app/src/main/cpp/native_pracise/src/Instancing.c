@@ -37,6 +37,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include "esUtil.h"
+#include <stdio.h>
+#include <malloc.h>
+#include <android/legacy_stdlib_inlines.h>
 
 #ifdef _WIN32
 #define srandom srand

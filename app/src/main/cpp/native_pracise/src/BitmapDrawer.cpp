@@ -25,8 +25,6 @@ BitmapDrawer::BitmapDrawer(JNIEnv *jniEnv, const _jobject *surface, const _jobje
         }
         AndroidBitmap_unlockPixels(jniEnv, bitmap);
     }
-    ALOGI("the Image width:%d,the Image Height:%d   ImageStride,%ld", infoColor.width,
-          infoColor.height, infoColor.stride);
 }
 
 int BitmapDrawer::init() {

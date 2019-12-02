@@ -39,10 +39,10 @@ add_library(NdkTest
         src/SecondViewDrawer.cpp
         src/OffScreenDrawer.cpp
         src/PointDrawer.cpp
-        src/ImageDrawer.cpp
         src/AssetReader.c
         src/Instancing.c
-        src/BitmapDrawer.cpp)
+        src/BitmapDrawer.cpp
+        src/CubeDrawer.cpp)
 
 add_library(jpeg
         SHARED

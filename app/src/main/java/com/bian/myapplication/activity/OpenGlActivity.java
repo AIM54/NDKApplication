@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.bian.myapplication.R;
+import com.bian.myapplication.fragment.CubeFragment;
 import com.bian.myapplication.fragment.FirstFragment;
 import com.bian.myapplication.fragment.LineFragment;
 import com.bian.myapplication.fragment.PointFragment;
@@ -47,6 +48,9 @@ public class OpenGlActivity extends AppCompatActivity {
                 break;
             case R.id.point_test:
                 commitFragment(new PointFragment());
+                break;
+            case R.id.cube_test:
+                commitFragment(new CubeFragment());
                 break;
 
         }
