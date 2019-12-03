@@ -40,7 +40,7 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <android/legacy_stdlib_inlines.h>
-
+#include "Instancing.h"
 #ifdef _WIN32
 #define srandom srand
 #define random rand
@@ -292,24 +292,5 @@ void Shutdown ( ESContext *esContext )
 
    // Delete program object
    glDeleteProgram ( userData->programObject );
-}
-
-
-int esMain ( ESContext *esContext )
-{
-   esContext->userData = malloc ( sizeof ( UserData ) );
-
-   esCreateWindow ( esContext, "Instancing", 640, 480, ES_WINDOW_RGB | ES_WINDOW_DEPTH );
-
-   if ( !Init ( esContext ) )
-   {
-      return GL_FALSE;
-   }
-
-   esRegisterShutdownFunc ( esContext, Shutdown );
-   esRegisterUpdateFunc ( esContext, Update );
-   esRegisterDrawFunc ( esContext, Draw );
-
-   return GL_TRUE;
 }
 

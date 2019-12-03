@@ -12,22 +12,20 @@
 #include "MainControl.h"
 #include "FirstOpenGLDrawer.h"
 #include "AndroidLog.h"
-#include "SimpleBean.h"
 #include "PointDrawer.h"
 #include "SurfaceViewDrawer.h"
 #include "BaseOpenGlDrawer.h"
 #include "SecondViewDrawer.h"
 #include "BitmapDrawer.h"
 #include "CubeDrawer.h"
+#include "Instancing.h"
 
 extern "C" {
 JNINativeMethod firstGlMethod[] = {
         {"init",        "()V",                                   (void *) initGL},
         {"resize",      "(II)V",                                 (void *) resizeGL},
         {"step",        "()V",                                   (void *) step},
-        {"initAsserts", "(Landroid/content/res/AssetManager;)V", (void *) setAssertManager},
-        {"nTestNew",    "()V",                                   (void *) testNewObject},
-        {"nTestDelete", "()V",                                   (void *) testDeleteObject}
+        {"initAsserts", "(Landroid/content/res/AssetManager;)V", (void *) setAssertManager}
 
 };
 
@@ -45,8 +43,6 @@ JNINativeMethod openglMethod[] = {
 FirstOpenGLDrawer *firstOpenGLDrawer = nullptr;
 
 AAssetManager *g_pAssetManager = nullptr;
-
-SimpleBean *simpleBean = nullptr;
 
 SurfaceViewDrawer *surfaceViewDrawer = nullptr;
 
@@ -106,7 +102,6 @@ void resizeGL(JNIEnv *jniEnv, jobject jobj, jint width, jint height) {
 void setAssertManager(JNIEnv *jniEnv, jobject claz, jobject assertManager) {
     ALOGI("setAssertManager");
     g_pAssetManager = AAssetManager_fromJava(jniEnv, assertManager);
-
 }
 
 void step(JNIEnv *jniEnv, jobject jobj) {
@@ -114,18 +109,6 @@ void step(JNIEnv *jniEnv, jobject jobj) {
     firstOpenGLDrawer->step();
 }
 
-void testNewObject() {
-    if (!simpleBean) {
-        simpleBean = new SimpleBean();
-    }
-}
-
-void testDeleteObject() {
-    if (simpleBean) {
-        delete simpleBean;
-        simpleBean = nullptr;
-    }
-}
 
 void initSurfaceGL(JNIEnv *env, jobject jobj, jobject surface, jobject assertManager) {
     if (!surfaceViewDrawer) {

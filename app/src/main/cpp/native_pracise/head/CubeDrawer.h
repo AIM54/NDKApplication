@@ -38,8 +38,9 @@ public:
 
     void step() override;
 
-};
+    virtual ~CubeDrawer();
 
+};
 
 
 #endif //NDKAPPLICATION_CUBEDRAWER_H

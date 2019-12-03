@@ -55,11 +55,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String saveVideodir;
 
     private Button testGLBt;
-    private Button newButton, deleteButton;
 
     private Button surfaceBt;
 
-    private NativePracise nativePracise;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,12 +82,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initView() {
-        nativePracise = new NativePracise();
+
         mListView = findViewById(R.id.lv_video);
         View headView = LayoutInflater.from(this).inflate(R.layout.headview_video_list, null);
         testGLBt = headView.findViewById(R.id.test_gl_button);
-        newButton = headView.findViewById(R.id.test_new);
-        deleteButton = headView.findViewById(R.id.test_delete);
         surfaceBt = headView.findViewById(R.id.bt_surface);
         surfaceBt.setOnClickListener(this);
         mListView.addHeaderView(headView);
@@ -98,8 +94,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         toastButton.setOnClickListener(this);
         encodePictureBt.setOnClickListener(this);
         testGLBt.setOnClickListener(this);
-        newButton.setOnClickListener(this);
-        deleteButton.setOnClickListener(this);
     }
 
     @Override
@@ -123,12 +117,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.test_gl_button:
                 startActivity(new Intent(this, OpenGlActivity.class));
-                break;
-            case R.id.test_new:
-                nativePracise.newObject();
-                break;
-            case R.id.test_delete:
-                nativePracise.deleteObject();
                 break;
             case R.id.bt_surface:
                 startActivity(new Intent(this, SurfaceViewActivity.class));

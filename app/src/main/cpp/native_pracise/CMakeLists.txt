@@ -33,7 +33,6 @@ add_library(NdkTest
         src/common/esShapes.c
         src/MainControl.cpp
         src/FirstOpenGLDrawer.cpp
-        src/SimpleBean.cpp
         src/SurfaceViewDrawer.cpp
         src/BaseOpenGlDrawer.cpp
         src/SecondViewDrawer.cpp

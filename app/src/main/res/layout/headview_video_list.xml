@@ -13,22 +13,6 @@
 
 
     <Button
-        android:id="@+id/test_new"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="新增"
-        android:textSize="16sp"
-        android:visibility="gone" />
-
-    <Button
-        android:id="@+id/test_delete"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="删除"
-        android:textSize="16sp"
-        android:visibility="gone" />
-
-    <Button
         android:id="@+id/bt_surface"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

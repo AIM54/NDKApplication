@@ -21,14 +21,12 @@ public class PictureGLSurfaceView extends GLSurfaceView {
         setEGLContextClientVersion(3);
         NativePracise.initAsserts(context.getAssets());
         setRenderer(new MyRender());
-        //没有动画就这样设置就好,有动画的话就取消这行代码
-        setRenderMode(RENDERMODE_WHEN_DIRTY);
+        setRenderMode(RENDERMODE_CONTINUOUSLY);
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        CommonLog.i("onDetachedFromWindow");
     }
 
     private static class MyRender implements GLSurfaceView.Renderer {
