@@ -93,7 +93,6 @@ void CubeDrawer::step() {
 }
 
 void CubeDrawer::update() {
-
     ESMatrix perspectMatrix;
 
     ESMatrix modelMatrix;
@@ -101,6 +100,7 @@ void CubeDrawer::update() {
     GLfloat aspect = (GLfloat) viewWidth / (GLfloat) viewHeight;
 
     esMatrixLoadIdentity(&perspectMatrix);
+
     esPerspective(&perspectMatrix, 60.0f, aspect, 1.0f, 20.0f);
 
     glBindBuffer(GL_ARRAY_BUFFER, matrixBuffer);
@@ -111,11 +111,18 @@ void CubeDrawer::update() {
 
     esMatrixLoadIdentity(&modelMatrix);
 
+    esTranslate(&modelMatrix, 0.0f, 0.0f, -0.2f);
+
     esRotate(&modelMatrix, 60.0f, 1.0f, 0.0f, 1.0f);
 
     esMatrixMultiply(&matrix[0], &modelMatrix, &perspectMatrix);
 
     glUnmapBuffer(GL_ARRAY_BUFFER);
+
+    eglSwapBuffers(disPlay, eglWindow);
+
+    ALOGI("the indecSize1212:%d", indecsSize);
+
 }
 
 void CubeDrawer::draw() {
@@ -157,8 +164,6 @@ void CubeDrawer::draw() {
 
     glDrawElements(GL_TRIANGLES, indecsSize, GL_UNSIGNED_INT, 0);
     eglSwapBuffers(disPlay, eglWindow);
-    ALOGI("the indecSize:%d", indecsSize);
-
 }
 
 CubeDrawer::~CubeDrawer() {

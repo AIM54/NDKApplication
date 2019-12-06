@@ -41,7 +41,8 @@ add_library(NdkTest
         src/AssetReader.c
         src/Instancing.c
         src/BitmapDrawer.cpp
-        src/CubeDrawer.cpp)
+        src/CubeDrawer.cpp
+        src/NewCuberDrawer.cpp)
 
 add_library(jpeg
         SHARED
