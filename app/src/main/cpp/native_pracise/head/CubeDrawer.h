@@ -25,10 +25,6 @@ private:
     GLuint colorBuffer;
     int indecsSize;
 
-    bool hasDraw;
-
-    void draw();
-
     void update();
 
 public:

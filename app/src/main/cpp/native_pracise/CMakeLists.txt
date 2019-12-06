@@ -39,7 +39,7 @@ add_library(NdkTest
         src/OffScreenDrawer.cpp
         src/PointDrawer.cpp
         src/AssetReader.c
-        src/Instancing.c
+        src/InstancingDrawer.cpp
         src/BitmapDrawer.cpp
         src/CubeDrawer.cpp
         src/NewCuberDrawer.cpp)

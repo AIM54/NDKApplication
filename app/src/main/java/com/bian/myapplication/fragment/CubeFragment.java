@@ -24,6 +24,7 @@ public class CubeFragment extends Fragment implements SurfaceHolder.Callback {
     private SurfaceView mainSv;
     private SurfaceDrawer surfaceDrawer;
     private GLSurfaceView glSurfaceView;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -39,7 +40,7 @@ public class CubeFragment extends Fragment implements SurfaceHolder.Callback {
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         if (surfaceDrawer == null) {
-            surfaceDrawer = new SurfaceDrawer(holder.getSurface(), getContext().getAssets(),3);
+            surfaceDrawer = new SurfaceDrawer(holder.getSurface(), getContext().getAssets(), 3);
         }
     }
 
@@ -52,14 +53,7 @@ public class CubeFragment extends Fragment implements SurfaceHolder.Callback {
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         surfaceDrawer.destroyView();
-        CommonLog.i(this.getClass().getSimpleName()+"surfaceDestroyed");
         surfaceDrawer = null;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        CommonLog.i(this.getClass().getSimpleName()+"onDestroyView");
     }
 
 }

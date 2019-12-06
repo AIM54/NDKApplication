@@ -27,7 +27,7 @@ public class OpenGlActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_open_gl);
-        commitFragment(new FirstFragment());
+        commitFragment(new RectFragment());
     }
 
 
@@ -40,9 +40,6 @@ public class OpenGlActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.simple_test:
-                commitFragment(new FirstFragment());
-                break;
             case R.id.rect_test:
                 commitFragment(new RectFragment());
                 break;
@@ -52,7 +49,6 @@ public class OpenGlActivity extends AppCompatActivity {
             case R.id.cube_test:
                 commitFragment(new CubeFragment());
                 break;
-
         }
         return true;
     }

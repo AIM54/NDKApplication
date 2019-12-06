@@ -20,7 +20,7 @@
 #include "CubeDrawer.h"
 #include "Instancing.h"
 #include "esUtil.h"
-
+#include "InstancingDrawer.h"
 #include "NewCuberDrawer.h"
 
 ESContext *esContext = nullptr;
@@ -130,7 +130,7 @@ initSurfaceGLByType(JNIEnv *env, jobject jobj, jobject surface, jobject assertMa
             break;
         case 3:
             ALOGI("init CubeDrawer:%d", type);
-            baseOpenGlDrawer = new NewCuberDrawer(env, surface, assertManager);
+            baseOpenGlDrawer = new InstancingDrawer(env, surface, assertManager);
             break;
         default:
             ALOGI("init SecondViewDrawer:%d", type);

@@ -39,8 +39,7 @@ GLfloat cubeColor[] =
         };
 
 CubeDrawer::CubeDrawer(JNIEnv *jniEnv, const _jobject *surface, const _jobject *assert)
-        : hasDraw(false),
-          BaseOpenGlDrawer(jniEnv, const_cast<jobject>(surface), const_cast<jobject>(assert)) {
+        : BaseOpenGlDrawer(jniEnv, const_cast<jobject>(surface), const_cast<jobject>(assert)) {
 }
 
 int CubeDrawer::init() {
@@ -76,56 +75,12 @@ int CubeDrawer::init() {
         glBufferData(GL_ARRAY_BUFFER, sizeof(ESMatrix), NULL, GL_DYNAMIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
+        glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     }
     return 1;
 }
 
 void CubeDrawer::step() {
-    if (hasDraw) {
-        update();
-    } else {
-        draw();
-        hasDraw = true;
-        update();
-    }
-
-}
-
-void CubeDrawer::update() {
-    ESMatrix perspectMatrix;
-
-    ESMatrix modelMatrix;
-
-    GLfloat aspect = (GLfloat) viewWidth / (GLfloat) viewHeight;
-
-    esMatrixLoadIdentity(&perspectMatrix);
-
-    esPerspective(&perspectMatrix, 60.0f, aspect, 1.0f, 20.0f);
-
-    glBindBuffer(GL_ARRAY_BUFFER, matrixBuffer);
-
-    ESMatrix *matrix = static_cast<ESMatrix *>(glMapBufferRange(GL_ARRAY_BUFFER, 0,
-                                                                sizeof(ESMatrix),
-                                                                GL_MAP_WRITE_BIT));
-
-    esMatrixLoadIdentity(&modelMatrix);
-
-    esTranslate(&modelMatrix, 0.0f, 0.0f, -0.2f);
-
-    esRotate(&modelMatrix, 60.0f, 1.0f, 0.0f, 1.0f);
-
-    esMatrixMultiply(&matrix[0], &modelMatrix, &perspectMatrix);
-
-    glUnmapBuffer(GL_ARRAY_BUFFER);
-
-    eglSwapBuffers(disPlay, eglWindow);
-
-    ALOGI("the indecSize1212:%d", indecsSize);
-
-}
-
-void CubeDrawer::draw() {
     glViewport(0, 0, viewWidth, viewHeight);
     // Clear the color buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -159,11 +114,45 @@ void CubeDrawer::draw() {
     glEnableVertexAttribArray(MATRIX_POS_INDX + 3);
     glVertexAttribPointer(MATRIX_POS_INDX + 3, 4, GL_FLOAT, GL_FALSE, sizeof(ESMatrix),
                           (const void *) (sizeof(GLfloat) * 12));
-
+    // One MVP per instance
+    glVertexAttribDivisor ( MATRIX_POS_INDX + 0, 1 );
+    glVertexAttribDivisor ( MATRIX_POS_INDX + 1, 1 );
+    glVertexAttribDivisor ( MATRIX_POS_INDX + 2, 1 );
+    glVertexAttribDivisor ( MATRIX_POS_INDX + 3, 1 );
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicsBuffer);
-
+    update();
     glDrawElements(GL_TRIANGLES, indecsSize, GL_UNSIGNED_INT, 0);
     eglSwapBuffers(disPlay, eglWindow);
+}
+
+void CubeDrawer::update() {
+    ESMatrix perspectMatrix;
+
+    ESMatrix modelMatrix;
+
+    GLfloat aspect = (GLfloat) viewWidth / (GLfloat) viewHeight;
+
+    esMatrixLoadIdentity(&perspectMatrix);
+
+    esPerspective(&perspectMatrix, 60.0f, aspect, 1.0f, 20.0f);
+
+    glBindBuffer(GL_ARRAY_BUFFER, matrixBuffer);
+
+    ESMatrix *matrix = static_cast<ESMatrix *>(glMapBufferRange(GL_ARRAY_BUFFER, 0,
+                                                                sizeof(ESMatrix),
+                                                                GL_MAP_WRITE_BIT));
+
+    esMatrixLoadIdentity(&modelMatrix);
+
+    esTranslate(&modelMatrix, 0.0f, 0.0f, -0.2f);
+
+    esRotate(&modelMatrix, 60.0f, 1.0f, 0.0f, 1.0f);
+
+    esMatrixMultiply(&matrix[0], &modelMatrix, &perspectMatrix);
+
+    glUnmapBuffer(GL_ARRAY_BUFFER);
+    ALOGI("the indecSize1212:%d", indecsSize);
+
 }
 
 CubeDrawer::~CubeDrawer() {
