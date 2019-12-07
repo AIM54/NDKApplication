@@ -94,18 +94,20 @@ int registerNativeMethod(JNIEnv *pInterface) {
 
 
 void initGL(JNIEnv *env, jobject jobj) {
-    esContext = static_cast<ESContext *>(malloc(sizeof(ESContext)));
+    firstOpenGLDrawer = new FirstOpenGLDrawer();
+    firstOpenGLDrawer->setAssertManger(g_pAssetManager);
 }
 
 void resizeGL(JNIEnv *jniEnv, jobject jobj, jint width, jint height) {
-    ALOGI("resize");
-}
-
-void step(JNIEnv *jniEnv, jobject jobj) {
+    firstOpenGLDrawer->reize(width, height);
 }
 
 void setAssertManager(JNIEnv *jniEnv, jobject claz, jobject assertManager) {
     g_pAssetManager = AAssetManager_fromJava(jniEnv, assertManager);
+}
+
+void step(JNIEnv *jniEnv, jobject jobj) {
+    firstOpenGLDrawer->step();
 }
 
 
@@ -131,6 +133,9 @@ initSurfaceGLByType(JNIEnv *env, jobject jobj, jobject surface, jobject assertMa
         case 3:
             ALOGI("init CubeDrawer:%d", type);
             baseOpenGlDrawer = new InstancingDrawer(env, surface, assertManager);
+            break;
+        case 4:
+            baseOpenGlDrawer = new CubeDrawer(env, surface, assertManager);
             break;
         default:
             ALOGI("init SecondViewDrawer:%d", type);

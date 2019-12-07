@@ -38,7 +38,6 @@ public class CubeFragment extends Fragment {
         mainSv.setRender(new MySurfaceView.MyRender() {
             @Override
             public void init(Surface surface) {
-                CommonLog.i("init");
                 if (surfaceDrawer == null) {
                     surfaceDrawer = new SurfaceDrawer(surface, getContext().getAssets(), 3);
                 }
@@ -46,19 +45,16 @@ public class CubeFragment extends Fragment {
 
             @Override
             public void onSizeChanged(int width, int height) {
-                CommonLog.i("onSizeChanged");
                 surfaceDrawer.resizeSurfaceView(width, height);
             }
 
             @Override
             public void draw() {
-                CommonLog.i("draw");
                 surfaceDrawer.stepSurfaceView();
             }
 
             @Override
             public void destroy() {
-                CommonLog.i("destroy");
                 surfaceDrawer.destroyView();
                 surfaceDrawer = null;
             }

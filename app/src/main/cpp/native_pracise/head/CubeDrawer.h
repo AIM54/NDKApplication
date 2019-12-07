@@ -13,17 +13,12 @@
 
 #define VERTEX_NUMBER             24
 
+#define NUM_INSTANCES_CB              1
+
 #include "BaseOpenGlDrawer.h"
 
 class CubeDrawer : public BaseOpenGlDrawer {
 private:
-    GLfloat *verticals;
-    GLuint *indics;
-    GLuint postionBuffer;
-    GLuint indicsBuffer;
-    GLuint matrixBuffer;
-    GLuint colorBuffer;
-    int indecsSize;
 
     void update();
 
@@ -36,6 +31,14 @@ public:
 
     virtual ~CubeDrawer();
 
+    float lastTime;
+    int numIndices;
+    GLuint indicesIBO;
+    GLuint positionVBO;
+    GLuint colorVBO;
+    GLfloat angle[NUM_INSTANCES_CB];
+
+    GLuint mvpVBO;
 };
 
 

@@ -43,6 +43,7 @@ add_library(NdkTest
         src/InstancingDrawer.cpp
         src/BitmapDrawer.cpp
         src/CubeDrawer.cpp
+        src/Simple_VertexShader.c
         src/NewCuberDrawer.cpp)
 
 add_library(jpeg

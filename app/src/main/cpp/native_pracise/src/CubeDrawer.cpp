@@ -5,6 +5,12 @@
 #include "CubeDrawer.h"
 #include "esUtil.h"
 #include <time.h>
+#include <InstancingDrawer.h>
+#include <math.h>
+
+extern "C" {
+#include "TimeUtil.h"
+}
 GLfloat cubeColor[] =
         {
                 1.0f, 1.0f, 0.0f, 0.0f,
@@ -43,131 +49,168 @@ CubeDrawer::CubeDrawer(JNIEnv *jniEnv, const _jobject *surface, const _jobject *
 }
 
 int CubeDrawer::init() {
-    if (BaseOpenGlDrawer::init()) {
-        initProgram("first_cube_v.glsl", "first_cube_shader.glsl");
-        if (!mProgramObject) {
-            return -1;
-        }
-        indecsSize = esGenCube(1.0f, &verticals, NULL, NULL, &indics);
-
-        glGenBuffers(1, &postionBuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, postionBuffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * VERTEX_POS_SIZE * VERTEX_NUMBER, verticals,
-                     GL_STATIC_DRAW);
-        //一旦缓冲好数据后就可以，把相应的数据给是释放掉了
-        free(verticals);
-
-
-        glGenBuffers(1, &colorBuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(cubeColor), cubeColor, GL_STATIC_DRAW);
-
-
-        glGenBuffers(1, &indicsBuffer);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicsBuffer);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indecsSize, indics, GL_STATIC_DRAW);
-        free(indics);
-        //这里和下面的代码都很重要，代表了绑定缓冲区完成，这个操作
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-        glGenBuffers(1, &matrixBuffer);
-        glBindBuffer(GL_ARRAY_BUFFER, matrixBuffer);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(ESMatrix), NULL, GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+    if (!BaseOpenGlDrawer::init()) {
+        return -1;
     }
-    return 1;
+    initProgram("first_cube_v.glsl", "first_cube_shader.glsl");
+    if (!mProgramObject) {
+        return -1;
+    }
+    lastTime = getCurrentTime();
+    GLfloat *positions;
+    GLuint *indices;
+    // Generate the vertex data
+    numIndices = esGenCube(1.0f, &positions,
+                           NULL, NULL, &indices);
+
+    // Index buffer object
+    glGenBuffers(1, &indicesIBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesIBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * numIndices, indices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    free(indices);
+
+    // Position VBO for cube model
+    glGenBuffers(1, &positionVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, positionVBO);
+    glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(GLfloat) * 3, positions, GL_STATIC_DRAW);
+    free(positions);
+
+    // Random color for each instance
+    {
+        GLubyte colors[NUM_INSTANCES_CB][4];
+        int instance;
+
+        srandom(0);
+
+        for (instance = 0; instance < NUM_INSTANCES_CB; instance++) {
+            colors[instance][0] = random() % 255;
+            colors[instance][1] = random() % 255;
+            colors[instance][2] = random() % 255;
+            colors[instance][3] = 0;
+        }
+
+        glGenBuffers(1, &colorVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
+        glBufferData(GL_ARRAY_BUFFER, NUM_INSTANCES_CB * 4, colors, GL_STATIC_DRAW);
+    }
+
+    // Allocate storage to store MVP per instance
+    {
+        int instance;
+
+        // Random angle for each instance, compute the MVP later
+        for (instance = 0; instance < NUM_INSTANCES_CB; instance++) {
+            angle[instance] = (float) (random() % 32768) / 32767.0f * 360.0f;
+        }
+
+        glGenBuffers(1, &mvpVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, mvpVBO);
+        glBufferData(GL_ARRAY_BUFFER, NUM_INSTANCES_CB * sizeof(ESMatrix), NULL, GL_DYNAMIC_DRAW);
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+    ALOGI("InstancingDrawer init()");
+    return GL_TRUE;
 }
 
 void CubeDrawer::step() {
+    // Set the viewport
     glViewport(0, 0, viewWidth, viewHeight);
+
     // Clear the color buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Use the program object
     glUseProgram(mProgramObject);
 
-    glBindBuffer(GL_ARRAY_BUFFER, postionBuffer);
-    glEnableVertexAttribArray(VERTEX_POS_INDX);
-    glVertexAttribPointer(VERTEX_POS_INDX, VERTEX_POS_SIZE, GL_FLOAT, GL_FALSE,
-                          sizeof(GLfloat) * VERTEX_POS_SIZE, (const void *) NULL);
+    // Load the vertex position
+    glBindBuffer(GL_ARRAY_BUFFER, positionVBO);
+    glVertexAttribPointer(POSITION_LOC, 3, GL_FLOAT,
+                          GL_FALSE, 3 * sizeof(GLfloat), (const void *) NULL);
+    glEnableVertexAttribArray(POSITION_LOC);
 
-    glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-    glEnableVertexAttribArray(VERTEX_COLOR_INDX);
-    glVertexAttribPointer(VERTEX_COLOR_INDX, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE,
-                          sizeof(GLfloat) * VERTEX_COLOR_SIZE, (const void *) NULL);
+    // Load the instance color buffer
+    glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
+    glVertexAttribPointer(COLOR_LOC, 4, GL_UNSIGNED_BYTE,
+                          GL_TRUE, 4 * sizeof(GLubyte), (const void *) NULL);
+    glEnableVertexAttribArray(COLOR_LOC);
+    glVertexAttribDivisor(COLOR_LOC, 1); // One color per instance
 
 
-    glBindBuffer(GL_ARRAY_BUFFER, matrixBuffer);
-    //要想矩阵起效，就要一行一行的enable
-    glEnableVertexAttribArray(MATRIX_POS_INDX + 0);
-    glVertexAttribPointer(MATRIX_POS_INDX + 0, 4, GL_FLOAT, GL_FALSE, sizeof(ESMatrix),
+    // Load the instance MVP buffer
+    glBindBuffer(GL_ARRAY_BUFFER, mvpVBO);
+
+    // Load each matrix row of the MVP.  Each row gets an increasing attribute location.
+    glVertexAttribPointer(MVP_LOC + 0, 4, GL_FLOAT, GL_FALSE, sizeof(ESMatrix),
                           (const void *) NULL);
-
-    glEnableVertexAttribArray(MATRIX_POS_INDX + 1);
-    glVertexAttribPointer(MATRIX_POS_INDX + 1, 4, GL_FLOAT, GL_FALSE, sizeof(ESMatrix),
+    glVertexAttribPointer(MVP_LOC + 1, 4, GL_FLOAT, GL_FALSE, sizeof(ESMatrix),
                           (const void *) (sizeof(GLfloat) * 4));
-
-    glEnableVertexAttribArray(MATRIX_POS_INDX + 2);
-    glVertexAttribPointer(MATRIX_POS_INDX + 2, 4, GL_FLOAT, GL_FALSE, sizeof(ESMatrix),
+    glVertexAttribPointer(MVP_LOC + 2, 4, GL_FLOAT, GL_FALSE, sizeof(ESMatrix),
                           (const void *) (sizeof(GLfloat) * 8));
-
-    glEnableVertexAttribArray(MATRIX_POS_INDX + 3);
-    glVertexAttribPointer(MATRIX_POS_INDX + 3, 4, GL_FLOAT, GL_FALSE, sizeof(ESMatrix),
+    glVertexAttribPointer(MVP_LOC + 3, 4, GL_FLOAT, GL_FALSE, sizeof(ESMatrix),
                           (const void *) (sizeof(GLfloat) * 12));
+    glEnableVertexAttribArray(MVP_LOC + 0);
+    glEnableVertexAttribArray(MVP_LOC + 1);
+    glEnableVertexAttribArray(MVP_LOC + 2);
+    glEnableVertexAttribArray(MVP_LOC + 3);
+
     // One MVP per instance
-    glVertexAttribDivisor ( MATRIX_POS_INDX + 0, 1 );
-    glVertexAttribDivisor ( MATRIX_POS_INDX + 1, 1 );
-    glVertexAttribDivisor ( MATRIX_POS_INDX + 2, 1 );
-    glVertexAttribDivisor ( MATRIX_POS_INDX + 3, 1 );
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicsBuffer);
+    glVertexAttribDivisor(MVP_LOC + 0, 1);
+    glVertexAttribDivisor(MVP_LOC + 1, 1);
+    glVertexAttribDivisor(MVP_LOC + 2, 1);
+    glVertexAttribDivisor(MVP_LOC + 3, 1);
+
+    // Bind the index buffer
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesIBO);
+    // Draw the cubes
     update();
-    glDrawElements(GL_TRIANGLES, indecsSize, GL_UNSIGNED_INT, 0);
+
+    glDrawElementsInstanced(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, (const void *) NULL,
+                            NUM_INSTANCES_CB);
+
     eglSwapBuffers(disPlay, eglWindow);
 }
 
 void CubeDrawer::update() {
-    ESMatrix perspectMatrix;
+    ESMatrix *matrixBuf;
+    ESMatrix perspective;
+    float aspect;
+    // Compute the window aspect ratio
+    aspect = (GLfloat) viewWidth / (GLfloat) viewHeight;
 
-    ESMatrix modelMatrix;
+    // Generate a perspective matrix with a 60 degree FOV
+    esMatrixLoadIdentity(&perspective);
+    esPerspective(&perspective, 60.0f, aspect, 1.0f, 20.0f);
 
-    GLfloat aspect = (GLfloat) viewWidth / (GLfloat) viewHeight;
+    glBindBuffer(GL_ARRAY_BUFFER, mvpVBO);
+    matrixBuf = (ESMatrix *) glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(ESMatrix) * NUM_INSTANCES_CB,
+                                              GL_MAP_WRITE_BIT);
 
-    esMatrixLoadIdentity(&perspectMatrix);
+    // Compute a per-instance MVP that translates and rotates each instance differnetly
+    float curTime = getCurrentTime();
+    float deltaTime = (curTime - lastTime);
+    lastTime = curTime;
+    ALOGI("deltaTime:%f", deltaTime);
+    ESMatrix modelview;
+    esMatrixLoadIdentity(&modelview);
+    // Per-instance translation
+    esTranslate(&modelview,  0.0, 0.0, -2.0f);
 
-    esPerspective(&perspectMatrix, 60.0f, aspect, 1.0f, 20.0f);
+    esRotate(&modelview, angle[0], 1.0, 0.0, 1.0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, matrixBuffer);
-
-    ESMatrix *matrix = static_cast<ESMatrix *>(glMapBufferRange(GL_ARRAY_BUFFER, 0,
-                                                                sizeof(ESMatrix),
-                                                                GL_MAP_WRITE_BIT));
-
-    esMatrixLoadIdentity(&modelMatrix);
-
-    esTranslate(&modelMatrix, 0.0f, 0.0f, -0.2f);
-
-    esRotate(&modelMatrix, 60.0f, 1.0f, 0.0f, 1.0f);
-
-    esMatrixMultiply(&matrix[0], &modelMatrix, &perspectMatrix);
+    // Compute the final MVP by multiplying the
+    // modevleiw and perspective matrices together
+    esMatrixMultiply(&matrixBuf[0], &modelview, &perspective);
 
     glUnmapBuffer(GL_ARRAY_BUFFER);
-    ALOGI("the indecSize1212:%d", indecsSize);
 
 }
 
 CubeDrawer::~CubeDrawer() {
 
-    glDeleteBuffers(1, &matrixBuffer);
-
-    glDeleteBuffers(1, &indicsBuffer);
-
-    glDeleteBuffers(1, &colorBuffer);
-
-    glDeleteBuffers(1, &postionBuffer);
-
     glDeleteProgram(mProgramObject);
-
-
 }
 
 

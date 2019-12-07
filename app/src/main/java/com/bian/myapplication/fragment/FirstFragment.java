@@ -1,5 +1,6 @@
 package com.bian.myapplication.fragment;
 
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,8 @@ import com.bian.myapplication.R;
 import com.bian.myapplication.view.PictureGLSurfaceView;
 public class FirstFragment extends Fragment {
     private PictureGLSurfaceView pictureGLSurfaceView;
+
+    private GLSurfaceView glSurfaceView;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
