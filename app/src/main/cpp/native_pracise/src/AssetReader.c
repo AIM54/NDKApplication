@@ -44,3 +44,5 @@ GLuint loadShader(GLenum type, const char *shaderSrc){
     }
     return shader;
 }
+
+

@@ -26,9 +26,10 @@ private:
     // Rotation angle
     GLfloat angle[NUM_INSTANCES];
 
-    void update();
+    float lastTime;
 
-    void draw();
+
+    void update();
 
 public:
     InstancingDrawer(JNIEnv *jniEnv, const _jobject *surface, const _jobject *pJobject);

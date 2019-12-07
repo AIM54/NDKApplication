@@ -3,11 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.CubeFragment">
-
-    <com.bian.myapplication.view.MySurfaceView
+    tools:context=".fragment.BasicParticleFragment">
+    <SurfaceView
         android:id="@+id/sfv_main"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
 </FrameLayout>

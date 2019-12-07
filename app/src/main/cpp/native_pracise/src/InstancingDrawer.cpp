@@ -3,8 +3,13 @@
 //
 
 #include <math.h>
+#include <time.h>
 #include "InstancingDrawer.h"
 #include "esUtil.h"
+
+extern "C" {
+#include "TimeUtil.h"
+}
 
 InstancingDrawer::InstancingDrawer(JNIEnv *jniEnv, const _jobject *surface,
                                    const _jobject *pJobject) : BaseOpenGlDrawer(jniEnv,
@@ -21,6 +26,7 @@ int InstancingDrawer::init() {
     if (!mProgramObject) {
         return -1;
     }
+    lastTime = getCurrentTime();
     GLfloat *positions;
     GLuint *indices;
     // Generate the vertex data
@@ -137,7 +143,9 @@ void InstancingDrawer::step() {
     eglSwapBuffers(disPlay, eglWindow);
 }
 
+
 void InstancingDrawer::update() {
+
     ESMatrix *matrixBuf;
     ESMatrix perspective;
     float aspect;
@@ -160,7 +168,10 @@ void InstancingDrawer::update() {
     // Compute a per-instance MVP that translates and rotates each instance differnetly
     numRows = (int) sqrtf(NUM_INSTANCES);
     numColumns = numRows;
-
+    float curTime = getCurrentTime();
+    float deltaTime = (curTime - lastTime);
+    lastTime = curTime;
+    ALOGI("deltaTime:%f", deltaTime);
     for (instance = 0; instance < NUM_INSTANCES; instance++) {
         ESMatrix modelview;
         float translateX = ((float) (instance % numRows) / (float) numRows) * 2.0f - 1.0f;
@@ -173,7 +184,7 @@ void InstancingDrawer::update() {
         esTranslate(&modelview, translateX, translateY, -2.0f);
 
         // Compute a rotation angle based on time to rotate the cube
-//        angle[instance] += ( deltaTime * 40.0f );
+        angle[instance] += (deltaTime * 40.0f);
 
         if (angle[instance] >= 360.0f) {
             angle[instance] -= 360.0f;
@@ -191,5 +202,11 @@ void InstancingDrawer::update() {
 }
 
 InstancingDrawer::~InstancingDrawer() {
+
+
+    glDeleteBuffers(1, &positionVBO);
+    glDeleteBuffers(1, &colorVBO);
+    glDeleteBuffers(1, &mvpVBO);
+    glDeleteBuffers(1, &indicesIBO);
 
 }

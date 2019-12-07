@@ -27,6 +27,7 @@ include_directories(head)
 add_library(NdkTest
         SHARED
         ${GL3STUB_SRC}
+        src/common/TimeUtil.c
         src/common/esUtil.c
         src/common/esShader.c
         src/common/esTransform.c

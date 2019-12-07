@@ -15,6 +15,15 @@
         android:text="@string/select_picture"
         android:textColor="@color/bt_color"
         android:textSize="20sp" />
+    <Button
+        android:id="@+id/test_thread"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:background="@drawable/bg_main_bt"
+        android:text="@string/select_picture"
+        android:textColor="@color/bt_color"
+        android:textSize="20sp" />
 
     <SurfaceView
         android:id="@+id/sfv_main"

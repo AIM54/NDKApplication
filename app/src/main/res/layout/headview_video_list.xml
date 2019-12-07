@@ -17,4 +17,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/test_draw" />
+
+    <Button
+        android:id="@+id/bt_test_handler_thread"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/test_hand_thread" />
 </LinearLayout>

@@ -3,7 +3,10 @@ package com.bian.myapplication.activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.text.TextUtils;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -19,9 +22,11 @@ import com.bian.myapplication.utils.SurfaceDrawer;
 
 public class ImageActivity extends AppCompatActivity implements SurfaceHolder.Callback {
     SurfaceView surfaceView;
+    private GLSurfaceView glSurfaceView;
     public static final int REQUEST_CODE = 110;
     private String mPicturePath;
     private SurfaceDrawer surfaceDrawer;
+    private HandlerThread handlerThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +64,6 @@ public class ImageActivity extends AppCompatActivity implements SurfaceHolder.Ca
                 Bitmap trueBitmap = BitmapFactory.decodeFile(mPicturePath);
                 surfaceDrawer = new SurfaceDrawer(holder.getSurface(), getAssets(), 1, trueBitmap);
             }
-
         }
     }
 

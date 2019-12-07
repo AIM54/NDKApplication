@@ -6,6 +6,8 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,22 +18,6 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
-import com.bian.myapplication.activity.ImageActivity;
-import com.bian.myapplication.activity.OpenGlActivity;
-import com.bian.myapplication.activity.PlayAudioVideoActivity;
-import com.bian.myapplication.activity.SurfaceViewActivity;
-import com.bian.myapplication.dialog.SelectOptionDialog;
-import com.bian.myapplication.image.ImageListActivity;
-import com.bian.myapplication.utils.AppConstant;
-import com.bian.myapplication.utils.CommonLog;
-import com.bian.myapplication.utils.NativePracise;
-import com.bian.myapplication.utils.VideoUtil;
-import com.bian.myapplication.activity.NewVideoPlayActivity;
-import com.bian.myapplication.activity.PlayAudioActivity;
-import com.bian.myapplication.activity.VideoPlayActivity;
-
-import java.io.File;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,6 +27,19 @@ import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 
+import com.bian.myapplication.activity.ImageActivity;
+import com.bian.myapplication.activity.NewVideoPlayActivity;
+import com.bian.myapplication.activity.OpenGlActivity;
+import com.bian.myapplication.activity.PlayAudioActivity;
+import com.bian.myapplication.activity.SurfaceViewActivity;
+import com.bian.myapplication.activity.VideoPlayActivity;
+import com.bian.myapplication.dialog.SelectOptionDialog;
+import com.bian.myapplication.utils.AppConstant;
+import com.bian.myapplication.utils.CommonLog;
+import com.bian.myapplication.utils.VideoUtil;
+
+import java.io.File;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, LoaderManager.LoaderCallbacks<Cursor>, AdapterView.OnItemClickListener {
     private ListView mListView;
     private Button toastButton, encodePictureBt;
@@ -49,7 +48,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             MediaStore.Video.Media._ID,
             MediaStore.Video.Media.DISPLAY_NAME,
             MediaStore.Video.Media.DATA};
-
     private SelectOptionDialog selectOptionDialog;
     private String mFilePath;
     private String saveVideodir;
@@ -57,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button testGLBt;
 
     private Button surfaceBt;
+    private HandlerThread handlerThread;
 
 
     @Override
@@ -65,6 +64,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         initView();
         initData();
+        initHandlerThread();
+    }
+
+    private void initHandlerThread() {
+
     }
 
     private void initData() {
@@ -87,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         View headView = LayoutInflater.from(this).inflate(R.layout.headview_video_list, null);
         testGLBt = headView.findViewById(R.id.test_gl_button);
         surfaceBt = headView.findViewById(R.id.bt_surface);
+        headView.findViewById(R.id.bt_test_handler_thread).setOnClickListener(this);
         surfaceBt.setOnClickListener(this);
         mListView.addHeaderView(headView);
         toastButton = findViewById(R.id.bt_toast);
@@ -120,6 +125,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.bt_surface:
                 startActivity(new Intent(this, SurfaceViewActivity.class));
+                break;
+
+            case R.id.bt_test_handler_thread:
+
                 break;
 
         }
@@ -178,10 +187,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case 6:
                     gotoAudioPlayActivity();
-                case 7:
-                    Intent audioPlayIt = new Intent(MainActivity.this, PlayAudioVideoActivity.class);
-                    audioPlayIt.putExtra(AppConstant.ARG_VIDEO_PATH, mFilePath);
-                    startActivity(audioPlayIt);
                     break;
             }
         }

@@ -38,8 +38,6 @@ add_library( # Sets the name of the library.
         common/esShader.c
         common/esUtil.c
         test/VideoPlay.c
-        test/VideoCompress.c
-        test/VideoFilter.c
         test/MyVideoPlayer.cpp
         test/RegisterControl.cpp
         test/AudioFrameDataBean.cpp
@@ -47,9 +45,7 @@ add_library( # Sets the name of the library.
         test/VideoList.c
         test/List.c
         test/MutilThreadPlayer.cpp
-        test/NewVideoPlayer.cpp
-        test/OpenGLPlayer.cpp
-        test/TestVideoYUV.c)
+        test/NewVideoPlayer.cpp)
 
 
 # 定义源码所在目录

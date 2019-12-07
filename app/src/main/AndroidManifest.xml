@@ -19,19 +19,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.ImageActivity"></activity>
+        <activity android:name=".activity.ImageActivity" />
 
-        <service
-            android:name=".service.AlarmService"
-            android:enabled="true"
-            android:exported="true" />
+        <service android:name=".service.AlarmService" />
 
         <activity android:name=".activity.SurfaceViewActivity" />
         <activity android:name=".activity.OpenGlActivity" />
-        <activity
-            android:name=".activity.PlayAudioVideoActivity"
-            android:screenOrientation="landscape"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity android:name=".activity.PlayAudioActivity" />
 
         <service

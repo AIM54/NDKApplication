@@ -36,6 +36,7 @@ public class RectFragment extends Fragment implements SurfaceHolder.Callback {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         mainSv = view.findViewById(R.id.sfv_main);
         mainSv.getHolder().addCallback(this);
+
     }
 
     @Override
@@ -43,10 +44,12 @@ public class RectFragment extends Fragment implements SurfaceHolder.Callback {
         if (surfaceDrawer == null) {
             surfaceDrawer = new SurfaceDrawer(holder.getSurface(), getContext().getAssets(),1);
         }
+        CommonLog.i(this.getClass().getSimpleName()+"surfaceCreated");
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        CommonLog.i(this.getClass().getSimpleName()+"surfaceChanged");
         surfaceDrawer.resizeSurfaceView(width, height);
         surfaceDrawer.stepSurfaceView();
     }
