@@ -76,24 +76,9 @@ int CubeDrawer::init() {
     glBufferData(GL_ARRAY_BUFFER, 24 * sizeof(GLfloat) * 3, positions, GL_STATIC_DRAW);
     free(positions);
 
-    // Random color for each instance
-    {
-        GLubyte colors[NUM_INSTANCES_CB][4];
-        int instance;
-
-        srandom(0);
-
-        for (instance = 0; instance < NUM_INSTANCES_CB; instance++) {
-            colors[instance][0] = random() % 255;
-            colors[instance][1] = random() % 255;
-            colors[instance][2] = random() % 255;
-            colors[instance][3] = 0;
-        }
-
-        glGenBuffers(1, &colorVBO);
-        glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
-        glBufferData(GL_ARRAY_BUFFER, NUM_INSTANCES_CB * 4, colors, GL_STATIC_DRAW);
-    }
+    glGenBuffers(1, &colorVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cubeColor), cubeColor, GL_STATIC_DRAW);
 
     // Allocate storage to store MVP per instance
     {
@@ -133,10 +118,9 @@ void CubeDrawer::step() {
 
     // Load the instance color buffer
     glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
-    glVertexAttribPointer(COLOR_LOC, 4, GL_UNSIGNED_BYTE,
-                          GL_TRUE, 4 * sizeof(GLubyte), (const void *) NULL);
+    glVertexAttribPointer(COLOR_LOC, 4, GL_FLOAT,
+                          GL_TRUE, 4 * sizeof(GL_FLOAT), (const void *) NULL);
     glEnableVertexAttribArray(COLOR_LOC);
-    glVertexAttribDivisor(COLOR_LOC, 1); // One color per instance
 
 
     // Load the instance MVP buffer
@@ -197,7 +181,7 @@ void CubeDrawer::update() {
     esMatrixLoadIdentity(&modelview);
     // Per-instance translation
     esTranslate(&modelview,  0.0, 0.0, -2.0f);
-
+    angle[0] += (deltaTime * 40.0f);
     esRotate(&modelview, angle[0], 1.0, 0.0, 1.0);
 
     // Compute the final MVP by multiplying the
