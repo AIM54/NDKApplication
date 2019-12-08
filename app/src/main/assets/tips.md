@@ -31,3 +31,16 @@ double	%f or %lf
 科学技术类型(必须转化为double类型)	%e
 限制输出字段宽度	%x.yf (x:整数长度,y:小数点长度)
 ————————————————
+
+
+int8_t:%c;
+uint8_t:%c;
+
+int16_t: %d;
+uint16_t:%u;
+
+int32_t:%ld;
+uint32_t:%lu;
+
+int64_t：%lld(%l64d);
+uint64_t:%llu(%l64u);

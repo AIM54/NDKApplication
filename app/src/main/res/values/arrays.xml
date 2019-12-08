@@ -14,4 +14,9 @@
         <item>testYuv</item>
         <item>testRGB</item>
     </string-array>
+
+    <string-array name="test_bitmap">
+        <item>加载图片</item>
+        <item>粒子效果</item>
+    </string-array>
 </resources>

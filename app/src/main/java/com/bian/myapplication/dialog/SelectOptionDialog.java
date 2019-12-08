@@ -24,7 +24,6 @@ public class SelectOptionDialog extends Dialog  {
         this(context, R.style.CustomDialog);
         this.onItemClickListener=itemClickListener;
         mListView.setOnItemClickListener(itemClickListener);
-
     }
 
     public SelectOptionDialog(@NonNull Context context, int themeResId) {
@@ -39,4 +38,8 @@ public class SelectOptionDialog extends Dialog  {
         }
     }
 
+    public void setOptionAdapter(ArrayAdapter<String> optionAdapter) {
+        this.optionAdapter = optionAdapter;
+        mListView.setAdapter(optionAdapter);
+    }
 }

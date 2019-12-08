@@ -7,9 +7,14 @@
 
 #include <android/asset_manager.h>
 #include <GLES3/gl3.h>
+#include <malloc.h>
+#include "esUtil.h"
 
 char *readStringFromAssert(AAssetManager *aAssetManager, char *path);
 
+
 GLuint loadShader(GLenum type, const char *shaderSrc);
+
+GLuint loadTexture(AAssetManager *ioContext, char *fileName);
 
 #endif //NDKAPPLICATION_ASSETMANAGER_H

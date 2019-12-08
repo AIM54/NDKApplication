@@ -45,7 +45,7 @@ int BitmapDrawer::init() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, GL_NONE);
     sTexture = glGetUniformLocation(mProgramObject, "s_texture");
-    return 0;
+    return GL_TRUE;
 }
 
 void BitmapDrawer::step() {

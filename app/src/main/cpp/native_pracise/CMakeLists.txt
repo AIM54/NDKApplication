@@ -40,7 +40,9 @@ add_library(NdkTest
         src/OffScreenDrawer.cpp
         src/PointDrawer.cpp
         src/AssetReader.c
+        src/ParticularDrawer.cpp
         src/InstancingDrawer.cpp
+        src/NewParticularDrawer.cpp
         src/BitmapDrawer.cpp
         src/CubeDrawer.cpp
         src/Simple_VertexShader.c

@@ -10,23 +10,25 @@ import android.os.HandlerThread;
 import android.text.TextUtils;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bian.myapplication.R;
+import com.bian.myapplication.dialog.SelectOptionDialog;
+import com.bian.myapplication.fragment.CommonFragment;
 import com.bian.myapplication.image.ImageListActivity;
 import com.bian.myapplication.utils.AppConstant;
 import com.bian.myapplication.utils.CommonLog;
 import com.bian.myapplication.utils.SurfaceDrawer;
 
-public class ImageActivity extends AppCompatActivity implements SurfaceHolder.Callback {
-    SurfaceView surfaceView;
-    private GLSurfaceView glSurfaceView;
+public class ImageActivity extends AppCompatActivity {
     public static final int REQUEST_CODE = 110;
     private String mPicturePath;
-    private SurfaceDrawer surfaceDrawer;
-    private HandlerThread handlerThread;
+    private SelectOptionDialog selectOptionDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,8 +38,6 @@ public class ImageActivity extends AppCompatActivity implements SurfaceHolder.Ca
     }
 
     private void initView() {
-        surfaceView = findViewById(R.id.sfv_main);
-        surfaceView.getHolder().addCallback(this);
         findViewById(R.id.bt_select_pic).setOnClickListener(v -> {
             Intent imageIt = new Intent(this, ImageListActivity.class);
             imageIt.setAction(AppConstant.SELECT_PICTURE);
@@ -53,34 +53,26 @@ public class ImageActivity extends AppCompatActivity implements SurfaceHolder.Ca
         }
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
             mPicturePath = data.getStringExtra(AppConstant.ARG_VIDEO_PATH);
+            showSelectDialog();
         }
     }
 
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        CommonLog.i("surfaceCreated");
-        if (!TextUtils.isEmpty(mPicturePath)) {
-            if (surfaceDrawer == null) {
-                Bitmap trueBitmap = BitmapFactory.decodeFile(mPicturePath);
-                surfaceDrawer = new SurfaceDrawer(holder.getSurface(), getAssets(), 1, trueBitmap);
-            }
+    private void showSelectDialog() {
+        if (selectOptionDialog == null) {
+            String[] videoOpertions = getResources().getStringArray(R.array.test_bitmap);
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, videoOpertions);
+            selectOptionDialog = new SelectOptionDialog(this, (parent, view, position, id) -> {
+                selectOptionDialog.dismiss();
+                switchFragment(position);
+            });
+            selectOptionDialog.setOptionAdapter(adapter);
         }
+        selectOptionDialog.show();
     }
 
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        if (surfaceDrawer != null) {
-            surfaceDrawer.resizeSurfaceView(width, height);
-        }
-        surfaceDrawer.stepSurfaceView();
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        CommonLog.i("surfaceDestroyed");
-        if (surfaceDrawer != null) {
-            surfaceDrawer.destroyView();
-            surfaceDrawer = null;
-        }
+    private void switchFragment(int position) {
+        CommonFragment commonFragment = CommonFragment.newInstance(position, mPicturePath);
+        getSupportFragmentManager().beginTransaction().add(R.id.fl_container, commonFragment, commonFragment.getClass().getSimpleName())
+                .commit();
     }
 }

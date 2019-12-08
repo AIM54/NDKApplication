@@ -22,6 +22,7 @@
 #include "esUtil.h"
 #include "InstancingDrawer.h"
 #include "NewCuberDrawer.h"
+#include "ParticularDrawer.h"
 
 ESContext *esContext = nullptr;
 extern "C" {
@@ -162,7 +163,17 @@ initBitmapSurface(JNIEnv *env, jobject jobj, jobject surface, jobject assertMana
     if (baseOpenGlDrawer) {
         destroyDrawer();
     }
-    baseOpenGlDrawer = new BitmapDrawer(env, surface, assertManager, bitmap);
+    switch (type) {
+        case 0:
+            baseOpenGlDrawer = new BitmapDrawer(env, surface, assertManager, bitmap);
+            break;
+        case 1:
+            baseOpenGlDrawer = new ParticularDrawer(env, surface, assertManager, bitmap);
+            break;
+        default:
+            baseOpenGlDrawer = new BitmapDrawer(env, surface, assertManager, bitmap);
+            break;
+    }
     baseOpenGlDrawer->init();
 }
 

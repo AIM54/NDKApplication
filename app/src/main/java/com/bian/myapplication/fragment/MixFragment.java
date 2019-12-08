@@ -13,11 +13,7 @@ import com.bian.myapplication.R;
  * A simple {@link Fragment} subclass.
  */
 public class MixFragment extends Fragment {
-
-
-    public MixFragment() {
-        // Required empty public constructor
-    }
+    public static final String ARG_PARAM1="";
 
 
     @Override

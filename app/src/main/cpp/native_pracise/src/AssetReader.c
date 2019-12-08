@@ -20,7 +20,7 @@ char *readStringFromAssert(AAssetManager *aAssetManager, char *path) {
     return buffer;
 }
 
-GLuint loadShader(GLenum type, const char *shaderSrc){
+GLuint loadShader(GLenum type, const char *shaderSrc) {
     GLuint shader;
     GLint compiled;
     shader = glCreateShader(type);
@@ -37,6 +37,7 @@ GLuint loadShader(GLenum type, const char *shaderSrc){
         if (inforLen > 0) {
             char *inforLog = malloc(inforLen * sizeof(char));
             glGetShaderInfoLog(shader, inforLen, NULL, inforLog);
+            ALOGI("failed infor:%s", inforLog);
             free(inforLog);
         }
         glDeleteShader(shader);
@@ -44,5 +45,30 @@ GLuint loadShader(GLenum type, const char *shaderSrc){
     }
     return shader;
 }
+
+GLuint loadTexture(AAssetManager *ioContext, char *fileName) {
+    int width,
+            height;
+    char *buffer = esLoadTGA(ioContext, fileName, &width, &height);
+    GLuint texId;
+
+    if (buffer == NULL) {
+        ALOGI("Error loading (%s) image.\n", fileName);
+        return 0;
+    }
+    ALOGI("the image widht:%d,height:%d",width,height);
+
+    glGenTextures(1, &texId);
+    glBindTexture(GL_TEXTURE_2D, texId);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    free(buffer);
+    return texId;
+}
+
 
 

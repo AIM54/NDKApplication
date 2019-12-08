@@ -9,8 +9,8 @@
         android:title="四边形" />
 
     <item
-        android:id="@+id/line_test"
-        android:title="线条" />
+        android:id="@+id/boom_test"
+        android:title="粒子爆炸效果" />
     <item
         android:id="@+id/point_test"
         android:title="圆点测试" />
