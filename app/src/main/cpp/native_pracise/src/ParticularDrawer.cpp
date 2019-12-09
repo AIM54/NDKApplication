@@ -9,7 +9,6 @@ extern "C" {
 #include "TimeUtil.h"
 #include "AssetReader.h"
 }
-
 ParticularDrawer::ParticularDrawer(JNIEnv *jniEnv, const _jobject *surface,
                                    const _jobject *pJobject, jobject bitmap) : BaseOpenGlDrawer(
         jniEnv, const_cast<jobject>(surface), const_cast<jobject>(pJobject)) {
@@ -31,6 +30,7 @@ int ParticularDrawer::init() {
         ALOGI("call super method failed");
         return -1;
     }
+
     initProgram("first_particular_v.glsl", "first_particular_fragment.glsl");
     if (!mProgramObject) {
         return -1;
@@ -76,7 +76,7 @@ int ParticularDrawer::init() {
     }
     renderTime = 1.0f;
     lastTime = getCurrentTime();
-    glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     return GL_TRUE;
 }
 
@@ -89,12 +89,11 @@ void ParticularDrawer::update() {
         float centerPos[3];
         float color[4];
 
-        renderTime = 0.0f;
 
         // Pick a new start location and color
-        centerPos[0] = ( ( float ) ( rand() % 10000 ) / 10000.0f ) - 0.5f;
-        centerPos[1] = ( ( float ) ( rand() % 10000 ) / 10000.0f ) - 0.5f;
-        centerPos[2] = ( ( float ) ( rand() % 10000 ) / 10000.0f ) - 0.5f;
+        centerPos[0] = 0.0f;
+        centerPos[1] =  0.0f;
+        centerPos[2] = 0.0f;
 
         glUniform3fv ( centerPostionLoc, 1, &centerPos[0] );
 
@@ -105,8 +104,9 @@ void ParticularDrawer::update() {
         color[3] = 0.5;
 
         glUniform4fv ( colorLoc, 1, &color[0] );
+        glUniform1i(timeLoc, renderTime);
+
     }
-    glUniform1i(timeLoc, renderTime);
 }
 
 void ParticularDrawer::step() {
@@ -114,6 +114,7 @@ void ParticularDrawer::step() {
         return;
     }
     update();
+
     glViewport(0, 0, viewWidth, viewHeight);
     glEnable(GL_BLEND);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -138,6 +139,7 @@ void ParticularDrawer::step() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, smokeTexture);
     glUniform1i(sTextureLoc, 0);
+
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES);
     eglSwapBuffers(disPlay, eglWindow);
 }

@@ -1,6 +1,7 @@
 package com.bian.myapplication.fragment;
 
 
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Surface;
@@ -19,8 +20,30 @@ import com.bian.myapplication.view.MySurfaceView;
  *
  */
 public class CubeOneFragment extends Fragment{
+    private static final String ARG_PARAM1 = "param1";
+
+
+
+
     private MySurfaceView mainSv;
     private SurfaceDrawer surfaceDrawer;
+    private int mParam1;
+
+    public static CubeOneFragment newInstance(int param1) {
+        CubeOneFragment fragment = new CubeOneFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_PARAM1, param1);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mParam1 = getArguments().getInt(ARG_PARAM1);
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -36,7 +59,7 @@ public class CubeOneFragment extends Fragment{
             @Override
             public void init(Surface surface) {
                 if (surfaceDrawer == null) {
-                    surfaceDrawer = new SurfaceDrawer(surface, getContext().getAssets(), 4);
+                    surfaceDrawer = new SurfaceDrawer(surface, getContext().getAssets(), mParam1);
                 }
             }
 

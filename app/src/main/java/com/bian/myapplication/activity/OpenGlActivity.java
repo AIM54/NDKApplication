@@ -51,7 +51,10 @@ public class OpenGlActivity extends AppCompatActivity {
                 commitFragment(new CubeFragment());
                 break;
             case R.id.simple_test:
-                commitFragment(new CubeOneFragment());
+                commitFragment(CubeOneFragment.newInstance(4));
+                break;
+            case R.id.boom_test:
+                commitFragment(CubeOneFragment.newInstance(5));
                 break;
         }
         return true;

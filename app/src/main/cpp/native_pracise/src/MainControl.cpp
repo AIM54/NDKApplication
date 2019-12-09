@@ -23,6 +23,7 @@
 #include "InstancingDrawer.h"
 #include "NewCuberDrawer.h"
 #include "ParticularDrawer.h"
+#include "NewParticularDrawer.h"
 
 ESContext *esContext = nullptr;
 extern "C" {
@@ -138,6 +139,9 @@ initSurfaceGLByType(JNIEnv *env, jobject jobj, jobject surface, jobject assertMa
         case 4:
             baseOpenGlDrawer = new CubeDrawer(env, surface, assertManager);
             break;
+        case 5:
+            baseOpenGlDrawer = new NewParticularDrawer(env, surface, assertManager);
+            break;
         default:
             ALOGI("init SecondViewDrawer:%d", type);
             baseOpenGlDrawer = new SecondViewDrawer(env, surface, assertManager);
@@ -170,6 +174,8 @@ initBitmapSurface(JNIEnv *env, jobject jobj, jobject surface, jobject assertMana
         case 1:
             baseOpenGlDrawer = new ParticularDrawer(env, surface, assertManager, bitmap);
             break;
+        case 2:
+
         default:
             baseOpenGlDrawer = new BitmapDrawer(env, surface, assertManager, bitmap);
             break;
