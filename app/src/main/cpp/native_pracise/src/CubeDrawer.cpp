@@ -13,10 +13,10 @@ extern "C" {
 }
 GLfloat cubeColor[] =
         {
-                1.0f, 1.0f, 0.0f, 0.0f,
-                1.0f, 0.0f, 1.0f, 0.0f,
-                1.0f, 0.0f, 1.0f, 0.0f,
-                1.0f, 1.0f, 0.0f, 0.0f,
+                1.0f, 0.0f, 0.0f, 0.0f,
+                1.0f, 0.0f, 0.0f, 0.0f,
+                1.0f, 0.0f, 0.0f, 0.0f,
+                1.0f, 0.0f, 0.0f, 0.0f,
 
                 0.0f, 0.0f, 1.0f, 0.0f,
                 0.0f, 0.0f, 1.0f, 0.0f,
@@ -169,7 +169,8 @@ void CubeDrawer::update() {
     esPerspective(&perspective, 60.0f, aspect, 1.0f, 20.0f);
 
     glBindBuffer(GL_ARRAY_BUFFER, mvpVBO);
-    matrixBuf = (ESMatrix *) glMapBufferRange(GL_ARRAY_BUFFER, 0, sizeof(ESMatrix) * NUM_INSTANCES_CB,
+    matrixBuf = (ESMatrix *) glMapBufferRange(GL_ARRAY_BUFFER, 0,
+                                              sizeof(ESMatrix) * NUM_INSTANCES_CB,
                                               GL_MAP_WRITE_BIT);
 
     // Compute a per-instance MVP that translates and rotates each instance differnetly
@@ -180,14 +181,14 @@ void CubeDrawer::update() {
     ESMatrix modelview;
     esMatrixLoadIdentity(&modelview);
     // Per-instance translation
-    esTranslate(&modelview,  0.0, 0.0, -2.0f);
+    esTranslate(&modelview, 0.0, 0.0, -2.0f);
     angle[0] += (deltaTime * 40.0f);
     esRotate(&modelview, angle[0], 1.0, 0.0, 1.0);
 
     // Compute the final MVP by multiplying the
     // modevleiw and perspective matrices together
     esMatrixMultiply(&matrixBuf[0], &modelview, &perspective);
-
+    glEnable(GL_DEPTH_TEST);
     glUnmapBuffer(GL_ARRAY_BUFFER);
 
 }
