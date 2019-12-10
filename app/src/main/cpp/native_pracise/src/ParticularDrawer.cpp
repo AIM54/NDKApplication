@@ -62,20 +62,21 @@ void ParticularDrawer::update() {
     float deltaTime = (curTime - lastTime);
     lastTime = curTime;
     this->renderTime += deltaTime;
-    glUseProgram(mProgramObject);
+    glUseProgram(this->mProgramObject);
 
-    if (renderTime >= 1.0f) {
+    if (this->renderTime >= 1.0f) {
         float centerPos[3];
         float color[4];
 
         this->renderTime = 0.0f;
 
         // Pick a new start location and color
-        centerPos[0] = 0.0f;
-        centerPos[1] = 0.0f;
-        centerPos[2] = 0.0f;
+        centerPos[0] = ((float) (rand() % 10000) / 10000.0f) - 0.5f;
+        centerPos[1] = ((float) (rand() % 10000) / 10000.0f) - 0.5f;
+        centerPos[2] = ((float) (rand() % 10000) / 10000.0f) - 0.5f;
 
-        glUniform3fv(centerPostionLoc, 1, &centerPos[0]);
+
+        glUniform3fv(this->centerPostionLoc, 1, &centerPos[0]);
 
         // Random color
         color[0] = ((float) (rand() % 10000) / 20000.0f) + 0.5f;
@@ -83,10 +84,10 @@ void ParticularDrawer::update() {
         color[2] = ((float) (rand() % 10000) / 20000.0f) + 0.5f;
         color[3] = 0.5;
 
-        glUniform4fv(colorLoc, 1, &color[0]);
+        glUniform4fv(this->colorLoc, 1, &color[0]);
     }
-
-    glUniform1i(this->timeLoc, this->renderTime);
+     //这里的含义要改变的属性是float 类型的
+    glUniform1f(this->timeLoc, this->renderTime);
 }
 
 void ParticularDrawer::step() {
@@ -114,7 +115,8 @@ void ParticularDrawer::step() {
     glEnableVertexAttribArray(ATTRIBUTE_STARTPOSITION_LOCATION);
 
     glEnable(GL_BLEND);
-    glBlendFunc(GL_ALPHA, GL_ONE);
+    //这里代码的含义是改变点精灵的透明度
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, smokeTexture);
