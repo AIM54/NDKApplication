@@ -7,72 +7,7 @@
 
 extern "C" {
 #include "TimeUtil.h"
-}
-
-char vShaderStr[] =
-        "#version 300 es                                      \n"
-        "uniform float u_time;                                \n"
-        "uniform vec3 u_centerPosition;                       \n"
-        "layout(location = 0) in float a_lifetime;            \n"
-        "layout(location = 1) in vec3 a_startPosition;        \n"
-        "layout(location = 2) in vec3 a_endPosition;          \n"
-        "out float v_lifetime;                                \n"
-        "void main()                                          \n"
-        "{                                                    \n"
-        "  if ( u_time <= a_lifetime )                        \n"
-        "  {                                                  \n"
-        "    gl_Position.xyz = a_startPosition +              \n"
-        "                      (u_time * a_endPosition);      \n"
-        "    gl_Position.xyz += u_centerPosition;             \n"
-        "    gl_Position.w = 1.0;                             \n"
-        "  }                                                  \n"
-        "  else                                               \n"
-        "  {                                                  \n"
-        "     gl_Position = vec4( -1000, -1000, 0, 0 );       \n"
-        "  }                                                  \n"
-        "  v_lifetime = 1.0 - ( u_time / a_lifetime );        \n"
-        "  v_lifetime = clamp ( v_lifetime, 0.0, 1.0 );       \n"
-        "  gl_PointSize = ( v_lifetime * v_lifetime ) * 40.0; \n"
-        "}";
-
-char fShaderStr[] =
-        "#version 300 es                                      \n"
-        "precision mediump float;                             \n"
-        "uniform vec4 u_color;                                \n"
-        "in float v_lifetime;                                 \n"
-        "layout(location = 0) out vec4 fragColor;             \n"
-        "uniform sampler2D s_texture;                         \n"
-        "void main()                                          \n"
-        "{                                                    \n"
-        "  vec4 texColor;                                     \n"
-        "  texColor = texture( s_texture, gl_PointCoord );    \n"
-        "  fragColor = vec4( u_color ) * texColor;            \n"
-        "  fragColor.a *= v_lifetime;                         \n"
-        "}                                                    \n";
-
-
-GLuint LoadTexture(void *ioContext, char *fileName) {
-    int width, height;
-    char *buffer = esLoadTGA(ioContext, fileName, &width, &height);
-    GLuint texId;
-
-    if (buffer == NULL) {
-        esLogMessage("Error loading (%s) image.\n", fileName);
-        return 0;
-    }
-
-    glGenTextures(1, &texId);
-    glBindTexture(GL_TEXTURE_2D, texId);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, buffer);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    free(buffer);
-
-    return texId;
+#include "AssetReader.h"
 }
 
 
@@ -88,13 +23,13 @@ int NewParticularDrawer::init() {
         ALOGI("call super method failed");
         return -1;
     }
-    mProgramObject = esLoadProgram(vShaderStr, fShaderStr);
+    initProgram("first_particular_v.glsl", "first_particular_fragment.glsl");
     if (!mProgramObject) {
         return -1;
     }
     timeLoc = glGetUniformLocation(mProgramObject, "u_time");
     centerPositionLoc = glGetUniformLocation(mProgramObject, "u_centerPosition");
-    colorLoc = glGetUniformLocation(mProgramObject, "u_color");
+    colorLoc = glGetUniformLocation(mProgramObject, "u_Color");
     samplerLoc = glGetUniformLocation(mProgramObject, "s_texture");
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -118,12 +53,12 @@ int NewParticularDrawer::init() {
     }
     time = 1.0f;
 
-    textureId = LoadTexture(assetManager, "smoke.tga");
+    textureId = loadTexture(assetManager, "smoke.tga");
 
     if (textureId <= 0) {
         return FALSE;
     }
-
+    ALOGI("init");
     return TRUE;
 }
 
@@ -202,7 +137,7 @@ void NewParticularDrawer::step() {
     glUniform1i(this->samplerLoc, 0);
 
     glDrawArrays(GL_POINTS, 0, NUM_PARTICLES);
-    eglSwapBuffers(disPlay,eglWindow);
+    eglSwapBuffers(disPlay, eglWindow);
 
 }
 

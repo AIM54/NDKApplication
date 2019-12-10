@@ -45,6 +45,7 @@ add_library(NdkTest
         src/NewParticularDrawer.cpp
         src/BitmapDrawer.cpp
         src/CubeDrawer.cpp
+        src/LightCubeDrawer.cpp
         src/Simple_VertexShader.c
         src/NewCuberDrawer.cpp)
 

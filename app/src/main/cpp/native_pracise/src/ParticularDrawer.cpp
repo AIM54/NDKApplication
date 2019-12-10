@@ -57,7 +57,7 @@ int ParticularDrawer::init() {
     }
     srand(0);
     for (int index = 0; index < NUM_PARTICLES; ++index) {
-        float *particle = &particleData[index * PARTICLE_SIZE];
+        float *particle = &this->particleData[index * PARTICLE_SIZE];
         // 设置粒子的生存时间 一秒以内
         ( *particle++ ) = ( ( float ) ( rand() % 10000 ) / 10000.0f );
         //设置粒子爆炸后的终点位置  xyz坐标的取值范围都在（-1，1）之间
@@ -104,9 +104,9 @@ void ParticularDrawer::update() {
         color[3] = 0.5;
 
         glUniform4fv ( colorLoc, 1, &color[0] );
-        glUniform1i(timeLoc, renderTime);
-
     }
+
+    glUniform1i(this->timeLoc, this->renderTime);
 }
 
 void ParticularDrawer::step() {
