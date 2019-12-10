@@ -23,6 +23,7 @@ int NewParticularDrawer::init() {
         ALOGI("call super method failed");
         return -1;
     }
+
     initProgram("first_particular_v.glsl", "first_particular_fragment.glsl");
     if (!mProgramObject) {
         return -1;
@@ -32,7 +33,6 @@ int NewParticularDrawer::init() {
     colorLoc = glGetUniformLocation(mProgramObject, "u_Color");
     samplerLoc = glGetUniformLocation(mProgramObject, "s_texture");
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-
     srand(0);
     int i;
     for (i = 0; i < NUM_PARTICLES; i++) {
@@ -97,15 +97,15 @@ void NewParticularDrawer::update() {
 }
 
 void NewParticularDrawer::step() {
+    if (!mProgramObject) {
+        return;
+    }
     update();
     // Set the viewport
     glViewport(0, 0, viewWidth, viewHeight);
 
     // Clear the color buffer
     glClear(GL_COLOR_BUFFER_BIT);
-
-    // Use the program object
-    glUseProgram(mProgramObject);
 
     // Load the vertex attributes
     glVertexAttribPointer(ATTRIBUTE_LIFETIME_LOCATION, 1, GL_FLOAT,

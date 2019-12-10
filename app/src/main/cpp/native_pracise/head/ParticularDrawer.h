@@ -6,8 +6,6 @@
 #define NDKAPPLICATION_PARTICULARDRAWER_H
 
 #include "BaseOpenGlDrawer.h"
-#include "BitmapDrawer.h"
-
 #define NUM_PARTICLES   1000
 #define PARTICLE_SIZE   7
 
@@ -22,13 +20,10 @@ private:
     GLint centerPostionLoc;
     GLint colorLoc;
     GLint sTextureLoc;
-    GLuint smokeTexture;
-    float lastTime;
-    float renderTime;
     float particleData[NUM_PARTICLES * PARTICLE_SIZE];
-protected:
-    uint8_t *pixelColor;
-    uint8_t *pixel_source;
+    float lastTime;
+    GLuint smokeTexture;
+    float renderTime;
 
     void update();
 
