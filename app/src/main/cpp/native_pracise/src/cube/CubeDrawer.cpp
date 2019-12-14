@@ -67,7 +67,7 @@ int CubeDrawer::init() {
     glGenBuffers(1, &indicesIBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesIBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * numIndices, indices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_NONE);
     free(indices);
 
     // Position VBO for cube model
@@ -80,20 +80,10 @@ int CubeDrawer::init() {
     glBindBuffer(GL_ARRAY_BUFFER, colorVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cubeColor), cubeColor, GL_STATIC_DRAW);
 
-    // Allocate storage to store MVP per instance
-    {
-        int instance;
-
-        // Random angle for each instance, compute the MVP later
-        for (instance = 0; instance < NUM_INSTANCES_CB; instance++) {
-            angle[instance] = (float) (random() % 32768) / 32767.0f * 360.0f;
-        }
-
-        glGenBuffers(1, &mvpVBO);
-        glBindBuffer(GL_ARRAY_BUFFER, mvpVBO);
-        glBufferData(GL_ARRAY_BUFFER, NUM_INSTANCES_CB * sizeof(ESMatrix), NULL, GL_DYNAMIC_DRAW);
-    }
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glGenBuffers(1, &mvpVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, mvpVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(ESMatrix), NULL, GL_DYNAMIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
 
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     ALOGI("InstancingDrawer init()");
@@ -101,6 +91,8 @@ int CubeDrawer::init() {
 }
 
 void CubeDrawer::step() {
+    // Draw the cubes
+    update();
     // Set the viewport
     glViewport(0, 0, viewWidth, viewHeight);
 
@@ -148,11 +140,8 @@ void CubeDrawer::step() {
 
     // Bind the index buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indicesIBO);
-    // Draw the cubes
-    update();
 
-    glDrawElementsInstanced(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, (const void *) NULL,
-                            NUM_INSTANCES_CB);
+    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, (const void *) NULL);
 
     eglSwapBuffers(disPlay, eglWindow);
 }
@@ -170,7 +159,7 @@ void CubeDrawer::update() {
 
     glBindBuffer(GL_ARRAY_BUFFER, mvpVBO);
     matrixBuf = (ESMatrix *) glMapBufferRange(GL_ARRAY_BUFFER, 0,
-                                              sizeof(ESMatrix) * NUM_INSTANCES_CB,
+                                              sizeof(ESMatrix) ,
                                               GL_MAP_WRITE_BIT);
 
     // Compute a per-instance MVP that translates and rotates each instance differnetly
@@ -182,8 +171,8 @@ void CubeDrawer::update() {
     esMatrixLoadIdentity(&modelview);
     // Per-instance translation
     esTranslate(&modelview, 0.0, 0.0, -2.0f);
-    angle[0] += (deltaTime * 40.0f);
-    esRotate(&modelview, angle[0], 1.0, 0.0, 1.0);
+    angle += (deltaTime * 40.0f);
+    esRotate(&modelview, angle, 1.0, 0.0, 1.0);
 
     // Compute the final MVP by multiplying the
     // modevleiw and perspective matrices together

@@ -38,6 +38,7 @@ public:
     virtual int init();
 
     virtual void resize(int width, int height);
+    
 
     virtual void createProgram(char *vertShader, char *fragmentShader);
 

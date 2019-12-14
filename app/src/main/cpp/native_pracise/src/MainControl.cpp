@@ -12,7 +12,6 @@
 #include "MainControl.h"
 #include "FirstOpenGLDrawer.h"
 #include "AndroidLog.h"
-#include "PointDrawer.h"
 #include "SurfaceViewDrawer.h"
 #include "BaseOpenGlDrawer.h"
 #include "SecondViewDrawer.h"
@@ -24,6 +23,7 @@
 #include "NewCuberDrawer.h"
 #include "ParticularDrawer.h"
 #include "NewParticularDrawer.h"
+#include "CubeBitMapDrawer.h"
 
 ESContext *esContext = nullptr;
 extern "C" {
@@ -129,9 +129,6 @@ initSurfaceGLByType(JNIEnv *env, jobject jobj, jobject surface, jobject assertMa
         case 1:
             baseOpenGlDrawer = new SecondViewDrawer(env, surface, assertManager);
             break;
-        case 2:
-            baseOpenGlDrawer = new PointDrawer(env, surface, assertManager);
-            break;
         case 3:
             ALOGI("init CubeDrawer:%d", type);
             baseOpenGlDrawer = new InstancingDrawer(env, surface, assertManager);
@@ -175,7 +172,8 @@ initBitmapSurface(JNIEnv *env, jobject jobj, jobject surface, jobject assertMana
             baseOpenGlDrawer = new ParticularDrawer(env, surface, assertManager, bitmap);
             break;
         case 2:
-
+            baseOpenGlDrawer = new CubeBitMapDrawer(env, surface, assertManager, bitmap);
+            break;
         default:
             baseOpenGlDrawer = new BitmapDrawer(env, surface, assertManager, bitmap);
             break;

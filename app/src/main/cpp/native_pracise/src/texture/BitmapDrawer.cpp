@@ -72,20 +72,21 @@ void BitmapDrawer::step() {
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, bitmapTexture[0]);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, imageWidth, imageHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, viewWidth, viewWidth, 0, GL_RGBA, GL_UNSIGNED_BYTE,
                  pixelColor);
     glBindTexture(GL_TEXTURE_2D, 0);
 
 
     glUseProgram(mProgramObject);
     glEnableVertexAttribArray(VERTEX_POS_INDX);
-    glVertexAttribPointer(VERTEX_POS_INDX, VERTEX_POS_SIZE, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat),
+    glVertexAttribPointer(VERTEX_POS_INDX, VERTEX_POS_SIZE, GL_FLOAT, GL_FALSE, VERTEX_POS_SIZE * sizeof(GLfloat),
                           rect);
     glEnableVertexAttribArray(TEXT_POS_INDEX);
-    glVertexAttribPointer(TEXT_POS_INDEX, TEXT_POS_SIZE, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat),
+    glVertexAttribPointer(TEXT_POS_INDEX, TEXT_POS_SIZE, GL_FLOAT, GL_FALSE, TEXT_POS_SIZE * sizeof(GLfloat),
                           textRect);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, bitmapTexture[0]);
+
     glUniform1i(sTexture, 0);
     glDrawElements(GL_TRIANGLE_STRIP, 6, GL_UNSIGNED_SHORT, indices);
     glBindTexture(GL_TEXTURE_2D, 0);

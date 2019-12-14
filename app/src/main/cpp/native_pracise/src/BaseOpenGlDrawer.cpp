@@ -95,6 +95,7 @@ void BaseOpenGlDrawer::createProgram(char *veticalShaderString, char *fragmentSh
     glAttachShader(programObject, vertexShader);
     glAttachShader(programObject, fragmentShader);
     glLinkProgram(programObject);
+    ALOGI("glLinkProgram");
     GLint linked;
     glGetProgramiv(programObject, GL_LINK_STATUS, &linked);
     if (!linked) {
@@ -106,6 +107,7 @@ void BaseOpenGlDrawer::createProgram(char *veticalShaderString, char *fragmentSh
             ALOGE("link the opengl failed:%s", logInfor);
             free(logInfor);
         }
+        ALOGI("failed to getProgram");
         glDeleteProgram(programObject);
         delete[]fragmentShaderString;
         delete[]veticalShaderString;

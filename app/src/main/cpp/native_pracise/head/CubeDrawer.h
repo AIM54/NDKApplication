@@ -11,9 +11,6 @@
 #define VERTEX_POS_SIZE            3
 #define VERTEX_COLOR_SIZE          4
 
-#define VERTEX_NUMBER             24
-
-#define NUM_INSTANCES_CB              1
 
 #include "BaseOpenGlDrawer.h"
 
@@ -36,7 +33,7 @@ public:
     GLuint indicesIBO;
     GLuint positionVBO;
     GLuint colorVBO;
-    GLfloat angle[NUM_INSTANCES_CB];
+    GLfloat angle;
 
     GLuint mvpVBO;
 };

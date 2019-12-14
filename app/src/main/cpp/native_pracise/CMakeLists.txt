@@ -37,17 +37,16 @@ add_library(NdkTest
         src/SurfaceViewDrawer.cpp
         src/BaseOpenGlDrawer.cpp
         src/SecondViewDrawer.cpp
-        src/OffScreenDrawer.cpp
-        src/PointDrawer.cpp
         src/AssetReader.c
-        src/ParticularDrawer.cpp
-        src/InstancingDrawer.cpp
+        src/particular/ParticularDrawer.cpp
+        src/cube/InstancingDrawer.cpp
         src/NewParticularDrawer.cpp
-        src/BitmapDrawer.cpp
-        src/CubeDrawer.cpp
-        src/LightCubeDrawer.cpp
-        src/Simple_VertexShader.c
-        src/NewCuberDrawer.cpp)
+        src/texture/BitmapDrawer.cpp
+        src/cube/CubeDrawer.cpp
+        src/particular/JetParticularDrawer.cpp
+        src/texture/CubeBitMapDrawer.cpp
+        src/cube/LightCubeDrawer.cpp
+        src/cube/NewCuberDrawer.cpp)
 
 add_library(jpeg
         SHARED
